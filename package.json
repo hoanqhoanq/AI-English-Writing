@@ -1,0 +1,38 @@
+{
+  "name": "real-estate-backend",
+  "version": "1.0.0",
+  "description": "Real Estate Marketplace Backend",
+  "main": "dist/server.js",
+  "workspaces": [
+    "client"
+  ],
+  "scripts": {
+    "dev": "npm run build:client && ts-node-dev --respawn --transpile-only src/server.ts",
+    "build:client": "npm --prefix client run build",
+    "build": "npm run build:client && tsc",
+    "lint": "tsc --noEmit",
+    "start": "node dist/server.js"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^26.2.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@google/genai": "latest",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.9.2",
+    "morgan": "^1.11.0",
+    "zod": "^3.24.2"
+  }
+}

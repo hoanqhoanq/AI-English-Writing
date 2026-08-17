@@ -1,0 +1,6 @@
+{
+  "name": "AI English Writing Practice",
+  "description": "Nền tảng luyện viết tiếng Anh thông minh với AI, hệ thống quản trị admin toàn diện (quản lý user, khóa/mở khóa, câu hỏi writing, topic, CEFR level, audit lịch sử chấm AI và thống kê hệ thống).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
