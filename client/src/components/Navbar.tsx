@@ -28,7 +28,6 @@ export const Navbar: React.FC = () => {
     { name: 'AI Sinh đề', path: '/generator', icon: Sparkles },
     { name: 'Ngân hàng câu', path: '/questions', icon: BookOpen },
     { name: 'Thống kê & Lỗi', path: '/analytics', icon: BarChart3 },
-    { name: 'Quản trị (Admin)', path: '/admin', icon: Shield },
   ];
 
   const navLinks = baseNavLinks;
@@ -153,14 +152,6 @@ export const Navbar: React.FC = () => {
 
                     <div className="py-1">
                       <Link
-                        to="/admin"
-                        onClick={() => setIsProfileOpen(false)}
-                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold text-purple-700 hover:bg-purple-50"
-                      >
-                        <Shield className="h-4 w-4 text-purple-600" />
-                        Quản trị hệ thống (Admin)
-                      </Link>
-                      <Link
                         to="/profile"
                         onClick={() => setIsProfileOpen(false)}
                         className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100"
@@ -177,19 +168,6 @@ export const Navbar: React.FC = () => {
                         Thống kê học tập
                       </Link>
                     </div>
-
-                    {user.role !== 'admin' && (
-                      <div className="border-t border-slate-100 p-1">
-                        <button
-                          type="button"
-                          onClick={() => handleQuickDemoLogin('admin')}
-                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-purple-700 hover:bg-purple-50"
-                        >
-                          <Shield className="h-4 w-4 text-purple-600" />
-                          Đổi sang quyền Admin
-                        </button>
-                      </div>
-                    )}
 
                     <div className="border-t border-slate-100 pt-1">
                       <button
@@ -218,15 +196,6 @@ export const Navbar: React.FC = () => {
               >
                 <Zap className="h-3.5 w-3.5 text-indigo-600" />
                 Vào nhanh (Demo)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('admin')}
-                className="flex items-center gap-1.5 rounded-lg border border-purple-200 bg-purple-50/70 px-3 py-1.5 text-xs font-semibold text-purple-700 hover:bg-purple-100 transition-colors"
-                title="Đăng nhập tài khoản quản trị viên mẫu"
-              >
-                <Shield className="h-3.5 w-3.5 text-purple-600" />
-                Admin
               </button>
 
               <Link
@@ -311,16 +280,6 @@ export const Navbar: React.FC = () => {
                   className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-50 py-2.5 text-sm font-semibold text-indigo-700"
                 >
                   <Zap className="h-4 w-4" /> Đăng nhập Học viên (Demo)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleQuickDemoLogin('admin');
-                    setIsMenuOpen(false);
-                  }}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-purple-50 py-2.5 text-sm font-semibold text-purple-700"
-                >
-                  <Shield className="h-4 w-4" /> Đăng nhập Quản trị (Admin Demo)
                 </button>
                 <div className="grid grid-cols-2 gap-2 pt-2">
                   <Link

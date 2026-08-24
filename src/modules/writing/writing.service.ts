@@ -107,6 +107,7 @@ export class WritingService {
                     ? data.keywords.split(",").map((s: string) => s.trim()).filter(Boolean)
                     : [],
                 isActive: data.isActive !== undefined ? data.isActive : true,
+                createdBy: data.createdBy,
             });
             return newQ;
         } else {
@@ -129,6 +130,7 @@ export class WritingService {
                     ? data.keywords.split(",").map((s: string) => s.trim()).filter(Boolean)
                     : [],
                 isActive: data.isActive !== undefined ? data.isActive : true,
+                createdBy: data.createdBy,
                 createdAt: new Date(),
                 updatedAt: new Date(),
             };

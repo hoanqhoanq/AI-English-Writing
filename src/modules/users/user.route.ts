@@ -13,11 +13,11 @@ router.put("/profile", authenticate, validate(UpdateProfileSchema), (req, res) =
 );
 
 // Admin management endpoints
-router.get("/all", authenticate, (req, res) => userController.getAllUsers(req, res));
-router.post("/", authenticate, (req, res) => userController.createUser(req, res));
-router.put("/:id/status", authenticate, (req, res) => userController.toggleUserStatus(req, res));
-router.put("/:id", authenticate, (req, res) => userController.updateUser(req, res));
-router.delete("/:id", authenticate, (req, res) => userController.deleteUser(req, res));
+router.get("/all", authenticate, authorize("admin"), (req, res) => userController.getAllUsers(req, res));
+router.post("/", authenticate, authorize("admin"), (req, res) => userController.createUser(req, res));
+router.put("/:id/status", authenticate, authorize("admin"), (req, res) => userController.toggleUserStatus(req, res));
+router.put("/:id", authenticate, authorize("admin"), (req, res) => userController.updateUser(req, res));
+router.delete("/:id", authenticate, authorize("admin"), (req, res) => userController.deleteUser(req, res));
 
 export default router;
 

@@ -34,7 +34,6 @@ import {
   Check,
   X,
   UserPlus,
-  LogIn,
 } from 'lucide-react';
 import {
   BarChart,
@@ -52,7 +51,7 @@ import {
 type AdminTab = 'overview' | 'users' | 'questions' | 'topics' | 'levels' | 'evaluations';
 
 export const AdminDashboard: React.FC = () => {
-  const { user, quickLogin } = useAuth();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const [isLoading, setIsLoading] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -336,35 +335,6 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Admin Notice / Quick Switch Banner if not logged in as admin */}
-      {user?.role !== 'admin' && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4 text-amber-900 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-200 text-amber-800">
-              <Shield className="h-5 w-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-amber-950">Chế độ xem Quản Trị Viên (Admin View)</h4>
-              <p className="text-xs text-amber-800">
-                Bạn đang đăng nhập bằng tài khoản học viên. Nhấn nút bên cạnh để chuyển sang quyền Quản trị viên mẫu (admin@example.com).
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={async () => {
-              await quickLogin('admin');
-              await loadData();
-              showNotification('Đã đăng nhập quyền Admin thành công!');
-            }}
-            className="flex items-center gap-2 rounded-xl bg-amber-600 px-4 py-2 text-xs font-bold text-white hover:bg-amber-700 transition shadow-sm"
-          >
-            <LogIn className="h-4 w-4" />
-            Đăng nhập quyền Admin
-          </button>
-        </div>
-      )}
-
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 pb-5">
         <div>

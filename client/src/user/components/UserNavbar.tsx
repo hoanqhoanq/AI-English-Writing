@@ -13,7 +13,6 @@ import {
   Menu,
   X,
   Zap,
-  Shield,
 } from 'lucide-react';
 
 export const UserNavbar: React.FC = () => {
@@ -25,7 +24,6 @@ export const UserNavbar: React.FC = () => {
 
   const navLinks = [
     { name: 'Luyện viết', path: '/practice', icon: PenTool },
-    { name: 'AI Sinh đề', path: '/generator', icon: Sparkles },
     { name: 'Ngân hàng câu', path: '/questions', icon: BookOpen },
     { name: 'Thống kê & Lỗi', path: '/analytics', icon: BarChart3 },
   ];
@@ -40,7 +38,7 @@ export const UserNavbar: React.FC = () => {
     try {
       await quickLogin('learner');
       setIsProfileOpen(false);
-      navigate('/practice');
+      navigate('/dashboard');
     } catch (err) {
       console.error(err);
     }
@@ -91,18 +89,8 @@ export const UserNavbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Right side: User Stats, Switch to Admin Portal & Profile */}
+        {/* Right side: User stats and profile */}
         <div className="hidden md:flex items-center gap-3">
-          {/* Direct link to dedicated Admin Portal */}
-          <Link
-            to="/admin"
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-100/70 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 transition-all"
-            title="Truy cập Cổng Quản Trị Hệ Thống"
-          >
-            <Shield className="h-3.5 w-3.5 text-purple-600" />
-            <span>Cổng Quản Trị</span>
-          </Link>
-
           {isAuthenticated && user ? (
             <>
               {/* Streak Counter */}
@@ -136,7 +124,12 @@ export const UserNavbar: React.FC = () => {
                 {isProfileOpen && (
                   <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-black/5 z-50">
                     <div className="border-b border-slate-100 px-3 py-2">
-                      <p className="text-xs font-semibold text-slate-900">{user.name}</p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-bold text-slate-900">{user.name}</p>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-indigo-100 text-indigo-700'}`}>
+                          {user.role === 'admin' ? 'Admin' : 'User'}
+                        </span>
+                      </div>
                       <p className="text-xs text-slate-500 truncate">{user.email}</p>
                       <div className="mt-2 flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2 rounded-lg">
                         <span>Mục tiêu:</span>
@@ -169,6 +162,7 @@ export const UserNavbar: React.FC = () => {
                         onClick={() => {
                           logout();
                           setIsProfileOpen(false);
+                          navigate('/signin');
                         }}
                         className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50"
                       >
@@ -241,14 +235,6 @@ export const UserNavbar: React.FC = () => {
                 </Link>
               );
             })}
-            <Link
-              to="/admin"
-              onClick={() => setIsMenuOpen(false)}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-base font-bold text-purple-700 bg-purple-50"
-            >
-              <Shield className="h-5 w-5 text-purple-600" />
-              Cổng Quản Trị (Admin)
-            </Link>
           </div>
 
           <div className="mt-4 border-t border-slate-200 pt-4">

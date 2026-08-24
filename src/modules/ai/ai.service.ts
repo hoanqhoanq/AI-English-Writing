@@ -1,4 +1,4 @@
-import { AIProvider, IEvaluationInput, IWeaknessAnalysisInput } from "./ai.interface";
+import { AIProvider, IGenerateQuestionsInput, IEvaluationInput, IWeaknessAnalysisInput } from "./ai.interface";
 import { GeminiProvider } from "./providers/gemini.provider";
 import { HeuristicProvider } from "./providers/heuristic.provider";
 import { config } from "../../config/env";
@@ -28,15 +28,9 @@ export class AIService {
         this.provider = provider;
     }
 
-    async generateQuestions(params: {
-        level: CefrLevel;
-        topic: string;
-        grammarTopic?: string;
-        difficulty?: DifficultyLevel;
-        count?: number;
-    }): Promise<IGeneratedQuestion[]> {
+    async generateQuestions(params: IGenerateQuestionsInput): Promise<IGeneratedQuestion[]> {
         const startTime = Date.now();
-        console.log(`[AI SERVICE] Generating questions for level=${params.level}, topic=${params.topic}`);
+        console.log(`[AI SERVICE] Generating questions for level=${params.level}, topic=${params.topicPrompt}`);
 
         try {
             const results = await this.provider.generateWritingQuestions(params);
@@ -45,6 +39,7 @@ export class AIService {
         } catch (error: any) {
             console.warn(`[AI SERVICE] Primary provider error (${error.message}). Falling back to heuristic generator.`);
             const fallbackResults = await this.fallbackProvider.generateWritingQuestions(params);
+            console.warn(`[AI SERVICE] Generated ${fallbackResults.length} questions with fallback provider.`);
             return fallbackResults;
         }
     }

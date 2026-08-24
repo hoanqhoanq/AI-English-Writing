@@ -52,6 +52,7 @@ export class AuthService {
                     averageScore: user.averageScore,
                 },
                 token,
+                accessToken: token,
             };
         } else {
             // Memory Store
@@ -91,6 +92,7 @@ export class AuthService {
             });
 
             return {
+                accessToken: token,
                 user: {
                     id: newUser._id,
                     name: newUser.name,
@@ -138,6 +140,7 @@ export class AuthService {
             });
 
             return {
+                accessToken: token,
                 user: {
                     id: user._id.toString(),
                     name: user.name,
@@ -176,6 +179,7 @@ export class AuthService {
             });
 
             return {
+                accessToken: token,
                 user: {
                     id: user._id,
                     name: user.name,

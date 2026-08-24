@@ -5,7 +5,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import UserLayout from '../user/layouts/UserLayout';
 import Home from '../user/pages/Home';
 import PracticePage from '../user/pages/PracticePage';
-import AIGeneratorPage from '../user/pages/AIGeneratorPage';
 import QuestionBankPage from '../user/pages/QuestionBankPage';
 import AnalyticsPage from '../user/pages/AnalyticsPage';
 import ProfilePage from '../user/pages/ProfilePage';
@@ -22,37 +21,46 @@ import AdminTopicsPage from '../admin/pages/AdminTopicsPage';
 import AdminLevelsPage from '../admin/pages/AdminLevelsPage';
 import AdminEvaluationsPage from '../admin/pages/AdminEvaluationsPage';
 import AdminLoginPage from '../admin/pages/AdminLoginPage';
+import AdminAIGeneratePage from '../admin/pages/AdminAIGeneratePage';
+import ProtectedRoute from './ProtectedRoute';
+import UserRoute from './UserRoute';
+import AdminRoute from './AdminRoute';
+import RootRedirect from '../pages/RootRedirect';
 
 export const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* ================= USER PORTAL (GIAO DIỆN HỌC VIÊN) ================= */}
-      <Route element={<UserLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/practice" element={<PracticePage />} />
-        <Route path="/generator" element={<AIGeneratorPage />} />
-        <Route path="/questions" element={<QuestionBankPage />} />
-        <Route path="/analytics" element={<AnalyticsPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-      </Route>
-
-      {/* Admin Login standalone (without sidebar) */}
+      <Route path="/" element={<RootRedirect />} />
+      <Route path="/login" element={<SignIn />} />
+      <Route path="/signin" element={<Navigate to="/login" replace />} />
+      <Route path="/signup" element={<SignUp />} />
       <Route path="/admin/login" element={<AdminLoginPage />} />
 
-      {/* ================= ADMIN PORTAL (GIAO DIỆN QUẢN TRỊ VIÊN) ================= */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminOverviewPage />} />
-        <Route path="users" element={<AdminUsersPage />} />
-        <Route path="questions" element={<AdminQuestionsPage />} />
-        <Route path="topics" element={<AdminTopicsPage />} />
-        <Route path="levels" element={<AdminLevelsPage />} />
-        <Route path="evaluations" element={<AdminEvaluationsPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<UserRoute />}>
+          <Route element={<UserLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/practice" element={<PracticePage />} />
+            <Route path="/questions" element={<QuestionBankPage />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/home" element={<Home />} />
+          </Route>
+        </Route>
+
+        <Route element={<AdminRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin" element={<AdminOverviewPage />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/questions" element={<AdminQuestionsPage />} />
+            <Route path="/admin/ai-generate" element={<AdminAIGeneratePage />} />
+            <Route path="/admin/topics" element={<AdminTopicsPage />} />
+            <Route path="/admin/levels" element={<AdminLevelsPage />} />
+            <Route path="/admin/evaluations" element={<AdminEvaluationsPage />} />
+          </Route>
+        </Route>
       </Route>
 
-      {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -1,55 +1,16 @@
 import { Request, Response } from "express";
 import { aiService } from "./ai.service";
-import { WritingQuestionModel } from "../writing/question.model";
-import { memoryStore } from "../../db/memoryStore";
-import mongoose from "mongoose";
 import { ApiResponse } from "../../utils/apiResponse";
+import { GenerateQuestionsInput } from "./ai.validation";
 
 export class AIController {
     async generateQuestions(req: Request, res: Response): Promise<void> {
         try {
-            const { level, topic, grammarTopic, difficulty, count, saveToDatabase } = req.body;
-            const generated = await aiService.generateQuestions({
-                level: level || "B1",
-                topic: topic || "Daily Life",
-                grammarTopic,
-                difficulty: difficulty || "medium",
-                count: count || 5,
-            });
-
-            if (saveToDatabase) {
-                const isMongo = mongoose.connection.readyState === 1;
-                if (isMongo) {
-                    const toInsert = generated.map((q) => ({
-                        ...q,
-                        isActive: true,
-                        createdBy: req.user?.id || "ai",
-                    }));
-                    await WritingQuestionModel.insertMany(toInsert);
-                } else {
-                    generated.forEach((q) => {
-                        memoryStore.questions.unshift({
-                            _id: "q_ai_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
-                            vietnameseSentence: q.vietnameseSentence,
-                            referenceAnswer: q.referenceAnswer,
-                            alternativeAnswers: q.alternativeAnswers,
-                            level: q.level as any,
-                            topic: q.topic,
-                            grammarTopic: q.grammarTopic,
-                            difficulty: q.difficulty as any,
-                            keywords: q.keywords,
-                            isActive: true,
-                            createdBy: req.user?.id || "ai",
-                            createdAt: new Date(),
-                            updatedAt: new Date(),
-                        });
-                    });
-                }
-            }
-
+            const input = req.body as GenerateQuestionsInput;
+            const generated = await aiService.generateQuestions(input);
             ApiResponse.success(res, generated, `Tạo thành công ${generated.length} câu hỏi bằng AI`);
         } catch (error: any) {
-            ApiResponse.error(res, error.message || "Lỗi tạo câu hỏi AI", 400);
+            ApiResponse.error(res, "AI không thể tạo câu hỏi hợp lệ. Vui lòng thử lại.", 500);
         }
     }
 

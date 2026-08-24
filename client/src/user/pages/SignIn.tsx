@@ -18,8 +18,12 @@ export const SignIn: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      navigate('/practice');
+      const loggedUser = await login(email, password);
+      if (loggedUser.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Đăng nhập không thành công');
     } finally {
@@ -30,8 +34,12 @@ export const SignIn: React.FC = () => {
   const handleQuickDemo = async (role: 'learner' | 'admin') => {
     setIsLoading(true);
     try {
-      await quickLogin(role);
-      navigate('/practice');
+      const loggedUser = await quickLogin(role);
+      if (loggedUser.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       setError('Đăng nhập nhanh thất bại');
     } finally {
@@ -50,6 +58,9 @@ export const SignIn: React.FC = () => {
           <p className="text-xs text-slate-500">
             Truy cập nền tảng luyện viết tiếng Anh thông minh cùng AI
           </p>
+          <Link to="/admin/login" className="text-[11px] font-bold text-purple-600 hover:underline">
+            Đăng nhập tài khoản Admin
+          </Link>
         </div>
 
         {error && (
@@ -73,14 +84,6 @@ export const SignIn: React.FC = () => {
               className="rounded-xl bg-white px-3 py-2 text-xs font-bold text-indigo-700 shadow-sm border border-indigo-200 hover:bg-indigo-50 transition-colors"
             >
               👤 Học viên mẫu
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('admin')}
-              disabled={isLoading}
-              className="rounded-xl bg-white px-3 py-2 text-xs font-bold text-indigo-700 shadow-sm border border-indigo-200 hover:bg-indigo-50 transition-colors"
-            >
-              🛡️ Quản trị viên
             </button>
           </div>
         </div>
@@ -129,12 +132,14 @@ export const SignIn: React.FC = () => {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-xs text-slate-500">
-          Chưa có tài khoản?{' '}
-          <Link to="/signup" className="font-bold text-indigo-600 hover:underline">
-            Đăng ký tài khoản mới
-          </Link>
-        </p>
+        <div className="mt-6 border-t border-slate-100 pt-4 text-center space-y-2">
+          <p className="text-xs text-slate-500">
+            Chưa có tài khoản?{' '}
+            <Link to="/signup" className="font-bold text-indigo-600 hover:underline">
+              Đăng ký tài khoản mới
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

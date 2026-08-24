@@ -110,6 +110,20 @@ export class WritingController {
         }
     }
 
+    async createQuestionsBulk(req: Request, res: Response): Promise<void> {
+        try {
+            const questions = await Promise.all(
+                (req.body.questions || []).map((question: any) => writingService.createQuestion({
+                    ...question,
+                    createdBy: req.user?.id,
+                }))
+            );
+            ApiResponse.success(res, questions, "Lưu các câu hỏi thành công", 201);
+        } catch (error: any) {
+            ApiResponse.error(res, error.message || "Không thể lưu các câu hỏi", 400);
+        }
+    }
+
     async updateQuestion(req: Request, res: Response): Promise<void> {
         try {
             const id = String(req.params.id);

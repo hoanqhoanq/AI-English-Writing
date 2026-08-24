@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { config } from "../../../config/env";
 import {
     AIProvider,
+    IGenerateQuestionsInput,
     IEvaluationInput,
     IWeaknessAnalysisInput,
 } from "../ai.interface";
@@ -51,11 +52,15 @@ const QuestionArraySchema = z.array(
         alternativeAnswers: z.array(z.string()).default([]),
         level: z.string(),
         topic: z.string(),
-        grammarTopic: z.string(),
+        grammarTopics: z.array(z.string().min(1)).min(1),
         difficulty: z.string().default("medium"),
         keywords: z.array(z.string()).default([]),
     })
 );
+
+const GeneratedQuestionsSchema = z.object({
+    questions: QuestionArraySchema,
+});
 
 const WeaknessAnalysisSchema = z.object({
     overallLevel: z.string(),
@@ -100,7 +105,11 @@ export class GeminiProvider implements AIProvider {
 
     private async generateJsonWithFallback(prompt: string): Promise<string> {
         const client = this.getClient();
-        const candidateModels = ["gemini-3.7-flash", "gemini-3.1-flash-lite", "gemini-flash-latest"];
+        const candidateModels = [
+            config.geminiModel,
+            "gemini-2.5-flash",
+            "gemini-2.0-flash",
+        ].filter((model, index, models) => model && models.indexOf(model) === index);
         let lastError: any = null;
 
         for (const model of candidateModels) {
@@ -146,27 +155,25 @@ export class GeminiProvider implements AIProvider {
         return cleaned.trim();
     }
 
-    async generateWritingQuestions(params: {
-        level: CefrLevel;
-        topic: string;
-        grammarTopic?: string;
-        difficulty?: DifficultyLevel;
-        count?: number;
-    }): Promise<IGeneratedQuestion[]> {
+    async generateWritingQuestions(params: IGenerateQuestionsInput): Promise<IGeneratedQuestion[]> {
         const prompt = buildWritingGenerationPrompt(params);
         const rawText = await this.generateJsonWithFallback(prompt);
 
         const cleaned = this.cleanJsonString(rawText || "[]");
         const parsed = JSON.parse(cleaned);
-        const validated = QuestionArraySchema.parse(parsed);
+        const validated = GeneratedQuestionsSchema.parse(parsed);
 
-        return validated.map((q) => ({
+        if (validated.questions.length !== params.numberOfQuestions) {
+            throw new Error(`Gemini returned ${validated.questions.length} questions, expected ${params.numberOfQuestions}`);
+        }
+
+        return validated.questions.map((q) => ({
             vietnameseSentence: q.vietnameseSentence,
             referenceAnswer: q.referenceAnswer,
             alternativeAnswers: q.alternativeAnswers,
             level: q.level as CefrLevel,
             topic: q.topic,
-            grammarTopic: q.grammarTopic,
+            grammarTopic: q.grammarTopics.join(", "),
             difficulty: q.difficulty as DifficultyLevel,
             keywords: q.keywords,
         }));

@@ -12,6 +12,7 @@ export const AdminLayout: React.FC = () => {
     if (path === '/admin') return 'Tổng quan Hệ thống (System Overview)';
     if (path.startsWith('/admin/users')) return 'Quản lý Người Dùng & Học Viên';
     if (path.startsWith('/admin/questions')) return 'Ngân hàng Câu hỏi Writing (CEFR)';
+    if (path.startsWith('/admin/ai-generate')) return 'AI Sinh câu hỏi Writing';
     if (path.startsWith('/admin/topics')) return 'Quản lý Chủ đề & Ngữ pháp trọng tâm';
     if (path.startsWith('/admin/levels')) return 'Khung Cấp độ Năng lực CEFR (A1 - C2)';
     if (path.startsWith('/admin/evaluations')) return 'Giám sát Lịch sử Chấm bài AI (AI Audit)';

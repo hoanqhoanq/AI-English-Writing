@@ -7,11 +7,11 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, level?: string, target?: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  register: (name: string, email: string, password: string, level?: string, target?: string) => Promise<User>;
   logout: () => void;
   updateUser: (data: Partial<User>) => Promise<void>;
-  quickLogin: (type: 'learner' | 'admin') => Promise<void>;
+  quickLogin: (type: 'learner' | 'admin') => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,66 +42,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // Auto-authenticate as standard demo learner if no valid session
-      try {
-        const res = await api.post('/auth/login', {
-          email: 'user@example.com',
-          password: 'User@123',
-        });
-        if (res.data.success && res.data.data) {
-          const { user: userData, token: jwtToken } = res.data.data;
-          setUser(userData);
-          setToken(jwtToken);
-          localStorage.setItem('token', jwtToken);
-          localStorage.setItem('user', JSON.stringify(userData));
-        }
-      } catch (autoErr) {
-        console.warn('Auto guest login notice:', autoErr);
-      } finally {
-        setIsLoading(false);
-      }
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setIsLoading(false);
     };
 
     fetchMe();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<User> => {
     const res = await api.post('/auth/login', { email, password });
     if (res.data.success) {
-      const { user: userData, token: jwtToken } = res.data.data;
+      const { user: userData, token: legacyToken, accessToken } = res.data.data;
+      const jwtToken = accessToken || legacyToken;
       setUser(userData);
       setToken(jwtToken);
+      localStorage.removeItem('logged_out');
       localStorage.setItem('token', jwtToken);
       localStorage.setItem('user', JSON.stringify(userData));
+      return userData;
     } else {
       throw new Error(res.data.message || 'Đăng nhập thất bại');
     }
   };
 
-  const register = async (name: string, email: string, password: string, level = 'B1', target = 'IELTS') => {
+  const register = async (name: string, email: string, password: string, level = 'B1', target = 'IELTS'): Promise<User> => {
     const res = await api.post('/auth/register', { name, email, password, level, target });
     if (res.data.success) {
-      const { user: userData, token: jwtToken } = res.data.data;
+      const { user: userData, token: legacyToken, accessToken } = res.data.data;
+      const jwtToken = accessToken || legacyToken;
       setUser(userData);
       setToken(jwtToken);
+      localStorage.removeItem('logged_out');
       localStorage.setItem('token', jwtToken);
       localStorage.setItem('user', JSON.stringify(userData));
+      return userData;
     } else {
       throw new Error(res.data.message || 'Đăng ký thất bại');
     }
   };
 
-  const quickLogin = async (type: 'learner' | 'admin') => {
+  const quickLogin = async (type: 'learner' | 'admin'): Promise<User> => {
     const credentials = type === 'admin' 
       ? { email: 'admin@example.com', password: 'Admin@123' }
       : { email: 'user@example.com', password: 'User@123' };
 
-    await login(credentials.email, credentials.password);
+    return await login(credentials.email, credentials.password);
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
+    localStorage.setItem('logged_out', 'true');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     api.post('/auth/logout').catch(() => {});

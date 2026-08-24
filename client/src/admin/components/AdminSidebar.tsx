@@ -5,15 +5,13 @@ import {
   BarChart3,
   Users,
   BookOpen,
+  Sparkles,
   Layers,
   GraduationCap,
   History,
   Shield,
   LogOut,
-  ExternalLink,
   ChevronRight,
-  PenTool,
-  Lock,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -30,6 +28,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
     { name: 'Tổng quan hệ thống', path: '/admin', icon: BarChart3, exact: true },
     { name: 'Quản lý Người dùng', path: '/admin/users', icon: Users },
     { name: 'Câu hỏi Writing', path: '/admin/questions', icon: BookOpen },
+    { name: 'AI Sinh câu hỏi', path: '/admin/ai-generate', icon: Sparkles },
     { name: 'Chủ đề & Ngữ pháp', path: '/admin/topics', icon: Layers },
     { name: 'Cấp độ CEFR', path: '/admin/levels', icon: GraduationCap },
     { name: 'Lịch sử AI Chấm bài', path: '/admin/evaluations', icon: History },
@@ -104,20 +103,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
             );
           })}
 
-          <div className="pt-6 px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Chuyển giao diện
-          </div>
-
-          <Link
-            to="/practice"
-            className="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-xs font-medium text-indigo-400 hover:bg-slate-900 hover:text-indigo-300 transition-all border border-indigo-900/40 bg-indigo-950/20"
-          >
-            <div className="flex items-center gap-3">
-              <PenTool className="h-4 w-4 text-indigo-400" />
-              <span>Giao diện Học Viên</span>
-            </div>
-            <ExternalLink className="h-3.5 w-3.5 text-indigo-400" />
-          </Link>
         </div>
 
         {/* Admin User Footer */}
@@ -138,7 +123,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
             type="button"
             onClick={() => {
               logout();
-              navigate('/admin/login');
+              navigate('/login');
             }}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-900/50 bg-rose-950/30 py-2 text-xs font-semibold text-rose-400 hover:bg-rose-900/40 hover:text-rose-300 transition"
           >

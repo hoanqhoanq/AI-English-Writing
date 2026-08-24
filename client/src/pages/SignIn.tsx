@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PenTool, Lock, Mail, Zap, AlertCircle } from 'lucide-react';
 
+const getPortalPath = (role: string) => (role === 'admin' ? '/admin' : '/dashboard');
+
 export const SignIn: React.FC = () => {
   const { login, quickLogin } = useAuth();
   const navigate = useNavigate();
@@ -18,8 +20,8 @@ export const SignIn: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      navigate('/practice');
+      const user = await login(email, password);
+      navigate(getPortalPath(user.role));
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Đăng nhập không thành công');
     } finally {
@@ -30,8 +32,8 @@ export const SignIn: React.FC = () => {
   const handleQuickDemo = async (role: 'learner' | 'admin') => {
     setIsLoading(true);
     try {
-      await quickLogin(role);
-      navigate('/practice');
+      const user = await quickLogin(role);
+      navigate(getPortalPath(user.role));
     } catch (err: any) {
       setError('Đăng nhập nhanh thất bại');
     } finally {
@@ -73,14 +75,6 @@ export const SignIn: React.FC = () => {
               className="rounded-xl bg-white px-3 py-2 text-xs font-bold text-indigo-700 shadow-sm border border-indigo-200 hover:bg-indigo-50 transition-colors"
             >
               👤 Học viên mẫu
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('admin')}
-              disabled={isLoading}
-              className="rounded-xl bg-white px-3 py-2 text-xs font-bold text-indigo-700 shadow-sm border border-indigo-200 hover:bg-indigo-50 transition-colors"
-            >
-              🛡️ Quản trị viên
             </button>
           </div>
         </div>
@@ -133,6 +127,11 @@ export const SignIn: React.FC = () => {
           Chưa có tài khoản?{' '}
           <Link to="/signup" className="font-bold text-indigo-600 hover:underline">
             Đăng ký tài khoản mới
+          </Link>
+        </p>
+        <p className="mt-2 text-center">
+          <Link to="/admin/login" className="text-[11px] font-bold text-purple-600 hover:underline">
+            Đăng nhập tài khoản Admin
           </Link>
         </p>
       </div>

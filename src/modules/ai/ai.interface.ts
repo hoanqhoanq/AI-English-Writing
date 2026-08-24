@@ -36,16 +36,18 @@ export interface AIProvider {
     readonly name: string;
 
     generateWritingQuestions(
-        params: {
-            level: CefrLevel;
-            topic: string;
-            grammarTopic?: string;
-            difficulty?: DifficultyLevel;
-            count?: number;
-        }
+        params: IGenerateQuestionsInput
     ): Promise<IGeneratedQuestion[]>;
 
     evaluateWriting(input: IEvaluationInput): Promise<IEvaluationResult>;
 
     analyzeWeakness(input: IWeaknessAnalysisInput): Promise<IWeaknessAnalysisResult>;
+}
+
+export interface IGenerateQuestionsInput {
+    level: CefrLevel;
+    difficulty: DifficultyLevel;
+    grammarTopics: string[];
+    topicPrompt: string;
+    numberOfQuestions: number;
 }

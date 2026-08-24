@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { analyticsController } from "./analytics.controller";
-import { authenticate } from "../../middlewares/auth.middleware";
+import { authenticate, authorize } from "../../middlewares/auth.middleware";
 import { aiRateLimiter } from "../../middlewares/rateLimit.middleware";
 
 const router = Router();
 
 router.get("/overview", authenticate, (req, res) => analyticsController.getOverview(req, res));
-router.get("/admin/stats", authenticate, (req, res) => analyticsController.getSystemStats(req, res));
+router.get("/admin/stats", authenticate, authorize("admin"), (req, res) => analyticsController.getSystemStats(req, res));
 router.get("/errors", authenticate, (req, res) => analyticsController.getErrors(req, res));
 router.get("/topics", authenticate, (req, res) => analyticsController.getTopics(req, res));
 router.get("/grammar", authenticate, (req, res) => analyticsController.getGrammar(req, res));

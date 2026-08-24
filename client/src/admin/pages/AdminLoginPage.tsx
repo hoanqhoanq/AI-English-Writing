@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Shield, Lock, Mail, ArrowRight, Zap, AlertCircle } from 'lucide-react';
 
@@ -16,7 +16,11 @@ export const AdminLoginPage: React.FC = () => {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
+      const user = await login(email, password);
+      if (user.role !== 'admin') {
+        setError('Tài khoản không có quyền quản trị. Vui lòng sử dụng tài khoản Admin.');
+        return;
+      }
       navigate('/admin');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Đăng nhập Admin thất bại. Vui lòng kiểm tra lại thông tin.');
@@ -29,7 +33,11 @@ export const AdminLoginPage: React.FC = () => {
     setError('');
     setLoading(true);
     try {
-      await quickLogin('admin');
+      const user = await quickLogin('admin');
+      if (user.role !== 'admin') {
+        setError('Tài khoản mẫu không có quyền Quản trị viên.');
+        return;
+      }
       navigate('/admin');
     } catch (err: any) {
       setError('Lỗi đăng nhập nhanh với quyền Admin.');
@@ -119,14 +127,6 @@ export const AdminLoginPage: React.FC = () => {
             </button>
           </form>
 
-          <div className="text-center pt-2">
-            <Link
-              to="/practice"
-              className="text-xs font-semibold text-slate-500 hover:text-indigo-600 transition"
-            >
-              ← Quay lại giao diện Luyện Viết (Học viên)
-            </Link>
-          </div>
         </div>
       </div>
     </div>

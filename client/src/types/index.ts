@@ -38,6 +38,7 @@ export interface WritingQuestion {
   level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
   topic: string;
   grammarTopic: string;
+  grammarTopics?: string[];
   difficulty: 'easy' | 'medium' | 'hard';
   keywords: string[];
 }

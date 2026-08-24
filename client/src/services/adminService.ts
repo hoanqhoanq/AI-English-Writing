@@ -10,6 +10,22 @@ import {
 } from '../types';
 
 export const adminService = {
+  generateQuestions: async (data: {
+    level: WritingQuestion['level'];
+    difficulty: WritingQuestion['difficulty'];
+    grammarTopics: string[];
+    topicPrompt: string;
+    numberOfQuestions: number;
+  }): Promise<WritingQuestion[]> => {
+    const res = await api.post('/ai/generate-questions', data);
+    return res.data.data?.questions || res.data.data || [];
+  },
+
+  saveGeneratedQuestions: async (questions: Partial<WritingQuestion>[]): Promise<WritingQuestion[]> => {
+    const res = await api.post('/writing/admin/questions/bulk', { questions });
+    return res.data.data;
+  },
+
   // System Statistics
   getSystemStats: async (): Promise<SystemStats> => {
     const res = await api.get('/analytics/admin/stats');

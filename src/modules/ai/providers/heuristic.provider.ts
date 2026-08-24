@@ -1,5 +1,6 @@
 import {
     AIProvider,
+    IGenerateQuestionsInput,
     IEvaluationInput,
     IWeaknessAnalysisInput,
 } from "../ai.interface";
@@ -15,56 +16,52 @@ import {
 export class HeuristicProvider implements AIProvider {
     readonly name = "heuristic_fallback";
 
-    async generateWritingQuestions(params: {
-        level: CefrLevel;
-        topic: string;
-        grammarTopic?: string;
-        difficulty?: DifficultyLevel;
-        count?: number;
-    }): Promise<IGeneratedQuestion[]> {
-        const count = params.count || 3;
+    async generateWritingQuestions(params: IGenerateQuestionsInput): Promise<IGeneratedQuestion[]> {
+        const count = params.numberOfQuestions;
+        const topic = params.topicPrompt;
+        const grammarTopic = params.grammarTopics.join(", ");
         const pool: IGeneratedQuestion[] = [
             {
-                vietnameseSentence: `Chúng tôi thường thảo luận về chủ đề ${params.topic} vào các buổi tối.`,
-                referenceAnswer: `We often discuss the topic of ${params.topic} in the evenings.`,
+                vietnameseSentence: `Chúng tôi thường thảo luận về chủ đề ${topic} vào các buổi tối.`,
+                referenceAnswer: `We often discuss the topic of ${topic} in the evenings.`,
                 alternativeAnswers: [
-                    `We frequently talk about ${params.topic} in the evening.`,
-                    `In the evenings, we usually discuss ${params.topic}.`,
+                    `We frequently talk about ${topic} in the evening.`,
+                    `In the evenings, we usually discuss ${topic}.`,
                 ],
                 level: params.level,
-                topic: params.topic,
-                grammarTopic: params.grammarTopic || "Present Simple",
-                difficulty: params.difficulty || "medium",
+                topic,
+                grammarTopic,
+                difficulty: params.difficulty,
                 keywords: ["discuss", "often", "in the evenings"],
             },
             {
-                vietnameseSentence: `Nếu có cơ hội tìm hiểu sâu hơn về ${params.topic}, tôi sẽ tham gia ngay.`,
-                referenceAnswer: `If I have the opportunity to learn more about ${params.topic}, I will participate immediately.`,
+                vietnameseSentence: `Nếu có cơ hội tìm hiểu sâu hơn về ${topic}, tôi sẽ tham gia ngay.`,
+                referenceAnswer: `If I have the opportunity to learn more about ${topic}, I will participate immediately.`,
                 alternativeAnswers: [
-                    `Were I to have the chance to explore ${params.topic}, I would join at once.`,
-                    `If given the chance to study ${params.topic} in depth, I'll join right away.`,
+                    `Were I to have the chance to explore ${topic}, I would join at once.`,
+                    `If given the chance to study ${topic} in depth, I'll join right away.`,
                 ],
                 level: params.level,
-                topic: params.topic,
-                grammarTopic: params.grammarTopic || "Conditionals",
-                difficulty: params.difficulty || "medium",
+                topic,
+                grammarTopic,
+                difficulty: params.difficulty,
                 keywords: ["opportunity", "participate", "immediately"],
             },
             {
-                vietnameseSentence: `Nhiều chuyên gia nhấn mạnh rằng ${params.topic} đóng vai trò thiết yếu trong đời sống hiện đại.`,
-                referenceAnswer: `Many experts emphasize that ${params.topic} plays an essential role in modern life.`,
+                vietnameseSentence: `Nhiều chuyên gia nhấn mạnh rằng ${topic} đóng vai trò thiết yếu trong đời sống hiện đại.`,
+                referenceAnswer: `Many experts emphasize that ${topic} plays an essential role in modern life.`,
                 alternativeAnswers: [
-                    `Numerous specialists highlight that ${params.topic} is crucial in contemporary society.`,
+                    `Numerous specialists highlight that ${topic} is crucial in contemporary society.`,
                 ],
                 level: params.level,
-                topic: params.topic,
-                grammarTopic: params.grammarTopic || "Subject-Verb Agreement",
-                difficulty: params.difficulty || "hard",
+                topic,
+                grammarTopic,
+                difficulty: params.difficulty,
                 keywords: ["experts emphasize", "essential role", "modern life"],
             },
         ];
 
-        return pool.slice(0, count);
+        return Array.from({ length: count }, (_, index) => pool[index % pool.length]);
     }
 
     async evaluateWriting(input: IEvaluationInput): Promise<IEvaluationResult> {

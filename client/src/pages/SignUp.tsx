@@ -22,7 +22,7 @@ export const SignUp: React.FC = () => {
 
     try {
       await register(name, email, password, level, target);
-      navigate('/practice');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Đăng ký không thành công');
     } finally {
