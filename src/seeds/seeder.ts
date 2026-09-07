@@ -3,7 +3,8 @@ import { TopicModel } from "../modules/topics/topic.model";
 import { GrammarTopicModel } from "../modules/topics/grammar.model";
 import { WritingQuestionModel } from "../modules/writing/question.model";
 import { hashPassword } from "../utils/password";
-import { SEED_TOPICS, SEED_GRAMMAR, SEED_QUESTIONS, DEMO_ADMIN, DEMO_USER } from "./seedData";
+import { SEED_TOPICS, SEED_GRAMMAR, SEED_QUESTIONS } from "./seedData";
+import { config } from "../config/env";
 
 export const seedDatabase = async (): Promise<void> => {
     try {
@@ -23,40 +24,32 @@ export const seedDatabase = async (): Promise<void> => {
             await GrammarTopicModel.insertMany(SEED_GRAMMAR);
         }
 
-        // 3. Seed Admin User
-        const adminExists = await UserModel.findOne({ email: DEMO_ADMIN.email });
+        // 3. Bootstrap exactly one admin account, only if explicitly configured via
+        // ADMIN_EMAIL/ADMIN_PASSWORD env vars. No public demo/mock accounts are
+        // auto-created — real users must register through POST /api/auth/register.
         let adminId: any = null;
-        if (!adminExists) {
-            console.log("[SEEDER] Creating default admin user (admin@example.com)...");
-            const hashedPassword = await hashPassword(DEMO_ADMIN.password);
-            const createdAdmin = await UserModel.create({
-                ...DEMO_ADMIN,
-                password: hashedPassword,
-                isActive: true,
-                dailyGoal: 10,
-                streak: 5,
-                totalWriting: 30,
-                averageScore: 92,
-            });
-            adminId = createdAdmin._id;
+        const bootstrapEmail = config.adminBootstrapEmail?.toLowerCase().trim();
+        if (bootstrapEmail && config.adminBootstrapPassword) {
+            const adminExists = await UserModel.findOne({ email: bootstrapEmail });
+            if (!adminExists) {
+                console.log(`[SEEDER] Bootstrapping initial admin account (${bootstrapEmail}) from ADMIN_EMAIL/ADMIN_PASSWORD...`);
+                const hashedPassword = await hashPassword(config.adminBootstrapPassword);
+                const createdAdmin = await UserModel.create({
+                    name: "Administrator",
+                    email: bootstrapEmail,
+                    password: hashedPassword,
+                    role: "admin",
+                    level: "C2",
+                    target: "Academic English",
+                    isActive: true,
+                });
+                adminId = createdAdmin._id;
+            } else {
+                adminId = adminExists._id;
+            }
         } else {
-            adminId = adminExists._id;
-        }
-
-        // 4. Seed Regular Demo User
-        const userExists = await UserModel.findOne({ email: DEMO_USER.email });
-        if (!userExists) {
-            console.log("[SEEDER] Creating default learner user (user@example.com)...");
-            const hashedPassword = await hashPassword(DEMO_USER.password);
-            await UserModel.create({
-                ...DEMO_USER,
-                password: hashedPassword,
-                isActive: true,
-                dailyGoal: 5,
-                streak: 3,
-                totalWriting: 12,
-                averageScore: 78,
-            });
+            const anyAdmin = await UserModel.findOne({ role: "admin" });
+            adminId = anyAdmin?._id || null;
         }
 
         // 5. Seed Writing Questions

@@ -18,31 +18,37 @@ import { buildWritingEvaluationPrompt } from "../prompts/writing-evaluation.prom
 import { buildWeaknessAnalysisPrompt } from "../prompts/weakness-analysis.prompt";
 import { z } from "zod";
 
+const CategoryAnalysisSchema = z.object({
+    score: z.number().min(0).max(100),
+    feedback: z.string().min(1),
+});
+
 const EvaluationSchema = z.object({
+    isCorrect: z.boolean(),
     status: z.enum(["correct", "partially_correct", "incorrect"]),
     score: z.number().min(0).max(100),
-    correctAnswer: z.string(),
+    summary: z.string().min(1),
+    meaningAnalysis: CategoryAnalysisSchema.extend({ correct: z.boolean() }),
+    grammarAnalysis: CategoryAnalysisSchema,
+    vocabularyAnalysis: CategoryAnalysisSchema,
+    structureAnalysis: CategoryAnalysisSchema,
+    naturalnessAnalysis: CategoryAnalysisSchema,
     errors: z.array(
         z.object({
             type: z.string(),
             category: z.string().optional(),
+            severity: z.enum(["minor", "major"]).default("minor"),
             wrongText: z.string(),
             correctText: z.string(),
             explanation: z.string(),
         })
     ),
+    correctAnswer: z.string(),
+    alternativeAnswers: z.array(z.string()).default([]),
     strengths: z.array(z.string()).default([]),
+    weaknesses: z.array(z.string()).default([]),
     overallFeedback: z.string(),
     recommendations: z.array(z.string()).default([]),
-    scoreBreakdown: z
-        .object({
-            grammar: z.number().optional(),
-            vocabulary: z.number().optional(),
-            meaning: z.number().optional(),
-            sentenceStructure: z.number().optional(),
-            naturalness: z.number().optional(),
-        })
-        .optional(),
 });
 
 const QuestionArraySchema = z.array(
@@ -107,8 +113,9 @@ export class GeminiProvider implements AIProvider {
         const client = this.getClient();
         const candidateModels = [
             config.geminiModel,
-            "gemini-2.5-flash",
-            "gemini-2.0-flash",
+            "gemini-3.6-flash",
+            "gemini-flash-latest",
+            "gemini-3.5-flash",
         ].filter((model, index, models) => model && models.indexOf(model) === index);
         let lastError: any = null;
 
@@ -128,10 +135,19 @@ export class GeminiProvider implements AIProvider {
             } catch (err: any) {
                 lastError = err;
                 const errStr = String(err?.message || err);
-                const isOverloaded = errStr.includes("503") || errStr.includes("high demand") || errStr.includes("RESOURCE_EXHAUSTED") || errStr.includes("429");
-                
-                if (isOverloaded) {
-                    console.log(`[Gemini Provider] Model ${model} is experiencing high demand. Retrying with fallback model...`);
+                // Retryable with a different model: temporary overload/rate-limit, or this
+                // specific model being deprecated/retired/not found for the current API key.
+                const isRetryableWithOtherModel =
+                    errStr.includes("503") ||
+                    errStr.includes("high demand") ||
+                    errStr.includes("RESOURCE_EXHAUSTED") ||
+                    errStr.includes("429") ||
+                    errStr.includes("404") ||
+                    errStr.includes("NOT_FOUND") ||
+                    errStr.includes("no longer available");
+
+                if (isRetryableWithOtherModel) {
+                    console.warn(`[Gemini Provider] Model "${model}" unavailable (${errStr.slice(0, 150)}). Trying next candidate model...`);
                     await new Promise((res) => setTimeout(res, 400));
                     continue;
                 }
@@ -181,36 +197,58 @@ export class GeminiProvider implements AIProvider {
 
     async evaluateWriting(input: IEvaluationInput): Promise<IEvaluationResult> {
         const prompt = buildWritingEvaluationPrompt(input);
-        const rawText = await this.generateJsonWithFallback(prompt);
+        const maxAttempts = 3;
+        let lastError: any = null;
 
-        const cleaned = this.cleanJsonString(rawText || "{}");
-        const parsed = JSON.parse(cleaned);
-        const validated = EvaluationSchema.parse(parsed);
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                const rawText = await this.generateJsonWithFallback(prompt);
+                const cleaned = this.cleanJsonString(rawText || "{}");
+                const parsed = JSON.parse(cleaned);
+                const validated = EvaluationSchema.parse(parsed);
 
-        return {
-            status: validated.status as any,
-            score: validated.score,
-            correctAnswer: validated.correctAnswer,
-            errors: validated.errors.map((e) => ({
-                type: e.type as any,
-                category: e.category,
-                wrongText: e.wrongText,
-                correctText: e.correctText,
-                explanation: e.explanation,
-            })),
-            strengths: validated.strengths,
-            overallFeedback: validated.overallFeedback,
-            recommendations: validated.recommendations,
-            scoreBreakdown: validated.scoreBreakdown
-                ? {
-                      grammar: validated.scoreBreakdown.grammar || validated.score,
-                      vocabulary: validated.scoreBreakdown.vocabulary || validated.score,
-                      meaning: validated.scoreBreakdown.meaning || validated.score,
-                      sentenceStructure: validated.scoreBreakdown.sentenceStructure || validated.score,
-                      naturalness: validated.scoreBreakdown.naturalness || validated.score,
-                  }
-                : undefined,
-        };
+                return {
+                    isCorrect: validated.isCorrect,
+                    status: validated.status as any,
+                    score: validated.score,
+                    summary: validated.summary,
+                    meaningAnalysis: validated.meaningAnalysis,
+                    grammarAnalysis: validated.grammarAnalysis,
+                    vocabularyAnalysis: validated.vocabularyAnalysis,
+                    structureAnalysis: validated.structureAnalysis,
+                    naturalnessAnalysis: validated.naturalnessAnalysis,
+                    correctAnswer: validated.correctAnswer,
+                    alternativeAnswers: validated.alternativeAnswers,
+                    errors: validated.errors.map((e) => ({
+                        type: e.type as any,
+                        category: e.category,
+                        severity: e.severity,
+                        wrongText: e.wrongText,
+                        correctText: e.correctText,
+                        explanation: e.explanation,
+                    })),
+                    strengths: validated.strengths,
+                    weaknesses: validated.weaknesses,
+                    overallFeedback: validated.overallFeedback,
+                    recommendations: validated.recommendations,
+                    scoreBreakdown: {
+                        grammar: validated.grammarAnalysis.score,
+                        vocabulary: validated.vocabularyAnalysis.score,
+                        meaning: validated.meaningAnalysis.score,
+                        sentenceStructure: validated.structureAnalysis.score,
+                        naturalness: validated.naturalnessAnalysis.score,
+                    },
+                };
+            } catch (err: any) {
+                lastError = err;
+                console.warn(`[Gemini Provider] evaluateWriting attempt ${attempt}/${maxAttempts} failed to produce a valid response: ${String(err?.message || err).slice(0, 200)}`);
+                if (attempt < maxAttempts) {
+                    await new Promise((res) => setTimeout(res, 300));
+                }
+            }
+        }
+
+        throw lastError || new Error("Gemini did not return a valid evaluation after retries");
     }
 
     async analyzeWeakness(input: IWeaknessAnalysisInput): Promise<IWeaknessAnalysisResult> {

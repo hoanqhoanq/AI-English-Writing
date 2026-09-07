@@ -77,11 +77,20 @@ export class HeuristicProvider implements AIProvider {
 
         if (normUser === normRef || altAnswers.some((alt) => normalize(alt) === normUser)) {
             return {
+                isCorrect: true,
                 status: "correct",
                 score: 100,
+                summary: "Câu trả lời khớp với đáp án tham khảo.",
+                meaningAnalysis: { score: 100, correct: true, feedback: "Truyền đạt đúng ý câu gốc." },
+                grammarAnalysis: { score: 100, feedback: "Không phát hiện lỗi ngữ pháp." },
+                vocabularyAnalysis: { score: 100, feedback: "Từ vựng phù hợp." },
+                structureAnalysis: { score: 100, feedback: "Cấu trúc câu rõ ràng." },
+                naturalnessAnalysis: { score: 100, feedback: "Câu văn tự nhiên." },
                 correctAnswer: refTrim,
+                alternativeAnswers: altAnswers,
                 errors: [],
                 strengths: ["Cấu trúc ngữ pháp hoàn toàn chính xác", "Lựa chọn từ vựng chuẩn xác và tự nhiên"],
+                weaknesses: [],
                 overallFeedback: "Tuyệt vời! Câu trả lời của bạn hoàn toàn chính xác và tự nhiên.",
                 recommendations: ["Tiếp tục duy trì độ chính xác này ở các câu hỏi tiếp theo."],
                 scoreBreakdown: {
@@ -124,6 +133,7 @@ export class HeuristicProvider implements AIProvider {
                 errors.push({
                     type: "GRAMMAR",
                     category: "TENSE",
+                    severity: "major",
                     wrongText: wrong,
                     correctText: correct,
                     explanation: `Câu mang ngữ cảnh quá khứ (đã/năm ngoái/hôm qua), động từ '${wrong}' cần chia ở quá khứ đơn là '${correct}'.`,
@@ -142,6 +152,7 @@ export class HeuristicProvider implements AIProvider {
             errors.push({
                 type: "ARTICLE",
                 category: "ARTICLE",
+                severity: "minor",
                 wrongText: userWords[userWords.length - 1] || "noun",
                 correctText: `the ${userWords[userWords.length - 1] || "noun"}`,
                 explanation: "Thiếu mạo từ xác định 'the' trước danh từ được đề cập cụ thể.",
@@ -158,6 +169,7 @@ export class HeuristicProvider implements AIProvider {
                 errors.push({
                     type: "VOCABULARY",
                     category: "WORD_CHOICE",
+                    severity: "major",
                     wrongText: userTrim,
                     correctText: refTrim,
                     explanation: `Câu của bạn chưa diễn đạt trọn vẹn so với mẫu: cần lưu ý cách dùng các từ '${missingInUser.slice(0, 3).join(", ")}'.`,
@@ -168,27 +180,41 @@ export class HeuristicProvider implements AIProvider {
 
         const score = Math.max(20, Math.min(90, 100 - detectedPenalty));
         const status = score >= 90 ? "correct" : score >= 60 ? "partially_correct" : "incorrect";
+        const grammarScore = Math.max(30, score - 5);
+        const vocabScore = score;
+        const meaningScore = Math.max(50, score + 5);
+        const structureScore = score;
+        const naturalnessScore = Math.max(40, score - 10);
 
         return {
+            isCorrect: false,
             status,
             score,
+            summary: "Câu trả lời còn một số điểm khác biệt so với cách diễn đạt chuẩn, được đánh giá bằng bộ quy tắc dự phòng (không phải AI) vì dịch vụ AI hiện không khả dụng.",
+            meaningAnalysis: { score: meaningScore, correct: meaningScore >= 70, feedback: "Ý nghĩa cơ bản đã được truyền tải nhưng chưa được AI phân tích sâu do đang dùng chế độ dự phòng." },
+            grammarAnalysis: { score: grammarScore, feedback: "Phát hiện bằng quy tắc cố định, có thể chưa đầy đủ so với phân tích AI thực sự." },
+            vocabularyAnalysis: { score: vocabScore, feedback: "Từ vựng được so sánh sơ bộ với đáp án mẫu." },
+            structureAnalysis: { score: structureScore, feedback: "Cấu trúc câu chưa được phân tích chi tiết ở chế độ dự phòng." },
+            naturalnessAnalysis: { score: naturalnessScore, feedback: "Độ tự nhiên chưa được đánh giá đầy đủ ở chế độ dự phòng." },
             correctAnswer: refTrim,
+            alternativeAnswers: altAnswers,
             errors,
             strengths: ["Ý nghĩa cơ bản đã được truyền tải", "Cố gắng sử dụng từ vựng đúng ngữ cảnh"],
+            weaknesses: ["Chưa thể phân tích chi tiết do dịch vụ AI đang tạm thời không khả dụng"],
             overallFeedback:
                 score >= 80
-                    ? "Bạn đã làm khá tốt, chỉ cần chỉnh sửa một số lỗi ngữ pháp hoặc dùng từ chưa chuẩn."
-                    : "Câu trả lời có một số điểm ngữ pháp cần lưu ý để tự nhiên và chính xác hơn.",
+                    ? "Bạn đã làm khá tốt, chỉ cần chỉnh sửa một số lỗi ngữ pháp hoặc dùng từ chưa chuẩn. (Đánh giá tạm thời bằng bộ quy tắc dự phòng, không phải AI.)"
+                    : "Câu trả lời có một số điểm ngữ pháp cần lưu ý để tự nhiên và chính xác hơn. (Đánh giá tạm thời bằng bộ quy tắc dự phòng, không phải AI.)",
             recommendations: [
                 "Đọc kỹ câu gốc tiếng Việt để chú ý thì và mạo từ.",
                 "So sánh câu của bạn với đáp án gợi ý để rút kinh nghiệm.",
             ],
             scoreBreakdown: {
-                grammar: Math.max(30, score - 5),
-                vocabulary: score,
-                meaning: Math.max(50, score + 5),
-                sentenceStructure: score,
-                naturalness: Math.max(40, score - 10),
+                grammar: grammarScore,
+                vocabulary: vocabScore,
+                meaning: meaningScore,
+                sentenceStructure: structureScore,
+                naturalness: naturalnessScore,
             },
         };
     }

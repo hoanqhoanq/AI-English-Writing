@@ -114,7 +114,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
               </div>
               <div className="overflow-hidden">
                 <div className="text-xs font-bold text-white truncate">{user?.name || 'Administrator'}</div>
-                <div className="text-[11px] text-slate-400 truncate">{user?.email || 'admin@example.com'}</div>
+                <div className="text-[11px] text-slate-400 truncate">{user?.email || ''}</div>
               </div>
             </div>
           </div>

@@ -384,10 +384,12 @@ export class WritingService {
         }
     }
 
-    async getSessionById(sessionId: string) {
+    async getSessionById(sessionId: string, userId: string) {
         if (this.isMongoActive()) {
             const session = await WritingSessionModel.findById(sessionId);
-            if (!session) throw new Error("Không tìm thấy phiên luyện tập");
+            if (!session || session.userId.toString() !== userId) {
+                throw new Error("Không tìm thấy phiên luyện tập");
+            }
 
             const questions = await WritingQuestionModel.find({
                 _id: { $in: session.questions },
@@ -401,7 +403,9 @@ export class WritingService {
             return { session, questions: orderedQuestions };
         } else {
             const session = memoryStore.sessions.find((s) => s._id === sessionId);
-            if (!session) throw new Error("Không tìm thấy phiên luyện tập");
+            if (!session || session.userId !== userId) {
+                throw new Error("Không tìm thấy phiên luyện tập");
+            }
 
             const questions = session.questions.map((qId) => {
                 const q = memoryStore.questions.find((item) => item._id === qId);
@@ -448,10 +452,16 @@ export class WritingService {
                 status: evalResult.status,
                 aiScore: evalResult.score,
                 finalScore: evalResult.score,
+                summary: evalResult.summary,
+                correctAnswer: evalResult.correctAnswer,
+                alternativeAnswers: evalResult.alternativeAnswers,
                 errors: evalResult.errors,
                 strengths: evalResult.strengths,
+                weaknesses: evalResult.weaknesses,
                 overallFeedback: evalResult.overallFeedback,
                 recommendations: evalResult.recommendations,
+                scoreBreakdown: evalResult.scoreBreakdown,
+                aiProvider: evalResult.provider,
                 level: question.level,
                 topic: question.topic,
                 grammarTopic: question.grammarTopic,
@@ -466,6 +476,7 @@ export class WritingService {
                     questionId: question._id,
                     type: err.type,
                     category: err.category || err.type,
+                    severity: err.severity,
                     wrongText: err.wrongText,
                     correctText: err.correctText,
                     explanation: err.explanation,
@@ -519,10 +530,16 @@ export class WritingService {
                 status: evalResult.status,
                 aiScore: evalResult.score,
                 finalScore: evalResult.score,
+                summary: evalResult.summary,
+                correctAnswer: evalResult.correctAnswer,
+                alternativeAnswers: evalResult.alternativeAnswers,
                 errors: evalResult.errors,
                 strengths: evalResult.strengths,
+                weaknesses: evalResult.weaknesses,
                 overallFeedback: evalResult.overallFeedback,
                 recommendations: evalResult.recommendations,
+                scoreBreakdown: evalResult.scoreBreakdown,
+                aiProvider: evalResult.provider,
                 level: question.level,
                 topic: question.topic,
                 grammarTopic: question.grammarTopic,
@@ -541,6 +558,7 @@ export class WritingService {
                         questionId: question._id,
                         type: err.type,
                         category: err.category || err.type,
+                        severity: err.severity,
                         wrongText: err.wrongText,
                         correctText: err.correctText,
                         explanation: err.explanation,
@@ -595,27 +613,42 @@ export class WritingService {
             vietnameseSentence: question.vietnameseSentence,
             referenceAnswer: question.referenceAnswer,
             userAnswer: answerText,
+            isCorrect: evalResult.isCorrect,
             status: evalResult.status,
             score: evalResult.score,
+            summary: evalResult.summary,
+            meaningAnalysis: evalResult.meaningAnalysis,
+            grammarAnalysis: evalResult.grammarAnalysis,
+            vocabularyAnalysis: evalResult.vocabularyAnalysis,
+            structureAnalysis: evalResult.structureAnalysis,
+            naturalnessAnalysis: evalResult.naturalnessAnalysis,
+            correctAnswer: evalResult.correctAnswer,
+            alternativeAnswers: evalResult.alternativeAnswers,
             errors: evalResult.errors,
             strengths: evalResult.strengths,
+            weaknesses: evalResult.weaknesses,
             overallFeedback: evalResult.overallFeedback,
             recommendations: evalResult.recommendations,
             scoreBreakdown: evalResult.scoreBreakdown,
+            provider: evalResult.provider,
             level: question.level,
             topic: question.topic,
             grammarTopic: question.grammarTopic,
         };
     }
 
-    async getAttemptById(attemptId: string) {
+    async getAttemptById(attemptId: string, userId: string) {
         if (this.isMongoActive()) {
             const attempt = await WritingAttemptModel.findById(attemptId);
-            if (!attempt) throw new Error("Không tìm thấy bài làm");
+            if (!attempt || attempt.userId.toString() !== userId) {
+                throw new Error("Không tìm thấy bài làm");
+            }
             return attempt;
         } else {
             const attempt = memoryStore.attempts.find((a) => a._id === attemptId);
-            if (!attempt) throw new Error("Không tìm thấy bài làm");
+            if (!attempt || attempt.userId !== userId) {
+                throw new Error("Không tìm thấy bài làm");
+            }
             return attempt;
         }
     }

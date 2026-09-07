@@ -51,11 +51,11 @@ export class AIService {
         try {
             const result = await this.provider.evaluateWriting(input);
             console.log(`[AI SERVICE] Evaluation complete. Score: ${result.score}, Status: ${result.status} in ${Date.now() - startTime}ms`);
-            return result;
+            return { ...result, provider: this.provider.name };
         } catch (error: any) {
             console.warn(`[AI SERVICE] Primary provider error (${error.message}). Falling back to heuristic evaluation.`);
             const fallbackResult = await this.fallbackProvider.evaluateWriting(input);
-            return fallbackResult;
+            return { ...fallbackResult, provider: this.fallbackProvider.name };
         }
     }
 

@@ -1,121 +1,97 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import api, { setAccessToken } from '../services/api';
 import { User } from '../types';
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<User>;
-  register: (name: string, email: string, password: string, level?: string, target?: string) => Promise<User>;
-  logout: () => void;
+  register: (name: string, email: string, password: string, confirmPassword: string, level?: string, target?: string) => Promise<User>;
+  logout: () => Promise<void>;
   updateUser: (data: Partial<User>) => Promise<void>;
-  quickLogin: (type: 'learner' | 'admin') => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem('user');
-    return saved ? JSON.parse(saved) : null;
-  });
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    const fetchMe = async () => {
-      const storedToken = localStorage.getItem('token');
-      if (storedToken) {
-        try {
-          const res = await api.get('/auth/me');
-          if (res.data.success && res.data.data) {
-            setUser(res.data.data);
-            setToken(storedToken);
-            localStorage.setItem('user', JSON.stringify(res.data.data));
-            setIsLoading(false);
-            return;
-          }
-        } catch (err) {
-          console.warn('Session check failed or offline mode:', err);
-        }
-      }
+  const clearSession = useCallback(() => {
+    setAccessToken(null);
+    setUser(null);
+  }, []);
 
-      setUser(null);
-      setToken(null);
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      setIsLoading(false);
+  useEffect(() => {
+    // On first load there is no access token in memory yet (it is never persisted
+    // to storage) — silently redeem the HttpOnly refresh-token cookie for a fresh
+    // one. If that fails, the visitor is simply not logged in.
+    const bootstrapSession = async () => {
+      try {
+        const res = await api.post('/auth/refresh');
+        if (res.data.success && res.data.data) {
+          const { user: userData, accessToken } = res.data.data;
+          setAccessToken(accessToken);
+          setUser(userData);
+        }
+      } catch (err) {
+        clearSession();
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    fetchMe();
-  }, []);
+    bootstrapSession();
+
+    const handleSessionExpired = () => clearSession();
+    window.addEventListener('auth:session-expired', handleSessionExpired);
+    return () => window.removeEventListener('auth:session-expired', handleSessionExpired);
+  }, [clearSession]);
 
   const login = async (email: string, password: string): Promise<User> => {
     const res = await api.post('/auth/login', { email, password });
     if (res.data.success) {
-      const { user: userData, token: legacyToken, accessToken } = res.data.data;
-      const jwtToken = accessToken || legacyToken;
+      const { user: userData, accessToken } = res.data.data;
+      setAccessToken(accessToken);
       setUser(userData);
-      setToken(jwtToken);
-      localStorage.removeItem('logged_out');
-      localStorage.setItem('token', jwtToken);
-      localStorage.setItem('user', JSON.stringify(userData));
       return userData;
-    } else {
-      throw new Error(res.data.message || 'Đăng nhập thất bại');
     }
+    throw new Error(res.data.message || 'Đăng nhập thất bại');
   };
 
-  const register = async (name: string, email: string, password: string, level = 'B1', target = 'IELTS'): Promise<User> => {
-    const res = await api.post('/auth/register', { name, email, password, level, target });
+  const register = async (
+    name: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+    level = 'B1',
+    target = 'IELTS'
+  ): Promise<User> => {
+    const res = await api.post('/auth/register', { name, email, password, confirmPassword, level, target });
     if (res.data.success) {
-      const { user: userData, token: legacyToken, accessToken } = res.data.data;
-      const jwtToken = accessToken || legacyToken;
+      const { user: userData, accessToken } = res.data.data;
+      setAccessToken(accessToken);
       setUser(userData);
-      setToken(jwtToken);
-      localStorage.removeItem('logged_out');
-      localStorage.setItem('token', jwtToken);
-      localStorage.setItem('user', JSON.stringify(userData));
       return userData;
-    } else {
-      throw new Error(res.data.message || 'Đăng ký thất bại');
     }
+    throw new Error(res.data.message || 'Đăng ký thất bại');
   };
 
-  const quickLogin = async (type: 'learner' | 'admin'): Promise<User> => {
-    const credentials = type === 'admin' 
-      ? { email: 'admin@example.com', password: 'Admin@123' }
-      : { email: 'user@example.com', password: 'User@123' };
-
-    return await login(credentials.email, credentials.password);
-  };
-
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.setItem('logged_out', 'true');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    api.post('/auth/logout').catch(() => {});
+  const logout = async (): Promise<void> => {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // Even if the network call fails, clear local session state below.
+    } finally {
+      clearSession();
+    }
   };
 
   const updateUser = async (data: Partial<User>) => {
-    try {
-      const res = await api.put('/users/profile', data);
-      if (res.data.success && res.data.data) {
-        setUser(res.data.data);
-        localStorage.setItem('user', JSON.stringify(res.data.data));
-      }
-    } catch (err) {
-      console.error('Update profile error:', err);
-      // Local optimistic update
-      if (user) {
-        const updated = { ...user, ...data };
-        setUser(updated);
-        localStorage.setItem('user', JSON.stringify(updated));
-      }
+    const res = await api.put('/users/profile', data);
+    if (res.data.success && res.data.data) {
+      setUser(res.data.data);
     }
   };
 
@@ -123,14 +99,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider
       value={{
         user,
-        token,
-        isAuthenticated: !!user && !!token,
+        isAuthenticated: !!user,
         isLoading,
         login,
         register,
         logout,
         updateUser,
-        quickLogin,
       }}
     >
       {children}

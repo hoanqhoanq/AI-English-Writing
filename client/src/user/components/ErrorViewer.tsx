@@ -22,18 +22,41 @@ export const ErrorViewer: React.FC<ErrorViewerProps> = ({ errors }) => {
     const map: Record<string, { label: string; color: string }> = {
       GRAMMAR: { label: 'Ngữ pháp', color: 'bg-rose-100 text-rose-800 border-rose-200' },
       TENSE: { label: 'Thì động từ', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+      SUBJECT_VERB_AGREEMENT: { label: 'Hòa hợp chủ-vị', color: 'bg-amber-100 text-amber-800 border-amber-200' },
       PREPOSITION: { label: 'Giới từ', color: 'bg-purple-100 text-purple-800 border-purple-200' },
       ARTICLE: { label: 'Mạo từ (a/an/the)', color: 'bg-blue-100 text-blue-800 border-blue-200' },
       WORD_CHOICE: { label: 'Dùng từ', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+      WORD_FORM: { label: 'Dạng từ', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+      COLLOCATION: { label: 'Kết hợp từ', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+      VOCABULARY: { label: 'Từ vựng', color: 'bg-orange-100 text-orange-800 border-orange-200' },
       SPELLING: { label: 'Chính tả', color: 'bg-red-100 text-red-800 border-red-200' },
       WORD_ORDER: { label: 'Trật tự từ', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
+      SENTENCE_STRUCTURE: { label: 'Cấu trúc câu', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
+      MEANING: { label: 'Ý nghĩa', color: 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200' },
+      NATURALNESS: { label: 'Độ tự nhiên', color: 'bg-teal-100 text-teal-800 border-teal-200' },
       PUNCTUATION: { label: 'Dấu câu', color: 'bg-slate-100 text-slate-800 border-slate-200' },
+      MISSING_WORD: { label: 'Thiếu từ', color: 'bg-slate-100 text-slate-800 border-slate-200' },
+      EXTRA_WORD: { label: 'Thừa từ', color: 'bg-slate-100 text-slate-800 border-slate-200' },
     };
 
     const target = map[type.toUpperCase()] || { label: type, color: 'bg-slate-100 text-slate-800 border-slate-200' };
     return (
       <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold ${target.color}`}>
         {target.label}
+      </span>
+    );
+  };
+
+  const getSeverityBadge = (severity?: string) => {
+    if (!severity) return null;
+    const isMajor = severity.toLowerCase() === 'major';
+    return (
+      <span
+        className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold ${
+          isMajor ? 'bg-rose-600/10 text-rose-700 border-rose-300' : 'bg-slate-100 text-slate-600 border-slate-200'
+        }`}
+      >
+        {isMajor ? 'Lỗi nghiêm trọng' : 'Lỗi nhỏ'}
       </span>
     );
   };
@@ -53,6 +76,7 @@ export const ErrorViewer: React.FC<ErrorViewerProps> = ({ errors }) => {
           >
             <div className="mb-2 flex flex-wrap items-center gap-2">
               {getErrorTypeBadge(err.type || err.category || 'GRAMMAR')}
+              {getSeverityBadge(err.severity)}
               {err.category && err.category !== err.type && (
                 <span className="text-xs font-medium text-slate-500">[{err.category}]</span>
               )}

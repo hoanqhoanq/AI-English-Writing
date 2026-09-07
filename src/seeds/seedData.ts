@@ -1051,20 +1051,3 @@ export const SEED_QUESTIONS = [
     },
 ];
 
-export const DEMO_ADMIN = {
-    name: "System Administrator",
-    email: "admin@example.com",
-    password: "Admin@123",
-    role: "admin" as const,
-    level: "C2" as const,
-    target: "Academic English" as const,
-};
-
-export const DEMO_USER = {
-    name: "Nguyen Van A",
-    email: "user@example.com",
-    password: "User@123",
-    role: "user" as const,
-    level: "B1" as const,
-    target: "IELTS" as const,
-};

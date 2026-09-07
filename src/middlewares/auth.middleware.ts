@@ -1,9 +1,12 @@
 import { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
 import { verifyToken } from "../utils/jwt";
 import { ApiResponse } from "../utils/apiResponse";
 import { UserRole } from "../types";
+import { UserModel } from "../modules/users/user.model";
+import { memoryStore } from "../db/memoryStore";
 
-export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
+export const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -18,8 +21,27 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
         }
 
         const decoded = verifyToken(token) as any;
+        const userId = decoded.id || decoded.userId;
+
+        // Re-check against the database on every request (not just the JWT claims) so
+        // a deleted/deactivated account loses access immediately instead of waiting
+        // for its still-valid access token to expire.
+        const isMongoActive = mongoose.connection.readyState === 1;
+        const isActive = isMongoActive
+            ? (await UserModel.findById(userId).select("isActive"))?.isActive
+            : memoryStore.users.find((u) => u._id === userId)?.isActive;
+
+        if (isActive === undefined) {
+            ApiResponse.error(res, "Tài khoản không tồn tại", 401);
+            return;
+        }
+        if (!isActive) {
+            ApiResponse.error(res, "Tài khoản của bạn đã bị khóa", 401);
+            return;
+        }
+
         req.user = {
-            id: decoded.id || decoded.userId,
+            id: userId,
             email: decoded.email,
             role: decoded.role,
             name: decoded.name,

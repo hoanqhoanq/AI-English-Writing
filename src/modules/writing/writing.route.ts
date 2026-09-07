@@ -29,6 +29,8 @@ router.get("/sessions/:id", authenticate, (req, res) => writingController.getSes
 router.post("/attempts", authenticate, aiRateLimiter(60), validate(SubmitAttemptSchema), (req, res) =>
     writingController.submitAttempt(req, res)
 );
+// History: every writing_attempts document belonging to the current user (req.user.id).
+router.get("/attempts", authenticate, (req, res) => writingController.getHistory(req, res));
 router.get("/attempts/:id", authenticate, (req, res) => writingController.getAttemptById(req, res));
 
 export default router;

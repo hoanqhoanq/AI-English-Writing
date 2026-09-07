@@ -12,6 +12,7 @@ import {
   ArrowRight,
   Sparkles,
   CheckCircle2,
+  AlertCircle,
   Lightbulb,
   Filter,
   ChevronRight,
@@ -402,32 +403,107 @@ export const PracticePage: React.FC = () => {
                     <ScoreBadge score={evaluation.score || evaluation.finalScore || 0} size="xl" showLabel />
                     {evaluation.provider && (
                       <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-500">
-                        {evaluation.provider === 'gemini' ? '✨ Gemini AI Pro' : '⚡ Heuristic Engine'}
+                        {evaluation.provider === 'gemini' ? '✨ Gemini AI Pro' : '⚡ Chế độ dự phòng (không phải AI)'}
                       </span>
                     )}
                   </div>
+                  {evaluation.summary && (
+                    <p className="mt-2 text-sm text-slate-600 max-w-xl">{evaluation.summary}</p>
+                  )}
                 </div>
 
                 {/* Sub-scores breakdown */}
-                {(evaluation.accuracy !== undefined || evaluation.naturalness !== undefined) && (
-                  <div className="flex items-center gap-4 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-100">
+                {evaluation.scoreBreakdown && (
+                  <div className="flex flex-wrap items-center gap-4 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-100">
                     <div className="text-center">
                       <p className="text-[10px] uppercase font-bold text-slate-400">Ngữ pháp</p>
-                      <p className="text-sm font-bold text-indigo-600">{evaluation.accuracy ?? 85}%</p>
+                      <p className="text-sm font-bold text-indigo-600">{evaluation.scoreBreakdown.grammar}%</p>
                     </div>
                     <div className="h-6 w-px bg-slate-200" />
                     <div className="text-center">
                       <p className="text-[10px] uppercase font-bold text-slate-400">Từ vựng</p>
-                      <p className="text-sm font-bold text-indigo-600">{evaluation.vocabulary ?? 85}%</p>
+                      <p className="text-sm font-bold text-indigo-600">{evaluation.scoreBreakdown.vocabulary}%</p>
+                    </div>
+                    <div className="h-6 w-px bg-slate-200" />
+                    <div className="text-center">
+                      <p className="text-[10px] uppercase font-bold text-slate-400">Ý nghĩa</p>
+                      <p className="text-sm font-bold text-indigo-600">{evaluation.scoreBreakdown.meaning}%</p>
+                    </div>
+                    <div className="h-6 w-px bg-slate-200" />
+                    <div className="text-center">
+                      <p className="text-[10px] uppercase font-bold text-slate-400">Cấu trúc</p>
+                      <p className="text-sm font-bold text-indigo-600">{evaluation.scoreBreakdown.sentenceStructure}%</p>
                     </div>
                     <div className="h-6 w-px bg-slate-200" />
                     <div className="text-center">
                       <p className="text-[10px] uppercase font-bold text-slate-400">Tự nhiên</p>
-                      <p className="text-sm font-bold text-indigo-600">{evaluation.naturalness ?? 85}%</p>
+                      <p className="text-sm font-bold text-indigo-600">{evaluation.scoreBreakdown.naturalness}%</p>
                     </div>
                   </div>
                 )}
               </div>
+
+              {/* Detailed per-category analysis */}
+              {(evaluation.meaningAnalysis || evaluation.grammarAnalysis || evaluation.vocabularyAnalysis || evaluation.structureAnalysis || evaluation.naturalnessAnalysis) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {evaluation.meaningAnalysis && (
+                    <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Ý nghĩa (Meaning)</p>
+                      <p className="text-sm text-slate-700">{evaluation.meaningAnalysis.feedback}</p>
+                    </div>
+                  )}
+                  {evaluation.grammarAnalysis && (
+                    <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Ngữ pháp (Grammar)</p>
+                      <p className="text-sm text-slate-700">{evaluation.grammarAnalysis.feedback}</p>
+                    </div>
+                  )}
+                  {evaluation.vocabularyAnalysis && (
+                    <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Từ vựng (Vocabulary)</p>
+                      <p className="text-sm text-slate-700">{evaluation.vocabularyAnalysis.feedback}</p>
+                    </div>
+                  )}
+                  {evaluation.structureAnalysis && (
+                    <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Cấu trúc câu (Structure)</p>
+                      <p className="text-sm text-slate-700">{evaluation.structureAnalysis.feedback}</p>
+                    </div>
+                  )}
+                  {evaluation.naturalnessAnalysis && (
+                    <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Độ tự nhiên (Naturalness)</p>
+                      <p className="text-sm text-slate-700">{evaluation.naturalnessAnalysis.feedback}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* AI corrected version of the student's own sentence */}
+              {evaluation.correctAnswer && (
+                <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5 space-y-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-800">
+                    Câu sửa hoàn chỉnh của AI (dựa trên câu của bạn):
+                  </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-lg font-bold text-emerald-950">{evaluation.correctAnswer}</p>
+                    <PronounceButton text={evaluation.correctAnswer} lang="en-US" />
+                  </div>
+                  {evaluation.alternativeAnswers && evaluation.alternativeAnswers.length > 0 && (
+                    <div className="pt-2 border-t border-emerald-100/80">
+                      <span className="text-xs font-semibold text-emerald-700">Cách diễn đạt tương đương khác:</span>
+                      <ul className="mt-1 space-y-1 text-sm text-slate-700">
+                        {evaluation.alternativeAnswers.map((alt, i) => (
+                          <li key={i} className="flex items-center justify-between gap-2 pl-2 border-l-2 border-emerald-300">
+                            <span>{alt}</span>
+                            <PronounceButton text={alt} lang="en-US" size="sm" />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Submitted answer preview */}
               <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100 space-y-1">
@@ -472,7 +548,7 @@ export const PracticePage: React.FC = () => {
               {/* Error Details */}
               <ErrorViewer errors={evaluation.errors || []} />
 
-              {/* Strengths & Overall Feedback */}
+              {/* Strengths, Weaknesses & Overall Feedback */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {evaluation.strengths && evaluation.strengths.length > 0 && (
                   <div className="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4 space-y-2">
@@ -485,6 +561,23 @@ export const PracticePage: React.FC = () => {
                         <li key={idx} className="flex items-start gap-1.5">
                           <span className="text-emerald-500 font-bold">•</span>
                           <span>{str}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {evaluation.weaknesses && evaluation.weaknesses.length > 0 && (
+                  <div className="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 space-y-2">
+                    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-rose-800">
+                      <AlertCircle className="h-4 w-4 text-rose-600" />
+                      <span>Điểm cần cải thiện (Weaknesses):</span>
+                    </div>
+                    <ul className="space-y-1 text-xs text-slate-700">
+                      {evaluation.weaknesses.map((wk, idx) => (
+                        <li key={idx} className="flex items-start gap-1.5">
+                          <span className="text-rose-500 font-bold">•</span>
+                          <span>{wk}</span>
                         </li>
                       ))}
                     </ul>

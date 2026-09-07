@@ -46,8 +46,13 @@ export class WritingController {
 
     async getSessionById(req: Request, res: Response): Promise<void> {
         try {
+            const userId = req.user?.id;
+            if (!userId) {
+                ApiResponse.error(res, "Chưa xác thực người dùng", 401);
+                return;
+            }
             const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-            const result = await writingService.getSessionById(id);
+            const result = await writingService.getSessionById(id, userId);
             ApiResponse.success(res, result, "Lấy thông tin phiên luyện tập thành công");
         } catch (error: any) {
             ApiResponse.error(res, error.message || "Không tìm thấy phiên luyện tập", 404);
@@ -70,8 +75,13 @@ export class WritingController {
 
     async getAttemptById(req: Request, res: Response): Promise<void> {
         try {
+            const userId = req.user?.id;
+            if (!userId) {
+                ApiResponse.error(res, "Chưa xác thực người dùng", 401);
+                return;
+            }
             const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-            const attempt = await writingService.getAttemptById(id);
+            const attempt = await writingService.getAttemptById(id, userId);
             ApiResponse.success(res, attempt, "Lấy chi tiết bài làm thành công");
         } catch (error: any) {
             ApiResponse.error(res, error.message || "Không tìm thấy bài làm", 404);

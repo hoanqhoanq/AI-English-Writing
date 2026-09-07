@@ -10,6 +10,7 @@ export const SignUp: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [level, setLevel] = useState('B1');
   const [target, setTarget] = useState('IELTS');
   const [error, setError] = useState('');
@@ -18,10 +19,19 @@ export const SignUp: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
+    if (password.length < 8) {
+      setError('Mật khẩu phải có ít nhất 8 ký tự');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Mật khẩu xác nhận không khớp');
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      await register(name, email, password, level, target);
+      await register(name, email, password, confirmPassword, level, target);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Đăng ký không thành công');
@@ -93,10 +103,29 @@ export const SignUp: React.FC = () => {
               <Lock className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
               <input
                 type="password"
-                placeholder="Ít nhất 6 ký tự..."
+                placeholder="Ít nhất 8 ký tự..."
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={8}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:bg-white focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+              Xác nhận mật khẩu
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+              <input
+                type="password"
+                placeholder="Nhập lại mật khẩu..."
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={8}
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:bg-white focus:outline-none"
               />
             </div>

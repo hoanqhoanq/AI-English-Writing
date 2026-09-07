@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Shield, Lock, Mail, ArrowRight, Zap, AlertCircle } from 'lucide-react';
+import { Shield, Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
 
 export const AdminLoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, quickLogin } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,23 +24,6 @@ export const AdminLoginPage: React.FC = () => {
       navigate('/admin');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Đăng nhập Admin thất bại. Vui lòng kiểm tra lại thông tin.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDemoAdmin = async () => {
-    setError('');
-    setLoading(true);
-    try {
-      const user = await quickLogin('admin');
-      if (user.role !== 'admin') {
-        setError('Tài khoản mẫu không có quyền Quản trị viên.');
-        return;
-      }
-      navigate('/admin');
-    } catch (err: any) {
-      setError('Lỗi đăng nhập nhanh với quyền Admin.');
     } finally {
       setLoading(false);
     }
@@ -68,24 +51,6 @@ export const AdminLoginPage: React.FC = () => {
             </div>
           )}
 
-          {/* Quick Demo Login Button */}
-          <button
-            type="button"
-            onClick={handleDemoAdmin}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-purple-50 border border-purple-200 py-3 text-xs font-bold text-purple-700 hover:bg-purple-100 transition shadow-xs"
-          >
-            <Zap className="h-4 w-4 text-purple-600" />
-            Đăng nhập nhanh với Admin Mẫu (Demo)
-          </button>
-
-          <div className="relative flex items-center justify-center">
-            <div className="border-t border-slate-200 w-full" />
-            <span className="bg-white px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Hoặc nhập tài khoản
-            </span>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">Email quản trị</label>
@@ -96,7 +61,7 @@ export const AdminLoginPage: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@example.com"
+                  placeholder="admin@yourdomain.com"
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:border-purple-500 focus:bg-white focus:outline-none"
                 />
               </div>

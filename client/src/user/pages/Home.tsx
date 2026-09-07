@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { PronounceButton } from '../components/PronounceButton';
 import { ScoreBadge } from '../components/ScoreBadge';
 import { ErrorViewer } from '../components/ErrorViewer';
@@ -17,7 +16,6 @@ import {
 } from 'lucide-react';
 
 export const Home: React.FC = () => {
-  const { user, quickLogin } = useAuth();
   const navigate = useNavigate();
 
   // Quick Demo Interactive Sandbox

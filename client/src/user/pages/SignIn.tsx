@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { PenTool, Lock, Mail, Zap, AlertCircle } from 'lucide-react';
+import { PenTool, Lock, Mail, AlertCircle } from 'lucide-react';
 
 export const SignIn: React.FC = () => {
-  const { login, quickLogin } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -26,22 +26,6 @@ export const SignIn: React.FC = () => {
       }
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Đăng nhập không thành công');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleQuickDemo = async (role: 'learner' | 'admin') => {
-    setIsLoading(true);
-    try {
-      const loggedUser = await quickLogin(role);
-      if (loggedUser.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
-    } catch (err: any) {
-      setError('Đăng nhập nhanh thất bại');
     } finally {
       setIsLoading(false);
     }
@@ -69,24 +53,6 @@ export const SignIn: React.FC = () => {
             <span>{error}</span>
           </div>
         )}
-
-        {/* Quick Demo Switcher */}
-        <div className="mb-6 rounded-2xl bg-indigo-50/70 p-3.5 border border-indigo-100 space-y-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-800 flex items-center gap-1">
-            <Zap className="h-3.5 w-3.5 text-indigo-600" />
-            Đăng nhập 1-click (Demo có sẵn dữ liệu)
-          </span>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('learner')}
-              disabled={isLoading}
-              className="rounded-xl bg-white px-3 py-2 text-xs font-bold text-indigo-700 shadow-sm border border-indigo-200 hover:bg-indigo-50 transition-colors"
-            >
-              👤 Học viên mẫu
-            </button>
-          </div>
-        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

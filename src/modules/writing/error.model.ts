@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
-import { ErrorType } from "../../types";
+import { ErrorSeverity, ErrorType } from "../../types";
 
 export interface IWritingError extends Document {
     userId: Types.ObjectId | string;
@@ -7,6 +7,7 @@ export interface IWritingError extends Document {
     questionId: Types.ObjectId | string;
     type: ErrorType;
     category?: string;
+    severity?: ErrorSeverity;
     wrongText: string;
     correctText: string;
     explanation: string;
@@ -23,6 +24,7 @@ const WritingErrorSchema = new Schema<IWritingError>(
         questionId: { type: Schema.Types.Mixed, required: true, index: true },
         type: { type: String, required: true, index: true },
         category: { type: String, index: true },
+        severity: { type: String, enum: ["minor", "major"], default: "minor" },
         wrongText: { type: String, required: true },
         correctText: { type: String, required: true },
         explanation: { type: String, required: true },

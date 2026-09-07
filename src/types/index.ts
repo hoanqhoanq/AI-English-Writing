@@ -20,6 +20,7 @@ export type ErrorType =
     | "VOCABULARY"
     | "SPELLING"
     | "WORD_CHOICE"
+    | "WORD_FORM"
     | "WORD_ORDER"
     | "MISSING_WORD"
     | "EXTRA_WORD"
@@ -29,31 +30,55 @@ export type ErrorType =
     | "TENSE"
     | "SUBJECT_VERB_AGREEMENT"
     | "SENTENCE_STRUCTURE"
-    | "NATURALNESS";
+    | "MEANING"
+    | "NATURALNESS"
+    | "PUNCTUATION";
+
+export type ErrorSeverity = "minor" | "major";
 
 export interface IErrorDetail {
     type: ErrorType;
     category?: string;
+    severity: ErrorSeverity;
     wrongText: string;
     correctText: string;
     explanation: string;
 }
 
+export interface ICategoryAnalysis {
+    score: number;
+    feedback: string;
+}
+
+export interface IMeaningAnalysis extends ICategoryAnalysis {
+    correct: boolean;
+}
+
 export interface IEvaluationResult {
+    isCorrect: boolean;
     status: AttemptStatus;
     score: number;
+    summary: string;
+    meaningAnalysis: IMeaningAnalysis;
+    grammarAnalysis: ICategoryAnalysis;
+    vocabularyAnalysis: ICategoryAnalysis;
+    structureAnalysis: ICategoryAnalysis;
+    naturalnessAnalysis: ICategoryAnalysis;
     correctAnswer: string;
+    alternativeAnswers: string[];
     errors: IErrorDetail[];
     strengths: string[];
+    weaknesses: string[];
     overallFeedback: string;
     recommendations: string[];
-    scoreBreakdown?: {
+    scoreBreakdown: {
         grammar: number;
         vocabulary: number;
         meaning: number;
         sentenceStructure: number;
         naturalness: number;
     };
+    provider?: string;
 }
 
 export interface IGeneratedQuestion {

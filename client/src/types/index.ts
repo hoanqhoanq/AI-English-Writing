@@ -46,22 +46,47 @@ export interface WritingQuestion {
 export interface WritingErrorDetail {
   type: string;
   category?: string;
+  severity?: 'minor' | 'major';
   wrongText: string;
   correctText: string;
   explanation: string;
+}
+
+export interface CategoryAnalysis {
+  score: number;
+  feedback: string;
+}
+
+export interface MeaningAnalysis extends CategoryAnalysis {
+  correct: boolean;
+}
+
+export interface ScoreBreakdown {
+  grammar: number;
+  vocabulary: number;
+  meaning: number;
+  sentenceStructure: number;
+  naturalness: number;
 }
 
 export interface EvaluationResult {
   score: number;
   finalScore?: number;
   status: 'correct' | 'partially_correct' | 'incorrect';
-  accuracy?: number;
-  vocabulary?: number;
-  naturalness?: number;
+  isCorrect?: boolean;
+  summary?: string;
+  meaningAnalysis?: MeaningAnalysis;
+  grammarAnalysis?: CategoryAnalysis;
+  vocabularyAnalysis?: CategoryAnalysis;
+  structureAnalysis?: CategoryAnalysis;
+  naturalnessAnalysis?: CategoryAnalysis;
+  scoreBreakdown?: ScoreBreakdown;
   errors: WritingErrorDetail[];
   strengths: string[];
+  weaknesses?: string[];
   overallFeedback: string;
   recommendations: string[];
+  correctAnswer?: string;
   referenceAnswer?: string;
   alternativeAnswers?: string[];
   provider?: string;
@@ -77,10 +102,16 @@ export interface AttemptRecord {
   status: 'correct' | 'partially_correct' | 'incorrect';
   aiScore: number;
   finalScore: number;
+  summary?: string;
+  correctAnswer?: string;
+  alternativeAnswers?: string[];
   errors: WritingErrorDetail[];
   strengths: string[];
+  weaknesses?: string[];
   overallFeedback: string;
   recommendations: string[];
+  scoreBreakdown?: ScoreBreakdown;
+  aiProvider?: string;
   level: string;
   topic: string;
   grammarTopic: string;

@@ -4,6 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
 import fs from "fs";
+import cookieParser from "cookie-parser";
 
 import authRouter from "./modules/auth/auth.route";
 import userRouter from "./modules/users/user.route";
@@ -24,9 +25,15 @@ app.use(
 
 app.use(
     cors({
-        origin: "*"
+        // Reflects the request's own origin (instead of "*") so the browser will
+        // actually send/accept the HttpOnly refresh-token cookie, which requires
+        // credentials: true — wildcard origins are not allowed together with credentials.
+        origin: (origin, callback) => callback(null, origin || true),
+        credentials: true,
     })
 );
+
+app.use(cookieParser());
 
 app.use(morgan("dev"));
 
