@@ -4,6 +4,7 @@ import {
     AIProvider,
     IGenerateQuestionsInput,
     IEvaluationInput,
+    IParagraphEvaluationInput,
     IWeaknessAnalysisInput,
 } from "../ai.interface";
 import {
@@ -11,11 +12,13 @@ import {
     DifficultyLevel,
     IEvaluationResult,
     IGeneratedQuestion,
+    IParagraphEvaluationResult,
     IWeaknessAnalysisResult,
 } from "../../../types";
 import { buildWritingGenerationPrompt } from "../prompts/writing-generation.prompt";
 import { buildWritingEvaluationPrompt } from "../prompts/writing-evaluation.prompt";
 import { buildWeaknessAnalysisPrompt } from "../prompts/weakness-analysis.prompt";
+import { buildParagraphEvaluationPrompt } from "../prompts/paragraph-evaluation.prompt";
 import { z } from "zod";
 
 const CategoryAnalysisSchema = z.object({
@@ -84,6 +87,38 @@ const WeaknessAnalysisSchema = z.object({
     ).default([]),
     progress: z.enum(["improving", "stable", "needs_attention"]).default("stable"),
     analysis: z.string(),
+    recommendations: z.array(z.string()).default([]),
+});
+
+const ParagraphCriterionSchema = z.object({
+    score: z.number().min(0).max(100),
+    feedback: z.string().min(1),
+});
+
+const ParagraphEvaluationSchema = z.object({
+    overallScore: z.number().min(0).max(100),
+    meetsRequirements: z.boolean(),
+    content: ParagraphCriterionSchema,
+    organization: ParagraphCriterionSchema,
+    coherence: ParagraphCriterionSchema,
+    grammar: ParagraphCriterionSchema,
+    vocabulary: ParagraphCriterionSchema,
+    sentenceStructure: ParagraphCriterionSchema,
+    naturalness: ParagraphCriterionSchema,
+    errors: z.array(
+        z.object({
+            type: z.string(),
+            category: z.string().optional(),
+            severity: z.enum(["minor", "major"]).default("minor"),
+            wrongText: z.string(),
+            correctText: z.string(),
+            explanation: z.string(),
+        })
+    ).default([]),
+    strengths: z.array(z.string()).default([]),
+    weaknesses: z.array(z.string()).default([]),
+    correctedSuggestion: z.string(),
+    overallFeedback: z.string(),
     recommendations: z.array(z.string()).default([]),
 });
 
@@ -268,5 +303,55 @@ export class GeminiProvider implements AIProvider {
             analysis: validated.analysis,
             recommendations: validated.recommendations,
         };
+    }
+
+    async evaluateParagraph(input: IParagraphEvaluationInput): Promise<IParagraphEvaluationResult> {
+        const prompt = buildParagraphEvaluationPrompt(input);
+        const maxAttempts = 3;
+        let lastError: any = null;
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                const rawText = await this.generateJsonWithFallback(prompt);
+                const cleaned = this.cleanJsonString(rawText || "{}");
+                const parsed = JSON.parse(cleaned);
+                const validated = ParagraphEvaluationSchema.parse(parsed);
+                const wordCount = input.userAnswer.trim().split(/\s+/).filter(Boolean).length;
+
+                return {
+                    overallScore: validated.overallScore,
+                    wordCount,
+                    meetsRequirements: validated.meetsRequirements,
+                    content: validated.content,
+                    organization: validated.organization,
+                    coherence: validated.coherence,
+                    grammar: validated.grammar,
+                    vocabulary: validated.vocabulary,
+                    sentenceStructure: validated.sentenceStructure,
+                    naturalness: validated.naturalness,
+                    errors: validated.errors.map((e) => ({
+                        type: e.type as any,
+                        category: e.category,
+                        severity: e.severity,
+                        wrongText: e.wrongText,
+                        correctText: e.correctText,
+                        explanation: e.explanation,
+                    })),
+                    strengths: validated.strengths,
+                    weaknesses: validated.weaknesses,
+                    correctedSuggestion: validated.correctedSuggestion,
+                    overallFeedback: validated.overallFeedback,
+                    recommendations: validated.recommendations,
+                };
+            } catch (err: any) {
+                lastError = err;
+                console.warn(`[Gemini Provider] evaluateParagraph attempt ${attempt}/${maxAttempts} failed to produce a valid response: ${String(err?.message || err).slice(0, 200)}`);
+                if (attempt < maxAttempts) {
+                    await new Promise((res) => setTimeout(res, 300));
+                }
+            }
+        }
+
+        throw lastError || new Error("Gemini did not return a valid paragraph evaluation after retries");
     }
 }

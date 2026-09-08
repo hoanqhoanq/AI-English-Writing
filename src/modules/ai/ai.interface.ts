@@ -3,7 +3,9 @@ import {
     DifficultyLevel,
     IEvaluationResult,
     IGeneratedQuestion,
+    IParagraphEvaluationResult,
     IWeaknessAnalysisResult,
+    ParagraphLevelTier,
 } from "../../types";
 
 export interface IEvaluationInput {
@@ -14,6 +16,15 @@ export interface IEvaluationInput {
     level: string;
     topic?: string;
     grammarTopic?: string;
+}
+
+export interface IParagraphEvaluationInput {
+    instruction: string;
+    levelTier: ParagraphLevelTier;
+    minWords: number;
+    maxWords: number;
+    requirements?: string[];
+    userAnswer: string;
 }
 
 export interface IWeaknessAnalysisInput {
@@ -42,6 +53,8 @@ export interface AIProvider {
     evaluateWriting(input: IEvaluationInput): Promise<IEvaluationResult>;
 
     analyzeWeakness(input: IWeaknessAnalysisInput): Promise<IWeaknessAnalysisResult>;
+
+    evaluateParagraph(input: IParagraphEvaluationInput): Promise<IParagraphEvaluationResult>;
 }
 
 export interface IGenerateQuestionsInput {

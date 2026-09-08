@@ -7,6 +7,8 @@ import {
   CefrLevelDef,
   SystemStats,
   AdminEvaluationRecord,
+  ParagraphTopic,
+  ParagraphAttemptRecord,
 } from '../types';
 
 export const adminService = {
@@ -146,6 +148,41 @@ export const adminService = {
     limit?: number;
   }): Promise<{ attempts: AdminEvaluationRecord[]; total: number; page: number; totalPages: number }> => {
     const res = await api.get('/writing/admin/evaluations', { params });
+    return res.data.data;
+  },
+
+  // Paragraph Topics Management
+  getAdminParagraphTopics: async (params?: {
+    levelTier?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ topics: ParagraphTopic[]; total: number; page: number; totalPages: number }> => {
+    const res = await api.get('/paragraph/admin/topics', { params });
+    return res.data.data;
+  },
+
+  createParagraphTopic: async (data: Partial<ParagraphTopic>): Promise<ParagraphTopic> => {
+    const res = await api.post('/paragraph/admin/topics', data);
+    return res.data.data;
+  },
+
+  updateParagraphTopic: async (id: string, data: Partial<ParagraphTopic>): Promise<ParagraphTopic> => {
+    const res = await api.put(`/paragraph/admin/topics/${id}`, data);
+    return res.data.data;
+  },
+
+  deleteParagraphTopic: async (id: string): Promise<void> => {
+    await api.delete(`/paragraph/admin/topics/${id}`);
+  },
+
+  getAdminParagraphAttempts: async (params?: {
+    topicId?: string;
+    userId?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ attempts: ParagraphAttemptRecord[]; total: number; page: number; totalPages: number }> => {
+    const res = await api.get('/paragraph/admin/attempts', { params });
     return res.data.data;
   },
 };

@@ -11,6 +11,10 @@ import ProfilePage from '../user/pages/ProfilePage';
 import Dashboard from '../user/pages/Dashboard';
 import SignIn from '../user/pages/SignIn';
 import SignUp from '../user/pages/SignUp';
+import JourneyPage from '../user/pages/JourneyPage';
+import JourneyChapterPage from '../user/pages/JourneyChapterPage';
+import ParagraphWritingPage from '../user/pages/ParagraphWritingPage';
+import ParagraphTopicPage from '../user/pages/ParagraphTopicPage';
 
 // Admin Layout & Pages
 import AdminLayout from '../admin/layouts/AdminLayout';
@@ -22,6 +26,7 @@ import AdminLevelsPage from '../admin/pages/AdminLevelsPage';
 import AdminEvaluationsPage from '../admin/pages/AdminEvaluationsPage';
 import AdminLoginPage from '../admin/pages/AdminLoginPage';
 import AdminAIGeneratePage from '../admin/pages/AdminAIGeneratePage';
+import AdminParagraphTopicsPage from '../admin/pages/AdminParagraphTopicsPage';
 import ProtectedRoute from './ProtectedRoute';
 import UserRoute from './UserRoute';
 import AdminRoute from './AdminRoute';
@@ -45,6 +50,10 @@ export const AppRoutes: React.FC = () => {
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/home" element={<Home />} />
+            <Route path="/journey" element={<JourneyPage />} />
+            <Route path="/journey/:grammarTopicId" element={<JourneyChapterPage />} />
+            <Route path="/paragraph-writing" element={<ParagraphWritingPage />} />
+            <Route path="/paragraph-writing/:topicId" element={<ParagraphTopicPage />} />
           </Route>
         </Route>
 
@@ -55,6 +64,7 @@ export const AppRoutes: React.FC = () => {
             <Route path="/admin/questions" element={<AdminQuestionsPage />} />
             <Route path="/admin/ai-generate" element={<AdminAIGeneratePage />} />
             <Route path="/admin/topics" element={<AdminTopicsPage />} />
+            <Route path="/admin/paragraph-topics" element={<AdminParagraphTopicsPage />} />
             <Route path="/admin/levels" element={<AdminLevelsPage />} />
             <Route path="/admin/evaluations" element={<AdminEvaluationsPage />} />
           </Route>

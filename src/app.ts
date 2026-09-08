@@ -12,6 +12,8 @@ import topicRouter from "./modules/topics/topic.route";
 import writingRouter from "./modules/writing/writing.route";
 import aiRouter from "./modules/ai/ai.route";
 import analyticsRouter from "./modules/analytics/analytics.route";
+import journeyRouter from "./modules/journey/journey.route";
+import paragraphRouter from "./modules/paragraph/paragraph.route";
 import { errorHandler } from "./middlewares/error.middleware";
 
 const app = express();
@@ -66,6 +68,8 @@ app.use("/api/topics", topicRouter);
 app.use("/api/writing", writingRouter);
 app.use("/api/ai", aiRouter);
 app.use("/api/analytics", analyticsRouter);
+app.use("/api/journey", journeyRouter);
+app.use("/api/paragraph", paragraphRouter);
 
 // Path to client frontend build (client/dist)
 const possibleDistPaths = [

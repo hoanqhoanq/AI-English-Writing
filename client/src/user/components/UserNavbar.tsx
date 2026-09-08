@@ -11,6 +11,8 @@ import {
   ChevronDown,
   Menu,
   X,
+  Compass,
+  FileText,
 } from 'lucide-react';
 
 export const UserNavbar: React.FC = () => {
@@ -21,7 +23,9 @@ export const UserNavbar: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const navLinks = [
+    { name: 'Lộ trình', path: '/journey', icon: Compass },
     { name: 'Luyện viết', path: '/practice', icon: PenTool },
+    { name: 'Viết đoạn văn', path: '/paragraph-writing', icon: FileText },
     { name: 'Ngân hàng câu', path: '/questions', icon: BookOpen },
     { name: 'Thống kê & Lỗi', path: '/analytics', icon: BarChart3 },
   ];

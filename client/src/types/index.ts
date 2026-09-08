@@ -224,3 +224,139 @@ export interface AdminEvaluationRecord extends AttemptRecord {
   userEmail?: string;
 }
 
+// --- Writing Journey ---
+
+export type ChapterStatus = 'locked' | 'in_progress' | 'mastery_test' | 'completed' | 'no_content';
+export type ExerciseStatus = 'locked' | 'available' | 'completed';
+
+export interface JourneyChapter {
+  grammarTopicId: string;
+  grammarTopic: string;
+  description: string;
+  level: string;
+  order: number;
+  totalExercises: number;
+  completedExercises: number;
+  masteryScore: number;
+  status: ChapterStatus;
+}
+
+export interface JourneyExercise {
+  questionId: string;
+  vietnameseSentence: string;
+  level: string;
+  difficulty: string;
+  topic: string;
+  status: ExerciseStatus;
+  bestScore: number | null;
+  attempts: number;
+}
+
+export interface JourneyChapterDetail {
+  grammarTopicId: string;
+  grammarTopic: string;
+  description: string;
+  level: string;
+  exercises: JourneyExercise[];
+  totalExercises: number;
+  completedExercises: number;
+  masteryScore: number;
+  requiredMasteryScore: number;
+  masteryTestUnlocked: boolean;
+  masteryTestPassed: boolean;
+}
+
+export interface JourneyAchievement {
+  id: string;
+  title: string;
+  description: string;
+  earned: boolean;
+}
+
+export interface JourneyOverview {
+  xp: number;
+  level: number;
+  streak: number;
+  totalWriting: number;
+  averageScore: number;
+  completedChapters: number;
+  totalChapters: number;
+  achievements: JourneyAchievement[];
+}
+
+export interface RecommendationItem {
+  grammarTopic: string;
+  grammarTopicId: string;
+  averageScore: number;
+  totalAttempts: number;
+  totalErrors: number;
+}
+
+// --- Paragraph Writing ---
+
+export type ParagraphLevelTier = 'Beginner' | 'Intermediate' | 'Advanced';
+
+export interface ParagraphTopic {
+  _id: string;
+  title: string;
+  instruction: string;
+  levelTier: ParagraphLevelTier;
+  minWords: number;
+  maxWords: number;
+  requirements: string[];
+  topicCategory?: string;
+  isActive: boolean;
+  order: number;
+  createdAt?: string;
+}
+
+export interface ParagraphEvaluationResult {
+  overallScore: number;
+  wordCount: number;
+  meetsRequirements: boolean;
+  content: CategoryAnalysis;
+  organization: CategoryAnalysis;
+  coherence: CategoryAnalysis;
+  grammar: CategoryAnalysis;
+  vocabulary: CategoryAnalysis;
+  sentenceStructure: CategoryAnalysis;
+  naturalness: CategoryAnalysis;
+  errors: WritingErrorDetail[];
+  strengths: string[];
+  weaknesses: string[];
+  correctedSuggestion: string;
+  overallFeedback: string;
+  recommendations: string[];
+  provider?: string;
+}
+
+export interface ParagraphSubmitResponse {
+  attemptId: string;
+  topicId: string;
+  currentUserAnswer: string;
+  currentScore: number;
+  revisionCount: number;
+  scoreHistory: number[];
+  evaluation: ParagraphEvaluationResult;
+}
+
+export interface ParagraphRevision {
+  text: string;
+  wordCount: number;
+  score: number;
+  submittedAt: string;
+}
+
+export interface ParagraphAttemptRecord {
+  _id: string;
+  userId: string;
+  topicId: string;
+  currentUserAnswer: string;
+  currentScore: number;
+  revisions?: ParagraphRevision[];
+  userName?: string;
+  userEmail?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+

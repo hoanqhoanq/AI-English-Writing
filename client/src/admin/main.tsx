@@ -13,6 +13,7 @@ import AdminEvaluationsPage from './pages/AdminEvaluationsPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminProtectedRoute from '../routes/AdminProtectedRoute';
 import AdminAIGeneratePage from './pages/AdminAIGeneratePage';
+import AdminParagraphTopicsPage from './pages/AdminParagraphTopicsPage';
 import '../index.css';
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const AdminApp: React.FC = () => (
           <Route path="questions" element={<AdminQuestionsPage />} />
           <Route path="ai-generate" element={<AdminAIGeneratePage />} />
           <Route path="topics" element={<AdminTopicsPage />} />
+          <Route path="paragraph-topics" element={<AdminParagraphTopicsPage />} />
           <Route path="levels" element={<AdminLevelsPage />} />
           <Route path="evaluations" element={<AdminEvaluationsPage />} />
         </Route>

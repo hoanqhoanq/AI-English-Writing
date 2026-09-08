@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { WritingQuestion, EvaluationResult, Topic, GrammarTopic } from '../../types';
@@ -22,6 +22,7 @@ import {
 export const PracticePage: React.FC = () => {
   const { user } = useAuth();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   // Filters and questions state
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -48,11 +49,15 @@ export const PracticePage: React.FC = () => {
       setCurrentIndex(0);
       setLoadingQuestions(false);
     } else {
-      fetchFiltersAndQuestions();
+      // Optional deep link from the Writing Journey (e.g. /practice?grammarTopic=Present+Perfect)
+      const grammarParam = searchParams.get('grammarTopic');
+      if (grammarParam) setSelectedGrammar(grammarParam);
+      fetchFiltersAndQuestions(grammarParam || undefined);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state]);
 
-  const fetchFiltersAndQuestions = async () => {
+  const fetchFiltersAndQuestions = async (grammarOverride?: string) => {
     setLoadingQuestions(true);
     try {
       const [topicsRes, grammarRes] = await Promise.all([
@@ -63,7 +68,7 @@ export const PracticePage: React.FC = () => {
       if (topicsRes.data.success) setTopics(topicsRes.data.data);
       if (grammarRes.data.success) setGrammars(grammarRes.data.data);
 
-      await loadQuestions();
+      await loadQuestions(grammarOverride);
     } catch (err) {
       console.error('Error loading filters:', err);
     } finally {
@@ -71,12 +76,13 @@ export const PracticePage: React.FC = () => {
     }
   };
 
-  const loadQuestions = async () => {
+  const loadQuestions = async (grammarOverride?: string) => {
     try {
       const params: Record<string, string> = { limit: '20' };
       if (selectedTopic !== 'all') params.topic = selectedTopic;
       if (selectedLevel !== 'all') params.level = selectedLevel;
-      if (selectedGrammar !== 'all') params.grammarTopic = selectedGrammar;
+      const grammarValue = grammarOverride ?? selectedGrammar;
+      if (grammarValue !== 'all') params.grammarTopic = grammarValue;
 
       const res = await api.get('/writing/questions', { params });
       if (res.data.success && res.data.data?.questions) {

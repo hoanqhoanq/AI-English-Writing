@@ -12,6 +12,7 @@ import {
   Shield,
   LogOut,
   ChevronRight,
+  FileText,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -30,6 +31,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
     { name: 'Câu hỏi Writing', path: '/admin/questions', icon: BookOpen },
     { name: 'AI Sinh câu hỏi', path: '/admin/ai-generate', icon: Sparkles },
     { name: 'Chủ đề & Ngữ pháp', path: '/admin/topics', icon: Layers },
+    { name: 'Đề viết đoạn văn', path: '/admin/paragraph-topics', icon: FileText },
     { name: 'Cấp độ CEFR', path: '/admin/levels', icon: GraduationCap },
     { name: 'Lịch sử AI Chấm bài', path: '/admin/evaluations', icon: History },
   ];

@@ -1,4 +1,4 @@
-import { AIProvider, IGenerateQuestionsInput, IEvaluationInput, IWeaknessAnalysisInput } from "./ai.interface";
+import { AIProvider, IGenerateQuestionsInput, IEvaluationInput, IParagraphEvaluationInput, IWeaknessAnalysisInput } from "./ai.interface";
 import { GeminiProvider } from "./providers/gemini.provider";
 import { HeuristicProvider } from "./providers/heuristic.provider";
 import { config } from "../../config/env";
@@ -7,6 +7,7 @@ import {
     DifficultyLevel,
     IEvaluationResult,
     IGeneratedQuestion,
+    IParagraphEvaluationResult,
     IWeaknessAnalysisResult,
 } from "../../types";
 
@@ -71,6 +72,21 @@ export class AIService {
             console.warn(`[AI SERVICE] Primary provider error (${error.message}). Falling back to heuristic weakness analysis.`);
             const fallbackResult = await this.fallbackProvider.analyzeWeakness(input);
             return fallbackResult;
+        }
+    }
+
+    async evaluateParagraph(input: IParagraphEvaluationInput): Promise<IParagraphEvaluationResult> {
+        const startTime = Date.now();
+        console.log(`[AI SERVICE] Evaluating paragraph (levelTier=${input.levelTier}, words=${input.userAnswer.trim().split(/\s+/).filter(Boolean).length})`);
+
+        try {
+            const result = await this.provider.evaluateParagraph(input);
+            console.log(`[AI SERVICE] Paragraph evaluation complete. Score: ${result.overallScore} in ${Date.now() - startTime}ms`);
+            return { ...result, provider: this.provider.name };
+        } catch (error: any) {
+            console.warn(`[AI SERVICE] Primary provider error (${error.message}). Falling back to heuristic paragraph evaluation.`);
+            const fallbackResult = await this.fallbackProvider.evaluateParagraph(input);
+            return { ...fallbackResult, provider: this.fallbackProvider.name };
         }
     }
 }

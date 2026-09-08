@@ -87,6 +87,7 @@ const WritingAttemptSchema = new Schema<IWritingAttempt>(
 // the single-field indexes above alone.
 WritingAttemptSchema.index({ userId: 1, createdAt: -1 });
 WritingAttemptSchema.index({ userId: 1, questionId: 1 });
+WritingAttemptSchema.index({ userId: 1, grammarTopic: 1 });
 
 export const WritingAttemptModel =
     mongoose.models.WritingAttempt || mongoose.model<IWritingAttempt>("WritingAttempt", WritingAttemptSchema);

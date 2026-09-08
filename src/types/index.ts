@@ -92,6 +92,28 @@ export interface IGeneratedQuestion {
     keywords: string[];
 }
 
+export type ParagraphLevelTier = "Beginner" | "Intermediate" | "Advanced";
+
+export interface IParagraphEvaluationResult {
+    overallScore: number;
+    wordCount: number;
+    meetsRequirements: boolean;
+    content: ICategoryAnalysis;
+    organization: ICategoryAnalysis;
+    coherence: ICategoryAnalysis;
+    grammar: ICategoryAnalysis;
+    vocabulary: ICategoryAnalysis;
+    sentenceStructure: ICategoryAnalysis;
+    naturalness: ICategoryAnalysis;
+    errors: IErrorDetail[];
+    strengths: string[];
+    weaknesses: string[];
+    correctedSuggestion: string;
+    overallFeedback: string;
+    recommendations: string[];
+    provider?: string;
+}
+
 export interface IWeaknessAnalysisResult {
     overallLevel: CefrLevel;
     strengths: string[];

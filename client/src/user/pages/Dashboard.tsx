@@ -7,6 +7,8 @@ import {
   BarChart3,
   Flame,
   ArrowRight,
+  Compass,
+  FileText,
 } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
@@ -44,6 +46,48 @@ export const Dashboard: React.FC = () => {
 
       {/* Quick Launch Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Link
+          to="/journey"
+          className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:border-teal-300 hover:shadow-md transition-all space-y-4 group"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 group-hover:scale-110 transition-transform">
+            <Compass className="h-6 w-6" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-900 group-hover:text-teal-600 transition-colors">
+              Lộ trình học Writing
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Học từng thì ngữ pháp theo lộ trình, mở khóa bài mới khi hoàn thành.
+            </p>
+          </div>
+          <div className="flex items-center gap-1 text-xs font-bold text-teal-600">
+            <span>Xem lộ trình</span>
+            <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
+
+        <Link
+          to="/paragraph-writing"
+          className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:border-fuchsia-300 hover:shadow-md transition-all space-y-4 group"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-fuchsia-50 text-fuchsia-600 group-hover:scale-110 transition-transform">
+            <FileText className="h-6 w-6" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-900 group-hover:text-fuchsia-600 transition-colors">
+              Viết đoạn văn
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Luyện viết đoạn văn theo chủ đề, AI chấm điểm và gợi ý sửa bài.
+            </p>
+          </div>
+          <div className="flex items-center gap-1 text-xs font-bold text-fuchsia-600">
+            <span>Bắt đầu viết</span>
+            <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
+
         <Link
           to="/practice"
           className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all space-y-4 group"

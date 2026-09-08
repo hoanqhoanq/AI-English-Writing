@@ -2,6 +2,7 @@ import {
     AIProvider,
     IGenerateQuestionsInput,
     IEvaluationInput,
+    IParagraphEvaluationInput,
     IWeaknessAnalysisInput,
 } from "../ai.interface";
 import {
@@ -9,6 +10,7 @@ import {
     DifficultyLevel,
     IEvaluationResult,
     IGeneratedQuestion,
+    IParagraphEvaluationResult,
     IWeaknessAnalysisResult,
     IErrorDetail,
 } from "../../../types";
@@ -255,6 +257,47 @@ export class HeuristicProvider implements AIProvider {
                 "Luyện tập thêm các bài viết theo chủ đề ngữ pháp còn yếu.",
                 "Tập thói quen kiểm tra lại thì động từ và mạo từ trước khi submit câu.",
                 "Luyện viết đều đặn ít nhất 5 câu mỗi ngày để duy trì streak.",
+            ],
+        };
+    }
+
+    async evaluateParagraph(input: IParagraphEvaluationInput): Promise<IParagraphEvaluationResult> {
+        const text = input.userAnswer.trim();
+        const wordCount = text.split(/\s+/).filter(Boolean).length;
+        const meetsLength = wordCount >= input.minWords && wordCount <= input.maxWords;
+        const score = meetsLength ? 65 : 40;
+
+        const errors: IErrorDetail[] = [];
+        if (!meetsLength) {
+            errors.push({
+                type: "SENTENCE_STRUCTURE",
+                category: "WORD_COUNT",
+                severity: "minor",
+                wrongText: text.slice(0, 40),
+                correctText: `${input.minWords}-${input.maxWords} từ`,
+                explanation: `Đoạn văn hiện có khoảng ${wordCount} từ, chưa nằm trong khoảng yêu cầu ${input.minWords}-${input.maxWords} từ. Hãy bổ sung hoặc rút gọn ý để đạt độ dài phù hợp.`,
+            });
+        }
+
+        return {
+            overallScore: score,
+            wordCount,
+            meetsRequirements: meetsLength,
+            content: { score, feedback: "Nội dung chưa được AI phân tích sâu do đang dùng chế độ dự phòng." },
+            organization: { score, feedback: "Cấu trúc đoạn văn chưa được phân tích chi tiết ở chế độ dự phòng." },
+            coherence: { score, feedback: "Tính liên kết chưa được đánh giá đầy đủ ở chế độ dự phòng." },
+            grammar: { score, feedback: "Ngữ pháp chưa được kiểm tra chi tiết do dịch vụ AI hiện không khả dụng." },
+            vocabulary: { score, feedback: "Từ vựng chưa được đánh giá chi tiết ở chế độ dự phòng." },
+            sentenceStructure: { score, feedback: "Cấu trúc câu chưa được phân tích chi tiết ở chế độ dự phòng." },
+            naturalness: { score, feedback: "Độ tự nhiên chưa được đánh giá đầy đủ ở chế độ dự phòng." },
+            errors,
+            strengths: ["Đã hoàn thành và nộp bài viết đoạn văn"],
+            weaknesses: ["Chưa thể phân tích chi tiết do dịch vụ AI đang tạm thời không khả dụng"],
+            correctedSuggestion: text,
+            overallFeedback: "Đây là đánh giá tạm thời bằng bộ quy tắc dự phòng (không phải AI) vì dịch vụ AI hiện không khả dụng. Vui lòng thử nộp lại sau ít phút để nhận đánh giá đầy đủ từ AI.",
+            recommendations: [
+                "Thử nộp lại bài sau ít phút để nhận đánh giá chi tiết từ AI.",
+                "Đọc kỹ yêu cầu đề bài và đảm bảo đủ số từ quy định.",
             ],
         };
     }
