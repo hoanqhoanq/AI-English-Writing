@@ -8,7 +8,7 @@ const RootRedirect: React.FC = () => {
   if (isLoading) return null;
   if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
 
-  return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+  return <Navigate to="/dashboard" replace />;
 };
 
 export default RootRedirect;
