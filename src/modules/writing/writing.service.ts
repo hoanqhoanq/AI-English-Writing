@@ -223,10 +223,24 @@ export class WritingService {
             if (query.userId) filter.userId = query.userId;
 
             const [attempts, total] = await Promise.all([
-                WritingAttemptModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+                WritingAttemptModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
                 WritingAttemptModel.countDocuments(filter),
             ]);
-            return { attempts, total, page, totalPages: Math.ceil(total / limit) };
+
+            const userIds = [...new Set(attempts.map((a: any) => String(a.userId)))];
+            const users = await UserModel.find({ _id: { $in: userIds } }).select("name email").lean();
+            const userMap = new Map(users.map((u: any) => [String(u._id), u]));
+
+            const attemptsWithUser = attempts.map((a: any) => {
+                const user = userMap.get(String(a.userId));
+                return {
+                    ...a,
+                    userName: user ? user.name : "",
+                    userEmail: user ? user.email : "",
+                };
+            });
+
+            return { attempts: attemptsWithUser, total, page, totalPages: Math.ceil(total / limit) };
         } else {
             let list = [...memoryStore.attempts];
             if (query.status && query.status !== "All") list = list.filter((a) => a.status === query.status);
