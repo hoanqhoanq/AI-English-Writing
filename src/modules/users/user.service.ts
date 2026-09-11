@@ -111,7 +111,7 @@ export class UserService {
     }
 
     async createUser(data: any) {
-        const hashedPassword = await hashPassword(data.password || "Password123!");
+        const hashedPassword = await hashPassword(data.password);
         if (this.isMongoActive()) {
             const user = await UserModel.create({
                 name: data.name,

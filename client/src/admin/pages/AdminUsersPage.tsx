@@ -14,6 +14,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   RefreshCw,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 export const AdminUsersPage: React.FC = () => {
@@ -28,6 +30,8 @@ export const AdminUsersPage: React.FC = () => {
   // Modals
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<Partial<AdminUser> | null>(null);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const showToast = (text: string, type: 'success' | 'error' = 'success') => {
     setFeedback({ text, type });
@@ -63,6 +67,12 @@ export const AdminUsersPage: React.FC = () => {
   const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingUser) return;
+
+    if (!editingUser._id && passwordInput.trim().length < 8) {
+      showToast('Mật khẩu phải có ít nhất 8 ký tự', 'error');
+      return;
+    }
+
     try {
       if (editingUser._id) {
         const updated = await adminService.updateUser(editingUser._id, editingUser);
@@ -72,7 +82,7 @@ export const AdminUsersPage: React.FC = () => {
         const created = await adminService.createUser({
           name: editingUser.name || 'Học viên mới',
           email: editingUser.email || '',
-          password: 'Password123!',
+          password: passwordInput.trim(),
           role: editingUser.role || 'user',
           level: editingUser.level || 'B1',
           target: editingUser.target || 'IELTS',
@@ -82,6 +92,8 @@ export const AdminUsersPage: React.FC = () => {
       }
       setIsModalOpen(false);
       setEditingUser(null);
+      setPasswordInput('');
+      setShowPassword(false);
     } catch (err: any) {
       showToast(err.response?.data?.message || 'Không thể lưu người dùng', 'error');
     }
@@ -187,6 +199,8 @@ export const AdminUsersPage: React.FC = () => {
             type="button"
             onClick={() => {
               setEditingUser({ name: '', email: '', role: 'user', level: 'B1', target: 'IELTS' });
+              setPasswordInput('');
+              setShowPassword(false);
               setIsModalOpen(true);
             }}
             className="flex items-center gap-1.5 rounded-xl bg-purple-600 px-4 py-2 text-xs font-bold text-white hover:bg-purple-700 shadow-xs transition"
@@ -295,6 +309,8 @@ export const AdminUsersPage: React.FC = () => {
                             type="button"
                             onClick={() => {
                               setEditingUser(u);
+                              setPasswordInput('');
+                              setShowPassword(false);
                               setIsModalOpen(true);
                             }}
                             title="Chỉnh sửa thông tin"
@@ -360,6 +376,34 @@ export const AdminUsersPage: React.FC = () => {
                   placeholder="user@example.com"
                 />
               </div>
+
+              {!editingUser._id && (
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Mật khẩu <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      minLength={8}
+                      value={passwordInput}
+                      onChange={(e) => setPasswordInput(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 pr-10 text-xs text-slate-900 focus:border-purple-500 focus:outline-none"
+                      placeholder="Tối thiểu 8 ký tự"
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      title={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div>

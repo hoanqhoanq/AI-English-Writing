@@ -53,7 +53,7 @@ export const adminService = {
   createUser: async (data: {
     name: string;
     email: string;
-    password?: string;
+    password: string;
     role?: 'user' | 'admin';
     level?: string;
     target?: string;
