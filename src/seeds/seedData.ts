@@ -1051,3 +1051,610 @@ export const SEED_QUESTIONS = [
     },
 ];
 
+// Writing Learning content (Learn/Examples/Common Mistakes) for the open,
+// W3Schools-style topic library. `practiceTag` links a topic to the matching
+// `grammarTopic` string already used by SEED_QUESTIONS above, so Practice and
+// AI Writing both reuse the existing question bank + AI evaluation pipeline
+// with zero extra plumbing. Every topic carries both an English and a
+// Vietnamese title (titleVi), shown together on cards and topic headers.
+export const SEED_LEARNING_TOPICS = [
+    {
+        slug: "present-simple",
+        title: "Present Simple",
+        titleVi: "Hiện tại đơn",
+        category: "grammar",
+        description: "Học cách sử dụng thì hiện tại đơn trong viết tiếng Anh.",
+        cefrLevel: "A1",
+        difficulty: "easy",
+        order: 1,
+        practiceTag: "Present Simple",
+        theory: `## Khi nào dùng
+- Thói quen, hành động lặp lại (habits, routines)
+- Sự thật hiển nhiên, chân lý (facts, general truths)
+- Lịch trình cố định (timetables, schedules)
+
+## Cấu trúc
+Khẳng định: I/You/We/They + V | He/She/It + V(s/es)
+Phủ định: S + do/does not + V (nguyên thể)
+Nghi vấn: Do/Does + S + V?
+
+## Từ nhận biết
+always, usually, often, sometimes, never, every day, every week
+
+## Lưu ý quan trọng
+Với chủ ngữ số ít ngôi thứ 3 (he/she/it), động từ phải thêm "s" hoặc "es".`,
+        examples: [
+            { english: "I go to school every day.", vietnamese: "Tôi đi học mỗi ngày.", explanation: "Chủ ngữ \"I\" dùng động từ nguyên mẫu \"go\"." },
+            { english: "She works in a hospital.", vietnamese: "Cô ấy làm việc trong bệnh viện.", explanation: "\"She\" là ngôi thứ 3 số ít nên \"work\" thêm \"s\"." },
+            { english: "The sun rises in the east.", vietnamese: "Mặt trời mọc ở hướng đông.", explanation: "Sự thật hiển nhiên luôn dùng Present Simple." },
+        ],
+        commonMistakes: [
+            { wrong: "He go to school every day.", correct: "He goes to school every day.", explanation: "\"He\" là ngôi thứ 3 số ít nên động từ cần thêm \"s\"." },
+            { wrong: "She don't like coffee.", correct: "She doesn't like coffee.", explanation: "Chủ ngữ số ít ngôi thứ 3 dùng trợ động từ \"doesn't\", không dùng \"don't\"." },
+        ],
+    },
+    {
+        slug: "present-continuous",
+        title: "Present Continuous",
+        titleVi: "Hiện tại tiếp diễn",
+        category: "grammar",
+        description: "Học cách diễn tả hành động đang diễn ra ngay lúc nói.",
+        cefrLevel: "A1",
+        difficulty: "easy",
+        order: 2,
+        practiceTag: "Present Continuous",
+        theory: `## Khi nào dùng
+- Hành động đang xảy ra ngay lúc nói (right now)
+- Hành động tạm thời quanh thời điểm hiện tại
+- Kế hoạch đã sắp xếp trong tương lai gần
+
+## Cấu trúc
+Khẳng định: S + am/is/are + V-ing
+Phủ định: S + am/is/are + not + V-ing
+Nghi vấn: Am/Is/Are + S + V-ing?
+
+## Từ nhận biết
+now, right now, at the moment, at present, currently, Look!, Listen!
+
+## Lưu ý quan trọng
+Không dùng thì này với động từ chỉ trạng thái (state verbs) như: know, like, want, believe, understand.`,
+        examples: [
+            { english: "I am reading a book now.", vietnamese: "Tôi đang đọc sách.", explanation: "Hành động đang xảy ra ngay lúc nói." },
+            { english: "They are meeting the client tomorrow.", vietnamese: "Họ sẽ gặp khách hàng vào ngày mai.", explanation: "Kế hoạch đã sắp xếp trước, dù nói về tương lai." },
+        ],
+        commonMistakes: [
+            { wrong: "I am knowing the answer.", correct: "I know the answer.", explanation: "\"Know\" là động từ chỉ trạng thái, không chia ở dạng tiếp diễn." },
+            { wrong: "She is study now.", correct: "She is studying now.", explanation: "Động từ chính cần thêm \"-ing\" sau \"is\"." },
+        ],
+    },
+    {
+        slug: "past-simple",
+        title: "Past Simple",
+        titleVi: "Quá khứ đơn",
+        category: "grammar",
+        description: "Học cách diễn tả hành động đã xảy ra và kết thúc trong quá khứ.",
+        cefrLevel: "A2",
+        difficulty: "easy",
+        order: 3,
+        practiceTag: "Past Simple",
+        theory: `## Khi nào dùng
+- Hành động đã xảy ra và kết thúc trong quá khứ, có thời gian xác định
+- Chuỗi hành động liên tiếp trong quá khứ
+
+## Cấu trúc
+Khẳng định: S + V2/V-ed
+Phủ định: S + did not + V (nguyên thể)
+Nghi vấn: Did + S + V (nguyên thể)?
+
+## Từ nhận biết
+yesterday, last night/week/year, ago, in 2020, when I was young
+
+## Lưu ý quan trọng
+Nhiều động từ có dạng quá khứ bất quy tắc (go → went, see → saw). Trong câu phủ định và nghi vấn, động từ trở về nguyên thể vì "did" đã mang nghĩa quá khứ.`,
+        examples: [
+            { english: "I went to Da Nang last summer.", vietnamese: "Tôi đã đi Đà Nẵng vào mùa hè năm ngoái.", explanation: "\"Go\" chia bất quy tắc thành \"went\"." },
+            { english: "She didn't go to work yesterday.", vietnamese: "Cô ấy đã không đi làm hôm qua.", explanation: "Câu phủ định dùng \"didn't\" + động từ nguyên thể." },
+        ],
+        commonMistakes: [
+            { wrong: "He go to school yesterday.", correct: "He went to school yesterday.", explanation: "Có \"yesterday\" nên động từ phải chia ở quá khứ đơn." },
+            { wrong: "She didn't went there.", correct: "She didn't go there.", explanation: "Sau \"didn't\" động từ trở về nguyên thể, không chia quá khứ nữa." },
+        ],
+    },
+    {
+        slug: "past-continuous",
+        title: "Past Continuous",
+        titleVi: "Quá khứ tiếp diễn",
+        category: "grammar",
+        description: "Học cách diễn tả hành động đang diễn ra tại một thời điểm trong quá khứ.",
+        cefrLevel: "A2",
+        difficulty: "medium",
+        order: 4,
+        practiceTag: "Past Continuous",
+        theory: `## Khi nào dùng
+- Hành động đang diễn ra tại một thời điểm xác định trong quá khứ
+- Hành động đang xảy ra thì bị một hành động khác xen vào
+
+## Cấu trúc
+Khẳng định: S + was/were + V-ing
+Phủ định: S + was/were + not + V-ing
+Nghi vấn: Was/Were + S + V-ing?
+
+## Từ nhận biết
+while, at that time, at 8 o'clock last night, when (kết hợp Past Simple)
+
+## Lưu ý quan trọng
+Thường dùng kết hợp với Past Simple: hành động dài (Past Continuous) bị ngắt bởi hành động ngắn (Past Simple).`,
+        examples: [
+            { english: "I was watching TV when he called.", vietnamese: "Tôi đang xem TV thì anh ấy gọi điện.", explanation: "Hành động dài (was watching) bị ngắt bởi hành động ngắn (called)." },
+            { english: "At 8pm last night, we were having dinner.", vietnamese: "Lúc 8 giờ tối qua, chúng tôi đang ăn tối.", explanation: "Diễn tả hành động đang diễn ra tại một thời điểm cụ thể trong quá khứ." },
+        ],
+        commonMistakes: [
+            { wrong: "I was watch TV when he called.", correct: "I was watching TV when he called.", explanation: "Sau \"was/were\" động từ chính phải thêm \"-ing\"." },
+            { wrong: "While I cooked, she was cleaning.", correct: "While I was cooking, she was cleaning.", explanation: "Hai hành động song song trong quá khứ nên cả hai đều dùng Past Continuous." },
+        ],
+    },
+    {
+        slug: "present-perfect",
+        title: "Present Perfect",
+        titleVi: "Hiện tại hoàn thành",
+        category: "grammar",
+        description: "Học cách liên kết một hành động trong quá khứ với hiện tại.",
+        cefrLevel: "B1",
+        difficulty: "medium",
+        order: 5,
+        practiceTag: "Present Perfect",
+        theory: `## Khi nào dùng
+- Hành động xảy ra trong quá khứ nhưng còn liên quan/ảnh hưởng đến hiện tại
+- Kinh nghiệm đã từng trải qua (không nói rõ khi nào)
+- Hành động bắt đầu trong quá khứ và tiếp diễn đến hiện tại
+
+## Cấu trúc
+Khẳng định: S + have/has + V3/V-ed
+Phủ định: S + have/has + not + V3/V-ed
+Nghi vấn: Have/Has + S + V3/V-ed?
+
+## Từ nhận biết
+already, just, yet, ever, never, since, for, so far, recently
+
+## Lưu ý quan trọng
+"For" đi với khoảng thời gian (for 5 years), "since" đi với mốc thời gian bắt đầu (since 2020).`,
+        examples: [
+            { english: "I have lived in Hanoi for 5 years.", vietnamese: "Tôi đã sống ở Hà Nội được 5 năm.", explanation: "Hành động bắt đầu trong quá khứ, tiếp diễn đến hiện tại, dùng \"for\" + khoảng thời gian." },
+            { english: "She has just finished her homework.", vietnamese: "Cô ấy vừa làm xong bài tập.", explanation: "\"Just\" nhấn mạnh hành động vừa mới hoàn thành." },
+        ],
+        commonMistakes: [
+            { wrong: "I have lived here since 5 years.", correct: "I have lived here for 5 years.", explanation: "\"Since\" dùng với mốc thời gian (since 2020), \"for\" dùng với khoảng thời gian (for 5 years)." },
+            { wrong: "She has go to Paris.", correct: "She has gone to Paris.", explanation: "Sau \"has/have\" động từ phải chia ở dạng quá khứ phân từ (V3), \"go\" → \"gone\"." },
+        ],
+    },
+    {
+        slug: "present-perfect-continuous",
+        title: "Present Perfect Continuous",
+        titleVi: "Hiện tại hoàn thành tiếp diễn",
+        category: "grammar",
+        description: "Học cách nhấn mạnh tính liên tục của một hành động kéo dài đến hiện tại.",
+        cefrLevel: "B2",
+        difficulty: "medium",
+        order: 6,
+        practiceTag: "Present Perfect Continuous",
+        theory: `## Khi nào dùng
+- Hành động bắt đầu trong quá khứ, tiếp diễn liên tục đến hiện tại, nhấn mạnh tính liên tục
+- Nhấn mạnh khoảng thời gian của hành động, có thể vẫn đang tiếp tục
+
+## Cấu trúc
+Khẳng định: S + have/has + been + V-ing
+Phủ định: S + have/has + not + been + V-ing
+Nghi vấn: Have/Has + S + been + V-ing?
+
+## Từ nhận biết
+for, since, all day, how long, lately, recently
+
+## Lưu ý quan trọng
+So với Present Perfect, thì này nhấn mạnh quá trình/tính liên tục hơn là kết quả.`,
+        examples: [
+            { english: "I have been waiting for an hour.", vietnamese: "Tôi đã đợi được một tiếng rồi.", explanation: "Nhấn mạnh khoảng thời gian chờ đợi liên tục." },
+            { english: "She has been studying English for three years.", vietnamese: "Cô ấy đã học tiếng Anh được ba năm.", explanation: "Hành động bắt đầu trong quá khứ và vẫn tiếp diễn." },
+        ],
+        commonMistakes: [
+            { wrong: "I have been wait for an hour.", correct: "I have been waiting for an hour.", explanation: "Sau \"have been\" động từ chính phải thêm \"-ing\"." },
+            { wrong: "She has been study since morning.", correct: "She has been studying since morning.", explanation: "Thiếu \"-ing\" ở động từ \"study\"." },
+        ],
+    },
+    {
+        slug: "past-perfect",
+        title: "Past Perfect",
+        titleVi: "Quá khứ hoàn thành",
+        category: "grammar",
+        description: "Học cách diễn tả một hành động xảy ra trước một hành động khác trong quá khứ.",
+        cefrLevel: "B1",
+        difficulty: "medium",
+        order: 7,
+        practiceTag: "Past Perfect",
+        theory: `## Khi nào dùng
+- Hành động xảy ra trước một hành động/thời điểm khác trong quá khứ
+
+## Cấu trúc
+Khẳng định: S + had + V3/V-ed
+Phủ định: S + had not + V3/V-ed
+Nghi vấn: Had + S + V3/V-ed?
+
+## Từ nhận biết
+before, after, by the time, already (trong ngữ cảnh quá khứ), when
+
+## Lưu ý quan trọng
+Dùng để làm rõ thứ tự hai hành động trong quá khứ: hành động nào xảy ra trước dùng Past Perfect, hành động sau dùng Past Simple.`,
+        examples: [
+            { english: "When I arrived, the train had already left.", vietnamese: "Khi tôi đến, tàu đã rời đi rồi.", explanation: "Tàu rời đi TRƯỚC khi tôi đến, nên dùng Past Perfect \"had left\"." },
+            { english: "She had finished dinner before I called.", vietnamese: "Cô ấy đã ăn xong bữa tối trước khi tôi gọi điện.", explanation: "\"Before\" xác nhận hành động nào xảy ra trước." },
+        ],
+        commonMistakes: [
+            { wrong: "When I arrived, the train already left.", correct: "When I arrived, the train had already left.", explanation: "Hành động xảy ra trước cần Past Perfect \"had left\", không phải Past Simple." },
+            { wrong: "I had saw that movie before.", correct: "I had seen that movie before.", explanation: "Sau \"had\" động từ chia ở dạng V3: \"seen\", không phải \"saw\"." },
+        ],
+    },
+    {
+        slug: "past-perfect-continuous",
+        title: "Past Perfect Continuous",
+        titleVi: "Quá khứ hoàn thành tiếp diễn",
+        category: "grammar",
+        description: "Học cách nhấn mạnh khoảng thời gian một hành động kéo dài trước một mốc trong quá khứ.",
+        cefrLevel: "C1",
+        difficulty: "hard",
+        order: 8,
+        practiceTag: "Past Perfect Continuous",
+        theory: `## Khi nào dùng
+- Hành động đang diễn ra liên tục trước một thời điểm/hành động khác trong quá khứ, nhấn mạnh khoảng thời gian kéo dài
+
+## Cấu trúc
+Khẳng định: S + had been + V-ing
+Phủ định: S + had not been + V-ing
+Nghi vấn: Had + S + been + V-ing?
+
+## Từ nhận biết
+for, since, before, by the time (kết hợp Past Simple)
+
+## Lưu ý quan trọng
+Thường dùng để giải thích nguyên nhân của một trạng thái trong quá khứ.`,
+        examples: [
+            { english: "She was tired because she had been working all day.", vietnamese: "Cô ấy mệt vì đã làm việc suốt cả ngày.", explanation: "Giải thích nguyên nhân của trạng thái mệt mỏi bằng Past Perfect Continuous." },
+            { english: "They had been waiting for two hours when the bus finally came.", vietnamese: "Họ đã đợi hai tiếng đồng hồ khi xe buýt cuối cùng cũng đến.", explanation: "Nhấn mạnh khoảng thời gian chờ trước khi xe đến." },
+        ],
+        commonMistakes: [
+            { wrong: "She had been work all day.", correct: "She had been working all day.", explanation: "Sau \"had been\" động từ chính phải thêm \"-ing\"." },
+        ],
+    },
+    {
+        slug: "future-simple",
+        title: "Future Simple",
+        titleVi: "Tương lai đơn",
+        category: "grammar",
+        description: "Học cách diễn tả dự đoán, quyết định tức thời và lời hứa trong tương lai.",
+        cefrLevel: "A1",
+        difficulty: "easy",
+        order: 9,
+        practiceTag: "Future Simple",
+        theory: `## Khi nào dùng
+- Dự đoán không có căn cứ rõ ràng
+- Quyết định tức thời tại thời điểm nói
+- Lời hứa, đề nghị, cảnh báo
+
+## Cấu trúc
+Khẳng định: S + will + V (nguyên thể)
+Phủ định: S + will not (won't) + V
+Nghi vấn: Will + S + V?
+
+## Từ nhận biết
+tomorrow, next week/month/year, in the future, I think/hope/believe
+
+## Lưu ý quan trọng
+Phân biệt với "be going to": "will" dùng cho quyết định tức thời hoặc dự đoán chủ quan, "be going to" dùng cho kế hoạch đã định trước hoặc dự đoán có căn cứ.`,
+        examples: [
+            { english: "I think it will rain tomorrow.", vietnamese: "Tôi nghĩ ngày mai trời sẽ mưa.", explanation: "Dự đoán chủ quan, dùng \"I think\" + \"will\"." },
+            { english: "I'll help you with your bags.", vietnamese: "Để tôi giúp bạn xách túi.", explanation: "Quyết định tức thời tại thời điểm nói." },
+        ],
+        commonMistakes: [
+            { wrong: "I will to go there tomorrow.", correct: "I will go there tomorrow.", explanation: "Sau \"will\" là động từ nguyên thể, không có \"to\"." },
+            { wrong: "She wills call you later.", correct: "She will call you later.", explanation: "\"Will\" không chia theo chủ ngữ, giữ nguyên cho mọi ngôi." },
+        ],
+    },
+    {
+        slug: "be-going-to",
+        title: "Be Going To",
+        titleVi: "Tương lai gần",
+        category: "grammar",
+        description: "Học cách diễn tả kế hoạch đã định trước và dự đoán có căn cứ.",
+        cefrLevel: "A2",
+        difficulty: "easy",
+        order: 10,
+        practiceTag: "Be going to",
+        theory: `## Khi nào dùng
+- Kế hoạch, dự định đã quyết định trước khi nói
+- Dự đoán có căn cứ, dấu hiệu rõ ràng ở hiện tại
+
+## Cấu trúc
+Khẳng định: S + am/is/are + going to + V (nguyên thể)
+Phủ định: S + am/is/are + not + going to + V
+Nghi vấn: Am/Is/Are + S + going to + V?
+
+## Từ nhận biết
+tonight, this weekend, next month (khi đã có kế hoạch), Look at those clouds!
+
+## Lưu ý quan trọng
+Nếu đã có bằng chứng ở hiện tại (mây đen kéo tới, ai đó đang chuẩn bị), dùng "be going to" thay vì "will".`,
+        examples: [
+            { english: "Look at those dark clouds! It is going to rain.", vietnamese: "Nhìn những đám mây đen kia kìa! Trời sắp mưa.", explanation: "Dự đoán có căn cứ rõ ràng (mây đen) ở hiện tại." },
+            { english: "We are going to visit my grandparents this weekend.", vietnamese: "Chúng tôi sẽ thăm ông bà vào cuối tuần này.", explanation: "Kế hoạch đã được sắp xếp từ trước." },
+        ],
+        commonMistakes: [
+            { wrong: "She is go to travel next month.", correct: "She is going to travel next month.", explanation: "Cấu trúc đúng là \"be + going to + V\", thiếu \"going\"." },
+            { wrong: "They going to arrive soon.", correct: "They are going to arrive soon.", explanation: "Thiếu động từ \"to be\" (are) trước \"going to\"." },
+        ],
+    },
+    {
+        slug: "future-continuous",
+        title: "Future Continuous",
+        titleVi: "Tương lai tiếp diễn",
+        category: "grammar",
+        description: "Học cách diễn tả hành động đang diễn ra tại một thời điểm xác định trong tương lai.",
+        cefrLevel: "B2",
+        difficulty: "medium",
+        order: 11,
+        practiceTag: "Future Continuous",
+        theory: `## Khi nào dùng
+- Hành động đang diễn ra tại một thời điểm xác định trong tương lai
+- Hành động sẽ diễn ra do lịch trình/thói quen thông thường
+
+## Cấu trúc
+Khẳng định: S + will be + V-ing
+Phủ định: S + will not (won't) be + V-ing
+Nghi vấn: Will + S + be + V-ing?
+
+## Từ nhận biết
+at this time tomorrow, at 8pm tonight, this time next week
+
+## Lưu ý quan trọng
+Diễn tả một hành động đang "diễn ra" tại một mốc tương lai, khác với Future Simple chỉ nói hành động sẽ xảy ra.`,
+        examples: [
+            { english: "This time tomorrow, I will be flying to Hanoi.", vietnamese: "Giờ này ngày mai, tôi sẽ đang bay đến Hà Nội.", explanation: "\"This time tomorrow\" là mốc thời gian cụ thể trong tương lai, hành động đang diễn ra tại mốc đó." },
+            { english: "She will be working when you arrive.", vietnamese: "Cô ấy sẽ đang làm việc khi bạn đến.", explanation: "Hành động \"sẽ đang diễn ra\" tại thời điểm \"you arrive\" xảy ra." },
+        ],
+        commonMistakes: [
+            { wrong: "This time tomorrow, I will fly to Hanoi.", correct: "This time tomorrow, I will be flying to Hanoi.", explanation: "Cần dùng \"will be + V-ing\" để nhấn mạnh hành động đang diễn ra tại mốc thời gian tương lai, không chỉ \"will + V\"." },
+        ],
+    },
+    {
+        slug: "future-perfect",
+        title: "Future Perfect",
+        titleVi: "Tương lai hoàn thành",
+        category: "grammar",
+        description: "Học cách diễn tả một hành động sẽ hoàn thành trước một mốc trong tương lai.",
+        cefrLevel: "C1",
+        difficulty: "hard",
+        order: 12,
+        practiceTag: "Future Perfect",
+        theory: `## Khi nào dùng
+- Hành động sẽ hoàn thành trước một thời điểm/mốc xác định trong tương lai
+
+## Cấu trúc
+Khẳng định: S + will have + V3/V-ed
+Phủ định: S + will not have + V3/V-ed
+Nghi vấn: Will + S + have + V3/V-ed?
+
+## Từ nhận biết
+by the time, by next year, by 2030, before
+
+## Lưu ý quan trọng
+"Will have + V3" nhấn mạnh việc hoàn thành TRƯỚC một mốc tương lai, không phải hành động đang diễn ra.`,
+        examples: [
+            { english: "By next year, I will have graduated from university.", vietnamese: "Đến năm sau, tôi sẽ tốt nghiệp đại học.", explanation: "\"By next year\" là mốc tương lai, hành động tốt nghiệp hoàn thành trước mốc đó." },
+            { english: "She will have finished the report by Friday.", vietnamese: "Cô ấy sẽ hoàn thành báo cáo trước thứ Sáu.", explanation: "Nhấn mạnh việc hoàn thành trước một hạn định." },
+        ],
+        commonMistakes: [
+            { wrong: "By next year, I will graduate.", correct: "By next year, I will have graduated.", explanation: "\"By + mốc thời gian\" báo hiệu hành động phải HOÀN THÀNH trước mốc đó, cần dùng Future Perfect \"will have + V3\"." },
+        ],
+    },
+    {
+        slug: "sentence-writing",
+        title: "Sentence Writing",
+        titleVi: "Viết câu",
+        category: "writing_skill",
+        description: "Rèn kỹ năng dựng một câu tiếng Anh hoàn chỉnh, đúng ngữ pháp và tự nhiên.",
+        difficulty: "easy",
+        order: 1,
+        externalPracticePath: "/practice",
+        theory: `## Mục tiêu
+Rèn kỹ năng dựng một câu tiếng Anh hoàn chỉnh, đúng ngữ pháp, tự nhiên khi dịch từ tiếng Việt.
+
+## Cách tiếp cận
+- Xác định chủ ngữ, động từ chính, tân ngữ trước khi viết
+- Xác định đúng thì dựa vào ngữ cảnh và dấu hiệu thời gian
+- Kiểm tra sự hòa hợp giữa chủ ngữ và động từ (subject-verb agreement)
+- Đọc lại câu để đảm bảo nghe tự nhiên, không dịch word-by-word
+
+## Lưu ý quan trọng
+Một câu đúng ngữ pháp chưa chắc đã tự nhiên. Hãy ưu tiên cách diễn đạt mà người bản xứ thực sự dùng thay vì dịch sát nghĩa từng từ.`,
+        examples: [
+            { english: "I usually go to bed at 11pm.", vietnamese: "Tôi thường đi ngủ lúc 11 giờ đêm.", explanation: "Câu đơn giản, đúng thì, đúng trật tự từ." },
+        ],
+        commonMistakes: [
+            { wrong: "I very like this song.", correct: "I like this song very much.", explanation: "\"Very\" không đứng trước động từ thường, cần \"very much\" ở cuối câu hoặc dùng \"really\" trước động từ." },
+        ],
+    },
+    {
+        slug: "paragraph-writing",
+        title: "Paragraph Writing",
+        titleVi: "Viết đoạn văn",
+        category: "writing_skill",
+        description: "Học cách viết một đoạn văn tiếng Anh mạch lạc, có bố cục rõ ràng.",
+        difficulty: "medium",
+        order: 2,
+        externalPracticePath: "/paragraph-writing",
+        theory: `## Mục tiêu
+Viết một đoạn văn tiếng Anh mạch lạc, có bố cục rõ ràng thay vì chỉ những câu rời rạc.
+
+## Cấu trúc đoạn văn cơ bản
+- Topic sentence: câu chủ đề nêu ý chính của cả đoạn
+- Supporting sentences: các câu triển khai, giải thích, ví dụ cho ý chính
+- Concluding sentence: câu kết tóm lại hoặc nhấn mạnh ý chính (không bắt buộc với đoạn ngắn)
+
+## Lưu ý quan trọng
+Các câu trong đoạn cần liên kết với nhau bằng từ nối (linking words) hợp lý, không chỉ đơn thuần liệt kê các câu không liên quan.
+
+Phần luyện tập chi tiết của Paragraph Writing (đề bài, AI chấm điểm, sửa lại và chấm lại) nằm ở mục Practice/AI Writing bên dưới.`,
+        examples: [
+            { english: "I usually wake up at six. After that, I have breakfast and go to school by bike.", vietnamese: "Tôi thường thức dậy lúc 6 giờ. Sau đó, tôi ăn sáng và đi học bằng xe đạp.", explanation: "Câu chủ đề nêu thói quen, câu sau triển khai chi tiết, có từ nối \"After that\"." },
+        ],
+        commonMistakes: [
+            { wrong: "I wake up. I eat. I go school.", correct: "I wake up at six, then I have breakfast before going to school.", explanation: "Chuỗi câu rời rạc không có liên kết khiến đoạn văn thiếu tự nhiên." },
+        ],
+    },
+    {
+        slug: "linking-words",
+        title: "Linking Words",
+        titleVi: "Từ nối",
+        category: "writing_skill",
+        description: "Học cách dùng từ nối để liên kết ý tưởng trong bài viết.",
+        difficulty: "medium",
+        order: 3,
+        practiceTag: "Linking Words",
+        theory: `## Mục tiêu
+Dùng từ nối để liên kết ý tưởng, giúp bài viết mạch lạc hơn thay vì các câu rời rạc.
+
+## Các nhóm từ nối phổ biến
+- Bổ sung ý: and, also, in addition, moreover
+- Tương phản: but, however, although, on the other hand
+- Nguyên nhân - kết quả: because, since, so, therefore, as a result
+- Liệt kê thứ tự: first, second, then, next, finally
+- Ví dụ: for example, for instance, such as
+
+## Lưu ý quan trọng
+Không nên lạm dụng quá nhiều từ nối trong một đoạn ngắn — chỉ dùng khi thực sự cần thể hiện mối quan hệ giữa các ý.`,
+        examples: [
+            { english: "I was tired, so I went to bed early.", vietnamese: "Tôi mệt nên đã đi ngủ sớm.", explanation: "\"So\" thể hiện quan hệ nguyên nhân - kết quả." },
+            { english: "The food was expensive. However, it was delicious.", vietnamese: "Đồ ăn đắt. Tuy nhiên, nó rất ngon.", explanation: "\"However\" thể hiện sự tương phản giữa hai ý." },
+        ],
+        commonMistakes: [
+            { wrong: "I like tea. But I like coffee more.", correct: "I like tea, but I like coffee more.", explanation: "\"But\" thường nối hai mệnh đề trong cùng một câu bằng dấu phẩy, không mở đầu câu mới trong văn viết trang trọng." },
+        ],
+    },
+    {
+        slug: "describing-people",
+        title: "Describing People",
+        titleVi: "Miêu tả người",
+        category: "writing_skill",
+        description: "Học cách miêu tả ngoại hình và tính cách một người bằng tiếng Anh.",
+        difficulty: "medium",
+        order: 4,
+        practiceTag: "Describing People",
+        theory: `## Mục tiêu
+Miêu tả ngoại hình, tính cách một người bằng tiếng Anh một cách tự nhiên.
+
+## Cấu trúc thường dùng
+- Ngoại hình cụ thể: "He/She has + tính từ + danh từ" (He has short black hair.)
+- Ngoại hình tổng quát: "He/She is + tính từ" (She is tall and slim.)
+- Tính cách: "He/She is + tính từ chỉ tính cách" (She is friendly and hard-working.)
+
+## Từ vựng gợi ý
+Ngoại hình: tall, short, slim, curly hair, straight hair
+Tính cách: friendly, kind, honest, hard-working, generous
+
+## Lưu ý quan trọng
+Dùng "has" cho các bộ phận/đặc điểm cụ thể (has blue eyes), dùng "is" cho tính chất chung (is tall, is friendly).`,
+        examples: [
+            { english: "My mother has long black hair and a warm smile.", vietnamese: "Mẹ tôi có mái tóc đen dài và nụ cười ấm áp.", explanation: "\"Has\" đi với đặc điểm cụ thể (mái tóc, nụ cười)." },
+            { english: "He is tall, friendly, and always willing to help others.", vietnamese: "Anh ấy cao, thân thiện và luôn sẵn lòng giúp đỡ người khác.", explanation: "\"Is\" dùng với tính từ miêu tả tổng quát." },
+        ],
+        commonMistakes: [
+            { wrong: "She is long hair.", correct: "She has long hair.", explanation: "Miêu tả một đặc điểm cụ thể (mái tóc) cần dùng động từ \"has\", không dùng \"is\"." },
+        ],
+    },
+    {
+        slug: "describing-places",
+        title: "Describing Places",
+        titleVi: "Miêu tả địa điểm",
+        category: "writing_skill",
+        description: "Học cách miêu tả một địa điểm bằng tiếng Anh sinh động, cụ thể.",
+        difficulty: "medium",
+        order: 5,
+        practiceTag: "Describing Places",
+        theory: `## Mục tiêu
+Miêu tả một địa điểm (thành phố, ngôi nhà, phong cảnh) bằng tiếng Anh sinh động, cụ thể.
+
+## Cấu trúc thường dùng
+- "There is/are + danh từ" để giới thiệu điều gì có ở đó (There are many tall buildings.)
+- Tính từ miêu tả: "It is + tính từ" (It is peaceful and green.)
+- Vị trí: "... is located in/near ..."
+
+## Từ vựng gợi ý
+peaceful, crowded, modern, ancient, breathtaking, spacious
+
+## Lưu ý quan trọng
+Kết hợp "There is/are" để liệt kê và tính từ để miêu tả cảm nhận sẽ giúp đoạn văn sinh động hơn thay vì chỉ liệt kê khô khan.`,
+        examples: [
+            { english: "There are many street food stalls along the old quarter.", vietnamese: "Có nhiều quầy hàng ăn đường phố dọc theo khu phố cổ.", explanation: "\"There are\" dùng để giới thiệu sự tồn tại của nhiều vật/địa điểm." },
+            { english: "The beach is peaceful and the water is crystal clear.", vietnamese: "Bãi biển yên bình và nước trong vắt.", explanation: "Tính từ \"peaceful\", \"crystal clear\" giúp miêu tả sinh động hơn." },
+        ],
+        commonMistakes: [
+            { wrong: "In my city have a big park.", correct: "In my city, there is a big park.", explanation: "Diễn đạt sự tồn tại của một vật/nơi chốn cần dùng cấu trúc \"there is/are\", không dùng \"have\" trực tiếp sau trạng ngữ nơi chốn." },
+        ],
+    },
+    {
+        slug: "describing-experiences",
+        title: "Describing Experiences",
+        titleVi: "Miêu tả trải nghiệm",
+        category: "writing_skill",
+        description: "Học cách kể lại một trải nghiệm/kỷ niệm đã qua bằng tiếng Anh mạch lạc.",
+        difficulty: "medium",
+        order: 6,
+        practiceTag: "Describing Experiences",
+        theory: `## Mục tiêu
+Kể lại một trải nghiệm/kỷ niệm đã qua bằng tiếng Anh mạch lạc theo trình tự thời gian.
+
+## Cấu trúc thường dùng
+- Dùng Past Simple để kể lại các sự kiện chính: "I went, I saw, I felt..."
+- Dùng Past Continuous để miêu tả bối cảnh: "The sun was shining when we arrived."
+- Kết bằng cảm nhận: "It was an unforgettable experience because..."
+
+## Từ nối theo trình tự
+first, then, after that, next, finally
+
+## Lưu ý quan trọng
+Một bài kể trải nghiệm tốt cần có: bối cảnh (khi nào, ở đâu) → diễn biến chính → cảm nhận/kết quả cuối cùng.`,
+        examples: [
+            { english: "Last summer, I visited Da Lat with my family. It was a memorable trip.", vietnamese: "Mùa hè năm ngoái, tôi đã đi Đà Lạt cùng gia đình. Đó là một chuyến đi đáng nhớ.", explanation: "Past Simple kể lại sự kiện đã xảy ra và hoàn tất." },
+            { english: "While we were hiking, we saw a beautiful waterfall.", vietnamese: "Trong khi đang leo núi, chúng tôi đã thấy một thác nước đẹp.", explanation: "Past Continuous miêu tả bối cảnh, Past Simple kể sự kiện chính xen vào." },
+        ],
+        commonMistakes: [
+            { wrong: "I very happy when I go there.", correct: "I was very happy when I went there.", explanation: "Thiếu động từ \"to be\" (was) trước tính từ, và động từ chính cần chia quá khứ đơn \"went\" vì đang kể lại một trải nghiệm đã qua." },
+        ],
+    },
+    {
+        slug: "giving-opinions",
+        title: "Giving Opinions",
+        titleVi: "Đưa ra ý kiến",
+        category: "writing_skill",
+        description: "Học cách diễn đạt quan điểm cá nhân một cách tự nhiên và có lý lẽ.",
+        difficulty: "medium",
+        order: 7,
+        practiceTag: "Giving Opinions",
+        theory: `## Mục tiêu
+Diễn đạt quan điểm cá nhân một cách tự nhiên và có lý lẽ hỗ trợ, thường gặp trong văn viết học thuật/IELTS.
+
+## Cấu trúc thường dùng
+- Nêu quan điểm: In my opinion, / I believe that, / From my point of view,
+- Đưa lý do: This is because, / The main reason is that,
+- Đưa ví dụ minh họa: For example, / For instance,
+- Thừa nhận ý kiến khác (tùy chọn): Although some people think..., I still believe...
+
+## Lưu ý quan trọng
+Một ý kiến thuyết phục cần có ít nhất một lý do rõ ràng đi kèm, không chỉ nêu quan điểm suông.`,
+        examples: [
+            { english: "In my opinion, reading books is more beneficial than watching TV.", vietnamese: "Theo quan điểm của tôi, đọc sách có lợi hơn xem TV.", explanation: "Mở đầu bằng cụm nêu quan điểm rõ ràng." },
+            { english: "I believe that online learning is effective because it saves time.", vietnamese: "Tôi tin rằng học trực tuyến hiệu quả vì nó tiết kiệm thời gian.", explanation: "Có quan điểm và lý do đi kèm (\"because\")." },
+        ],
+        commonMistakes: [
+            { wrong: "I think good.", correct: "I think it is good because it helps people learn faster.", explanation: "Ý kiến cần rõ đối tượng và có lý do, không nói chung chung." },
+        ],
+    },
+];
+

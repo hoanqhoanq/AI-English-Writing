@@ -2,6 +2,7 @@ import {
     AIProvider,
     IGenerateQuestionsInput,
     IEvaluationInput,
+    IGenerateParagraphPromptInput,
     IParagraphEvaluationInput,
     IWeaknessAnalysisInput,
 } from "../ai.interface";
@@ -10,6 +11,7 @@ import {
     DifficultyLevel,
     IEvaluationResult,
     IGeneratedQuestion,
+    IGeneratedParagraphPrompt,
     IParagraphEvaluationResult,
     IWeaknessAnalysisResult,
     IErrorDetail,
@@ -299,6 +301,21 @@ export class HeuristicProvider implements AIProvider {
                 "Thử nộp lại bài sau ít phút để nhận đánh giá chi tiết từ AI.",
                 "Đọc kỹ yêu cầu đề bài và đảm bảo đủ số từ quy định.",
             ],
+        };
+    }
+
+    async generateParagraphPrompt(params: IGenerateParagraphPromptInput): Promise<IGeneratedParagraphPrompt> {
+        const wordRange = `${params.minWords}-${params.maxWords} từ`;
+        // Vietnamese-only, matching the AI path's language contract even in fallback mode.
+        const templateByDifficulty: Record<IGenerateParagraphPromptInput["difficulty"], string> = {
+            easy: `Hãy viết một đoạn văn ngắn từ ${wordRange} bằng tiếng Anh mô tả về chủ đề "${params.topic}".`,
+            medium: `Hãy viết một đoạn văn từ ${wordRange} bằng tiếng Anh về chủ đề "${params.topic}". Hãy giải thích rõ hơn và nêu ít nhất một ví dụ cụ thể.`,
+            hard: `Hãy viết một đoạn văn từ ${wordRange} bằng tiếng Anh trình bày quan điểm của bạn về chủ đề "${params.topic}", nêu rõ lý do và ví dụ minh họa.`,
+        };
+
+        return {
+            promptVi: `${templateByDifficulty[params.difficulty]} (Đề tạm thời bằng bộ quy tắc dự phòng, không phải AI, vì dịch vụ AI hiện không khả dụng.)`,
+            requirements: [],
         };
     }
 }

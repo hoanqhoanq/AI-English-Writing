@@ -1,4 +1,11 @@
-import { AIProvider, IGenerateQuestionsInput, IEvaluationInput, IParagraphEvaluationInput, IWeaknessAnalysisInput } from "./ai.interface";
+import {
+    AIProvider,
+    IGenerateQuestionsInput,
+    IEvaluationInput,
+    IGenerateParagraphPromptInput,
+    IParagraphEvaluationInput,
+    IWeaknessAnalysisInput,
+} from "./ai.interface";
 import { GeminiProvider } from "./providers/gemini.provider";
 import { HeuristicProvider } from "./providers/heuristic.provider";
 import { config } from "../../config/env";
@@ -7,6 +14,7 @@ import {
     DifficultyLevel,
     IEvaluationResult,
     IGeneratedQuestion,
+    IGeneratedParagraphPrompt,
     IParagraphEvaluationResult,
     IWeaknessAnalysisResult,
 } from "../../types";
@@ -87,6 +95,20 @@ export class AIService {
             console.warn(`[AI SERVICE] Primary provider error (${error.message}). Falling back to heuristic paragraph evaluation.`);
             const fallbackResult = await this.fallbackProvider.evaluateParagraph(input);
             return { ...fallbackResult, provider: this.fallbackProvider.name };
+        }
+    }
+
+    async generateParagraphPrompt(params: IGenerateParagraphPromptInput): Promise<IGeneratedParagraphPrompt> {
+        const startTime = Date.now();
+        console.log(`[AI SERVICE] Generating paragraph prompt for topic=${params.topic}, difficulty=${params.difficulty}`);
+
+        try {
+            const result = await this.provider.generateParagraphPrompt(params);
+            console.log(`[AI SERVICE] Paragraph prompt generated in ${Date.now() - startTime}ms (Provider: ${this.provider.name})`);
+            return result;
+        } catch (error: any) {
+            console.warn(`[AI SERVICE] Primary provider error (${error.message}). Falling back to heuristic paragraph prompt generator.`);
+            return this.fallbackProvider.generateParagraphPrompt(params);
         }
     }
 }

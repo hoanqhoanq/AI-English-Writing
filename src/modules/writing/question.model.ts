@@ -12,6 +12,9 @@ export interface IWritingQuestion extends Document {
     keywords: string[];
     isActive: boolean;
     createdBy?: Types.ObjectId | string;
+    // Absent/undefined means an Admin-authored question (the original, only
+    // source before AI Writing) — no backfill needed on existing documents.
+    source?: "admin_manual" | "ai_user_generated";
     createdAt: Date;
     updatedAt: Date;
 }
@@ -28,6 +31,7 @@ const WritingQuestionSchema = new Schema<IWritingQuestion>(
         keywords: [{ type: String }],
         isActive: { type: Boolean, default: true, index: true },
         createdBy: { type: Schema.Types.Mixed },
+        source: { type: String, enum: ["admin_manual", "ai_user_generated"] },
     },
     { timestamps: true }
 );

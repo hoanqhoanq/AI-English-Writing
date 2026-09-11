@@ -12,6 +12,9 @@ Grammar Topics: ${JSON.stringify(params.grammarTopics)}
 USER TOPIC / CONTENT:
 <topic>${params.topicPrompt}</topic>
 Number of Questions: ${params.numberOfQuestions}
+${params.excludePrompts && params.excludePrompts.length > 0
+    ? `\nAvoid generating a "vietnameseSentence" too similar in wording or scenario to any of these already-used prompts:\n${params.excludePrompts.map((p) => `- "${p}"`).join("\n")}\n`
+    : ""}
 
 Requirements:
 1. "vietnameseSentence": A natural Vietnamese sentence appropriate for translation into English at CEFR level ${params.level}.

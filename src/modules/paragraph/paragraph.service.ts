@@ -3,8 +3,11 @@ import { ParagraphTopicModel } from "./paragraph-topic.model";
 import { ParagraphAttemptModel, IParagraphRevision } from "./paragraph-attempt.model";
 import { aiService } from "../ai/ai.service";
 import { UserModel } from "../users/user.model";
+import { CefrLevel } from "../../types";
+import { PARAGRAPH_DIFFICULTY_MAP, ParagraphDifficulty, difficultyFromLevelTier } from "./paragraph-difficulty.constants";
 
 const MAX_REVISIONS = 30;
+const AI_PARAGRAPH_EXCLUDE_PROMPT_LIMIT = 5;
 
 export class ParagraphService {
     private isMongoActive(): boolean {
@@ -121,6 +124,108 @@ export class ParagraphService {
             revisionCount: attempt.revisions.length,
             scoreHistory: attempt.revisions.map((r: any) => r.score),
             evaluation: evalResult,
+        };
+    }
+
+    // --- AI-generated topics ---
+
+    async generateAIParagraphTopic(userId: string, topic: string, difficulty: ParagraphDifficulty) {
+        this.assertMongo();
+
+        const { levelTier, minWords, maxWords } = PARAGRAPH_DIFFICULTY_MAP[difficulty];
+
+        // CEFR level is always looked up server-side from the user's own account —
+        // never trusted from the request body (no level field is even accepted here).
+        const user = await UserModel.findById(userId).select("level").lean();
+        if (!user) throw new Error("Không tìm thấy người dùng");
+        const cefrLevel = ((user as any).level as CefrLevel) || "B1";
+
+        const recentTopics = await ParagraphTopicModel.find({
+            createdBy: userId,
+            topicCategory: topic,
+            levelTier,
+            source: "ai_user_generated",
+        })
+            .select("instruction")
+            .sort({ createdAt: -1 })
+            .limit(AI_PARAGRAPH_EXCLUDE_PROMPT_LIMIT)
+            .lean();
+        const excludePrompts = (recentTopics as any[]).map((t) => t.instruction).filter(Boolean);
+
+        const generated = await aiService.generateParagraphPrompt({
+            topic,
+            difficulty,
+            levelTier,
+            minWords,
+            maxWords,
+            cefrLevel,
+            excludePrompts,
+        });
+
+        const saved = await ParagraphTopicModel.create({
+            title: topic,
+            instruction: generated.promptVi,
+            levelTier,
+            minWords,
+            maxWords,
+            requirements: generated.requirements || [],
+            topicCategory: topic,
+            isActive: true,
+            createdBy: userId,
+            source: "ai_user_generated",
+        });
+
+        // Deliberately safe subset only — paragraph evaluation has no reference
+        // answer concept, but keep the response minimal regardless.
+        return {
+            topicId: String(saved._id),
+            promptVi: saved.instruction,
+            topic,
+            difficulty,
+            cefrLevel,
+            minWords: saved.minWords,
+            maxWords: saved.maxWords,
+            requirements: saved.requirements,
+        };
+    }
+
+    async getMyParagraphStats(userId: string) {
+        this.assertMongo();
+
+        const attempts = await ParagraphAttemptModel.find({ userId }).select("topicId currentScore revisions").lean();
+        if (attempts.length === 0) {
+            return { topicsPracticed: 0, totalAttempts: 0, averageScore: 0, bestScore: 0, byDifficulty: [] as any[] };
+        }
+
+        const topicIds = [...new Set((attempts as any[]).map((a) => String(a.topicId)))];
+        const topics = await ParagraphTopicModel.find({ _id: { $in: topicIds } }).select("levelTier").lean();
+        const tierMap = new Map((topics as any[]).map((t) => [String(t._id), t.levelTier]));
+
+        const totalAttempts = (attempts as any[]).reduce((sum, a) => sum + (a.revisions?.length || 0), 0);
+        const scores = (attempts as any[]).map((a) => a.currentScore);
+        const averageScore = Math.round(scores.reduce((s: number, v: number) => s + v, 0) / scores.length);
+        const bestScore = Math.max(...scores);
+
+        const byTierScores: Record<string, number[]> = { Beginner: [], Intermediate: [], Advanced: [] };
+        for (const a of attempts as any[]) {
+            const tier = tierMap.get(String(a.topicId));
+            if (tier && byTierScores[tier]) byTierScores[tier].push(a.currentScore);
+        }
+
+        const byDifficulty = Object.entries(byTierScores)
+            .filter(([, arr]) => arr.length > 0)
+            .map(([tier, arr]) => ({
+                difficulty: difficultyFromLevelTier(tier as any),
+                averageScore: Math.round(arr.reduce((s, v) => s + v, 0) / arr.length),
+                count: arr.length,
+            }));
+
+        return {
+            topicsPracticed: attempts.length,
+            totalAttempts,
+            averageScore,
+            bestScore,
+            byDifficulty,
         };
     }
 

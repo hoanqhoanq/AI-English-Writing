@@ -2,8 +2,9 @@ import { UserModel } from "../modules/users/user.model";
 import { TopicModel } from "../modules/topics/topic.model";
 import { GrammarTopicModel } from "../modules/topics/grammar.model";
 import { WritingQuestionModel } from "../modules/writing/question.model";
+import { LearningTopicModel } from "../modules/learning/learning-topic.model";
 import { hashPassword } from "../utils/password";
-import { SEED_TOPICS, SEED_GRAMMAR, SEED_QUESTIONS } from "./seedData";
+import { SEED_TOPICS, SEED_GRAMMAR, SEED_QUESTIONS, SEED_LEARNING_TOPICS } from "./seedData";
 import { config } from "../config/env";
 
 export const seedDatabase = async (): Promise<void> => {
@@ -62,6 +63,22 @@ export const seedDatabase = async (): Promise<void> => {
                 isActive: true,
             }));
             await WritingQuestionModel.insertMany(questionsWithCreator);
+        }
+
+        // 6. Seed/refresh Writing Learning content — idempotent upsert by slug.
+        // Never deletes; safe to re-run on every deploy as new topics are added
+        // or existing ones' theory/examples/quiz content is updated in code.
+        let learningUpserts = 0;
+        for (const topic of SEED_LEARNING_TOPICS) {
+            const result = await LearningTopicModel.updateOne(
+                { slug: topic.slug },
+                { $set: topic },
+                { upsert: true }
+            );
+            if (result.upsertedCount > 0 || result.modifiedCount > 0) learningUpserts++;
+        }
+        if (learningUpserts > 0) {
+            console.log(`[SEEDER] Synced ${learningUpserts} Writing Learning topic(s).`);
         }
 
         console.log("[SEEDER] Database seeding successfully verified.");

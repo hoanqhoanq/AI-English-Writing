@@ -9,25 +9,10 @@ import {
   AdminEvaluationRecord,
   ParagraphTopic,
   ParagraphAttemptRecord,
+  AdminLearningTopic,
 } from '../types';
 
 export const adminService = {
-  generateQuestions: async (data: {
-    level: WritingQuestion['level'];
-    difficulty: WritingQuestion['difficulty'];
-    grammarTopics: string[];
-    topicPrompt: string;
-    numberOfQuestions: number;
-  }): Promise<WritingQuestion[]> => {
-    const res = await api.post('/ai/generate-questions', data);
-    return res.data.data?.questions || res.data.data || [];
-  },
-
-  saveGeneratedQuestions: async (questions: Partial<WritingQuestion>[]): Promise<WritingQuestion[]> => {
-    const res = await api.post('/writing/admin/questions/bulk', { questions });
-    return res.data.data;
-  },
-
   // System Statistics
   getSystemStats: async (): Promise<SystemStats> => {
     const res = await api.get('/analytics/admin/stats');
@@ -184,6 +169,31 @@ export const adminService = {
   }): Promise<{ attempts: ParagraphAttemptRecord[]; total: number; page: number; totalPages: number }> => {
     const res = await api.get('/paragraph/admin/attempts', { params });
     return res.data.data;
+  },
+
+  // Writing Learning Topics Management
+  getAdminLearningTopics: async (params?: {
+    category?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ topics: AdminLearningTopic[]; total: number; page: number; totalPages: number }> => {
+    const res = await api.get('/learning/admin/topics', { params });
+    return res.data.data;
+  },
+
+  createLearningTopic: async (data: Partial<AdminLearningTopic>): Promise<AdminLearningTopic> => {
+    const res = await api.post('/learning/admin/topics', data);
+    return res.data.data;
+  },
+
+  updateLearningTopic: async (id: string, data: Partial<AdminLearningTopic>): Promise<AdminLearningTopic> => {
+    const res = await api.put(`/learning/admin/topics/${id}`, data);
+    return res.data.data;
+  },
+
+  deleteLearningTopic: async (id: string): Promise<void> => {
+    await api.delete(`/learning/admin/topics/${id}`);
   },
 };
 

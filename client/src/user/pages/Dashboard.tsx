@@ -47,7 +47,7 @@ export const Dashboard: React.FC = () => {
       {/* Quick Launch Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link
-          to="/journey"
+          to="/learning"
           className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:border-teal-300 hover:shadow-md transition-all space-y-4 group"
         >
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 group-hover:scale-110 transition-transform">
@@ -55,14 +55,14 @@ export const Dashboard: React.FC = () => {
           </div>
           <div>
             <h3 className="text-base font-bold text-slate-900 group-hover:text-teal-600 transition-colors">
-              Lộ trình học Writing
+              Writing Learning
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              Học từng thì ngữ pháp theo lộ trình, mở khóa bài mới khi hoàn thành.
+              Học Grammar và Writing Skills theo từng chủ đề — chọn bất kỳ chủ đề nào bạn muốn.
             </p>
           </div>
           <div className="flex items-center gap-1 text-xs font-bold text-teal-600">
-            <span>Xem lộ trình</span>
+            <span>Khám phá ngay</span>
             <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
           </div>
         </Link>

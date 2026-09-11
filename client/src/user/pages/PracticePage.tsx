@@ -49,7 +49,7 @@ export const PracticePage: React.FC = () => {
       setCurrentIndex(0);
       setLoadingQuestions(false);
     } else {
-      // Optional deep link from the Writing Journey (e.g. /practice?grammarTopic=Present+Perfect)
+      // Optional deep link from Writing Learning (e.g. /practice?grammarTopic=Present+Perfect)
       const grammarParam = searchParams.get('grammarTopic');
       if (grammarParam) setSelectedGrammar(grammarParam);
       fetchFiltersAndQuestions(grammarParam || undefined);

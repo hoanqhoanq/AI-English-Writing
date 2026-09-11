@@ -11,8 +11,9 @@ import ProfilePage from '../user/pages/ProfilePage';
 import Dashboard from '../user/pages/Dashboard';
 import SignIn from '../user/pages/SignIn';
 import SignUp from '../user/pages/SignUp';
-import JourneyPage from '../user/pages/JourneyPage';
-import JourneyChapterPage from '../user/pages/JourneyChapterPage';
+import LearningHomePage from '../user/pages/LearningHomePage';
+import LearningTopicPage from '../user/pages/LearningTopicPage';
+import LearningProgressPage from '../user/pages/LearningProgressPage';
 import ParagraphWritingPage from '../user/pages/ParagraphWritingPage';
 import ParagraphTopicPage from '../user/pages/ParagraphTopicPage';
 
@@ -25,8 +26,8 @@ import AdminTopicsPage from '../admin/pages/AdminTopicsPage';
 import AdminLevelsPage from '../admin/pages/AdminLevelsPage';
 import AdminEvaluationsPage from '../admin/pages/AdminEvaluationsPage';
 import AdminLoginPage from '../admin/pages/AdminLoginPage';
-import AdminAIGeneratePage from '../admin/pages/AdminAIGeneratePage';
 import AdminParagraphTopicsPage from '../admin/pages/AdminParagraphTopicsPage';
+import AdminLearningTopicsPage from '../admin/pages/AdminLearningTopicsPage';
 import ProtectedRoute from './ProtectedRoute';
 import UserRoute from './UserRoute';
 import AdminRoute from './AdminRoute';
@@ -50,8 +51,9 @@ export const AppRoutes: React.FC = () => {
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/home" element={<Home />} />
-            <Route path="/journey" element={<JourneyPage />} />
-            <Route path="/journey/:grammarTopicId" element={<JourneyChapterPage />} />
+            <Route path="/learning" element={<LearningHomePage />} />
+            <Route path="/learning/progress" element={<LearningProgressPage />} />
+            <Route path="/learning/:category/:slug" element={<LearningTopicPage />} />
             <Route path="/paragraph-writing" element={<ParagraphWritingPage />} />
             <Route path="/paragraph-writing/:topicId" element={<ParagraphTopicPage />} />
           </Route>
@@ -62,9 +64,9 @@ export const AppRoutes: React.FC = () => {
             <Route path="/admin" element={<AdminOverviewPage />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/questions" element={<AdminQuestionsPage />} />
-            <Route path="/admin/ai-generate" element={<AdminAIGeneratePage />} />
             <Route path="/admin/topics" element={<AdminTopicsPage />} />
             <Route path="/admin/paragraph-topics" element={<AdminParagraphTopicsPage />} />
+            <Route path="/admin/learning-topics" element={<AdminLearningTopicsPage />} />
             <Route path="/admin/levels" element={<AdminLevelsPage />} />
             <Route path="/admin/evaluations" element={<AdminEvaluationsPage />} />
           </Route>

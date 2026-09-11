@@ -75,6 +75,35 @@ export class ParagraphController {
         }
     }
 
+    async generateTopic(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = req.user?.id;
+            if (!userId) {
+                ApiResponse.error(res, "Chưa xác thực người dùng", 401);
+                return;
+            }
+            const { topic, difficulty } = req.body;
+            const result = await paragraphService.generateAIParagraphTopic(userId, topic, difficulty);
+            ApiResponse.success(res, result, "Tạo đề bài AI thành công");
+        } catch (error: any) {
+            ApiResponse.error(res, error.message || "AI không thể tạo đề bài. Vui lòng thử lại.", 400);
+        }
+    }
+
+    async getMyStats(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = req.user?.id;
+            if (!userId) {
+                ApiResponse.error(res, "Chưa xác thực người dùng", 401);
+                return;
+            }
+            const stats = await paragraphService.getMyParagraphStats(userId);
+            ApiResponse.success(res, stats, "Lấy thống kê viết đoạn văn thành công");
+        } catch (error: any) {
+            ApiResponse.error(res, error.message || "Không thể lấy thống kê", 503);
+        }
+    }
+
     // --- Admin ---
 
     async getAdminTopics(req: Request, res: Response): Promise<void> {

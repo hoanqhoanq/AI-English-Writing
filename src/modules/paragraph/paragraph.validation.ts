@@ -28,3 +28,8 @@ export const SubmitParagraphAttemptSchema = z.object({
         .min(1, "Vui lòng nhập đoạn văn của bạn")
         .max(4000, "Đoạn văn quá dài, vui lòng rút gọn dưới 4000 ký tự"),
 });
+
+export const GenerateParagraphTopicSchema = z.object({
+    topic: z.string().trim().min(2, "Chủ đề quá ngắn").max(100, "Chủ đề tối đa 100 ký tự"),
+    difficulty: z.enum(["easy", "medium", "hard"]),
+});

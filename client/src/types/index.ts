@@ -224,72 +224,139 @@ export interface AdminEvaluationRecord extends AttemptRecord {
   userEmail?: string;
 }
 
-// --- Writing Journey ---
+// --- Writing Learning (W3Schools-style, open topic library — nothing is ever locked) ---
 
-export type ChapterStatus = 'locked' | 'in_progress' | 'mastery_test' | 'completed' | 'no_content';
-export type ExerciseStatus = 'locked' | 'available' | 'completed';
+export type LearningCategory = 'grammar' | 'writing_skill';
+export type LearningTopicStatus = 'not_started' | 'in_progress' | 'completed';
+export type LearningSection = 'learn' | 'examples' | 'practice' | 'aiWriting';
 
-export interface JourneyChapter {
-  grammarTopicId: string;
-  grammarTopic: string;
+export interface LearningTopicSummary {
+  _id: string;
+  slug: string;
+  title: string;
+  titleVi: string;
+  category: LearningCategory;
   description: string;
-  level: string;
+  cefrLevel?: string;
+  difficulty?: string;
   order: number;
-  totalExercises: number;
-  completedExercises: number;
-  masteryScore: number;
-  status: ChapterStatus;
+  status: LearningTopicStatus;
+  completion: number;
+  practiceAccuracy: number | null;
+  masteryLabel: string | null;
 }
 
-export interface JourneyExercise {
+export interface LearningExample {
+  english: string;
+  vietnamese?: string;
+  explanation: string;
+}
+
+export interface LearningMistake {
+  wrong: string;
+  correct: string;
+  explanation: string;
+}
+
+export interface LearningExercise {
   questionId: string;
   vietnameseSentence: string;
   level: string;
   difficulty: string;
   topic: string;
-  status: ExerciseStatus;
   bestScore: number | null;
   attempts: number;
+  completed: boolean;
 }
 
-export interface JourneyChapterDetail {
-  grammarTopicId: string;
-  grammarTopic: string;
-  description: string;
-  level: string;
-  exercises: JourneyExercise[];
-  totalExercises: number;
-  completedExercises: number;
-  masteryScore: number;
-  requiredMasteryScore: number;
-  masteryTestUnlocked: boolean;
-  masteryTestPassed: boolean;
-}
-
-export interface JourneyAchievement {
-  id: string;
+export interface LearningTopicDetail {
+  _id: string;
+  slug: string;
   title: string;
+  titleVi: string;
+  category: LearningCategory;
   description: string;
-  earned: boolean;
+  theory: string;
+  examples: LearningExample[];
+  commonMistakes: LearningMistake[];
+  practiceTag?: string;
+  externalPracticePath?: string;
+  cefrLevel?: string;
+  difficulty?: string;
+  exercises: LearningExercise[];
+  totalExercises: number;
+  progress: {
+    status: LearningTopicStatus;
+    completion: number;
+    completedSections: LearningSection[];
+    practiceAccuracy: number | null;
+    attempts: number;
+    commonErrorsCount: number;
+    masteryLabel: string | null;
+  };
 }
 
-export interface JourneyOverview {
+export interface LearningWeakTopic {
+  grammarTopic: string;
+  averageScore: number;
+  totalAttempts: number;
+}
+
+// --- AI Writing (per-tense, on-demand AI question generation) ---
+
+export interface AIWritingTopicOption {
+  key: string;
+  label: string;
+  labelVi: string;
+}
+
+export interface AIWritingGeneratedQuestion {
+  questionId: string;
+  promptVi: string;
+  tense: string;
+  tenseVi: string;
+  topic: string;
+  topicVi: string;
+  difficulty: string;
+}
+
+export interface LearningRecentTopic {
+  title: string;
+  category: LearningCategory;
+  lastAccessedAt: string;
+}
+
+export interface LearningProgressOverview {
   xp: number;
   level: number;
   streak: number;
-  totalWriting: number;
   averageScore: number;
-  completedChapters: number;
-  totalChapters: number;
-  achievements: JourneyAchievement[];
+  totalTopics: number;
+  notStarted: number;
+  inProgress: number;
+  completed: number;
+  grammarProgressPct: number;
+  writingProgressPct: number;
+  weakTopics: LearningWeakTopic[];
+  recentTopics: LearningRecentTopic[];
 }
 
-export interface RecommendationItem {
-  grammarTopic: string;
-  grammarTopicId: string;
-  averageScore: number;
-  totalAttempts: number;
-  totalErrors: number;
+export interface AdminLearningTopic {
+  _id: string;
+  slug: string;
+  title: string;
+  titleVi: string;
+  category: LearningCategory;
+  description: string;
+  theory: string;
+  examples: LearningExample[];
+  commonMistakes: LearningMistake[];
+  practiceTag?: string;
+  externalPracticePath?: string;
+  cefrLevel?: string;
+  difficulty?: string;
+  order: number;
+  isPublished: boolean;
 }
 
 // --- Paragraph Writing ---
@@ -307,7 +374,29 @@ export interface ParagraphTopic {
   topicCategory?: string;
   isActive: boolean;
   order: number;
+  source?: 'admin_manual' | 'ai_user_generated';
   createdAt?: string;
+}
+
+export type ParagraphDifficulty = 'easy' | 'medium' | 'hard';
+
+export interface ParagraphGenerateResponse {
+  topicId: string;
+  promptVi: string;
+  topic: string;
+  difficulty: ParagraphDifficulty;
+  cefrLevel: string;
+  minWords: number;
+  maxWords: number;
+  requirements: string[];
+}
+
+export interface ParagraphStats {
+  topicsPracticed: number;
+  totalAttempts: number;
+  averageScore: number;
+  bestScore: number;
+  byDifficulty: { difficulty: ParagraphDifficulty; averageScore: number; count: number }[];
 }
 
 export interface ParagraphEvaluationResult {

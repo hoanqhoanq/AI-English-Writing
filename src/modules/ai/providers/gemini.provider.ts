@@ -4,6 +4,7 @@ import {
     AIProvider,
     IGenerateQuestionsInput,
     IEvaluationInput,
+    IGenerateParagraphPromptInput,
     IParagraphEvaluationInput,
     IWeaknessAnalysisInput,
 } from "../ai.interface";
@@ -12,6 +13,7 @@ import {
     DifficultyLevel,
     IEvaluationResult,
     IGeneratedQuestion,
+    IGeneratedParagraphPrompt,
     IParagraphEvaluationResult,
     IWeaknessAnalysisResult,
 } from "../../../types";
@@ -19,6 +21,7 @@ import { buildWritingGenerationPrompt } from "../prompts/writing-generation.prom
 import { buildWritingEvaluationPrompt } from "../prompts/writing-evaluation.prompt";
 import { buildWeaknessAnalysisPrompt } from "../prompts/weakness-analysis.prompt";
 import { buildParagraphEvaluationPrompt } from "../prompts/paragraph-evaluation.prompt";
+import { buildParagraphGenerationPrompt } from "../prompts/paragraph-generation.prompt";
 import { z } from "zod";
 
 const CategoryAnalysisSchema = z.object({
@@ -121,6 +124,19 @@ const ParagraphEvaluationSchema = z.object({
     overallFeedback: z.string(),
     recommendations: z.array(z.string()).default([]),
 });
+
+const GeneratedParagraphPromptSchema = z.object({
+    promptVi: z.string().min(1),
+    requirements: z.array(z.string()).default([]),
+});
+
+// Vietnamese uses diacritics extensively — any genuinely Vietnamese sentence of
+// normal length will contain several of these characters. An English sentence
+// essentially never does. Requiring a handful of matches (not just one) avoids
+// false positives from a single stray accented character.
+const VIETNAMESE_DIACRITICS_REGEX =
+    /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/gi;
+const MIN_VIETNAMESE_DIACRITIC_MATCHES = 4;
 
 export class GeminiProvider implements AIProvider {
     readonly name = "gemini";
@@ -353,5 +369,45 @@ export class GeminiProvider implements AIProvider {
         }
 
         throw lastError || new Error("Gemini did not return a valid paragraph evaluation after retries");
+    }
+
+    // A hard, code-level guarantee (not just a prompt instruction) that the
+    // generated task text is actually Vietnamese — a failed check triggers a
+    // retry with a different model attempt, same as any other invalid response.
+    private looksVietnamese(text: string): boolean {
+        const matches = text.match(VIETNAMESE_DIACRITICS_REGEX);
+        return !!matches && matches.length >= MIN_VIETNAMESE_DIACRITIC_MATCHES;
+    }
+
+    async generateParagraphPrompt(params: IGenerateParagraphPromptInput): Promise<IGeneratedParagraphPrompt> {
+        const prompt = buildParagraphGenerationPrompt(params);
+        const maxAttempts = 3;
+        let lastError: any = null;
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                const rawText = await this.generateJsonWithFallback(prompt);
+                const cleaned = this.cleanJsonString(rawText || "{}");
+                const parsed = JSON.parse(cleaned);
+                const validated = GeneratedParagraphPromptSchema.parse(parsed);
+
+                if (!this.looksVietnamese(validated.promptVi)) {
+                    throw new Error("Generated paragraph prompt failed Vietnamese-language check (looked like English)");
+                }
+
+                return {
+                    promptVi: validated.promptVi,
+                    requirements: validated.requirements,
+                };
+            } catch (err: any) {
+                lastError = err;
+                console.warn(`[Gemini Provider] generateParagraphPrompt attempt ${attempt}/${maxAttempts} failed to produce a valid response: ${String(err?.message || err).slice(0, 200)}`);
+                if (attempt < maxAttempts) {
+                    await new Promise((res) => setTimeout(res, 300));
+                }
+            }
+        }
+
+        throw lastError || new Error("Gemini did not return a valid paragraph prompt after retries");
     }
 }

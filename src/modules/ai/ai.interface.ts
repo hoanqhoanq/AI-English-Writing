@@ -3,6 +3,7 @@ import {
     DifficultyLevel,
     IEvaluationResult,
     IGeneratedQuestion,
+    IGeneratedParagraphPrompt,
     IParagraphEvaluationResult,
     IWeaknessAnalysisResult,
     ParagraphLevelTier,
@@ -25,6 +26,17 @@ export interface IParagraphEvaluationInput {
     maxWords: number;
     requirements?: string[];
     userAnswer: string;
+}
+
+export interface IGenerateParagraphPromptInput {
+    topic: string;
+    difficulty: "easy" | "medium" | "hard";
+    levelTier: ParagraphLevelTier;
+    minWords: number;
+    maxWords: number;
+    cefrLevel: CefrLevel;
+    // Optional: recent prompts to avoid repeating (used by "Tạo đề khác").
+    excludePrompts?: string[];
 }
 
 export interface IWeaknessAnalysisInput {
@@ -55,6 +67,8 @@ export interface AIProvider {
     analyzeWeakness(input: IWeaknessAnalysisInput): Promise<IWeaknessAnalysisResult>;
 
     evaluateParagraph(input: IParagraphEvaluationInput): Promise<IParagraphEvaluationResult>;
+
+    generateParagraphPrompt(params: IGenerateParagraphPromptInput): Promise<IGeneratedParagraphPrompt>;
 }
 
 export interface IGenerateQuestionsInput {
@@ -63,4 +77,6 @@ export interface IGenerateQuestionsInput {
     grammarTopics: string[];
     topicPrompt: string;
     numberOfQuestions: number;
+    // Optional: recent prompts to avoid repeating (used by AI Writing's "Thử đề khác").
+    excludePrompts?: string[];
 }

@@ -5,7 +5,6 @@ import {
   BarChart3,
   Users,
   BookOpen,
-  Sparkles,
   Layers,
   GraduationCap,
   History,
@@ -13,6 +12,7 @@ import {
   LogOut,
   ChevronRight,
   FileText,
+  Compass,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -29,8 +29,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
     { name: 'Tổng quan hệ thống', path: '/admin', icon: BarChart3, exact: true },
     { name: 'Quản lý Người dùng', path: '/admin/users', icon: Users },
     { name: 'Câu hỏi Writing', path: '/admin/questions', icon: BookOpen },
-    { name: 'AI Sinh câu hỏi', path: '/admin/ai-generate', icon: Sparkles },
     { name: 'Chủ đề & Ngữ pháp', path: '/admin/topics', icon: Layers },
+    { name: 'Writing Learning', path: '/admin/learning-topics', icon: Compass },
     { name: 'Đề viết đoạn văn', path: '/admin/paragraph-topics', icon: FileText },
     { name: 'Cấp độ CEFR', path: '/admin/levels', icon: GraduationCap },
     { name: 'Lịch sử AI Chấm bài', path: '/admin/evaluations', icon: History },

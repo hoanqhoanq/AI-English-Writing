@@ -12,7 +12,6 @@ import {
   Menu,
   X,
   Compass,
-  FileText,
 } from 'lucide-react';
 
 export const UserNavbar: React.FC = () => {
@@ -22,10 +21,11 @@ export const UserNavbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
+  // "Luyện viết" is intentionally not a separate menu item — Practice/AI Writing
+  // are already reachable inside each Writing Learning topic, so a standalone
+  // practice hub here would just duplicate that entry point.
   const navLinks = [
-    { name: 'Lộ trình', path: '/journey', icon: Compass },
-    { name: 'Luyện viết', path: '/practice', icon: PenTool },
-    { name: 'Viết đoạn văn', path: '/paragraph-writing', icon: FileText },
+    { name: 'Writing Learning', path: '/learning', icon: Compass },
     { name: 'Ngân hàng câu', path: '/questions', icon: BookOpen },
     { name: 'Thống kê & Lỗi', path: '/analytics', icon: BarChart3 },
   ];

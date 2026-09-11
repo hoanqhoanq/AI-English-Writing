@@ -114,6 +114,13 @@ export interface IParagraphEvaluationResult {
     provider?: string;
 }
 
+export interface IGeneratedParagraphPrompt {
+    // The AI-generated paragraph task, written entirely in Vietnamese — it tells
+    // the student what to write about, but the student's paragraph is in English.
+    promptVi: string;
+    requirements: string[];
+}
+
 export interface IWeaknessAnalysisResult {
     overallLevel: CefrLevel;
     strengths: string[];

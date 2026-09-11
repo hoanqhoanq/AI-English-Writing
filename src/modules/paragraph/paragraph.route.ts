@@ -3,13 +3,30 @@ import { paragraphController } from "./paragraph.controller";
 import { authenticate, authorize } from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import { aiRateLimiter } from "../../middlewares/rateLimit.middleware";
-import { CreateParagraphTopicSchema, SubmitParagraphAttemptSchema, UpdateParagraphTopicSchema } from "./paragraph.validation";
+import {
+    CreateParagraphTopicSchema,
+    GenerateParagraphTopicSchema,
+    SubmitParagraphAttemptSchema,
+    UpdateParagraphTopicSchema,
+} from "./paragraph.validation";
 
 const router = Router();
 
 // Topic routes (public read, matches /writing/questions being public)
 router.get("/topics", (req, res) => paragraphController.getTopics(req, res));
 router.get("/topics/:id", (req, res) => paragraphController.getTopicById(req, res));
+
+// AI-generated topics — only called on explicit user action (choose topic +
+// difficulty + click Generate), never automatically. Reuses aiService's shared
+// Gemini plumbing, never a duplicate generation system.
+router.post(
+    "/generate",
+    authenticate,
+    aiRateLimiter(60),
+    validate(GenerateParagraphTopicSchema),
+    (req, res) => paragraphController.generateTopic(req, res)
+);
+router.get("/my-stats", authenticate, (req, res) => paragraphController.getMyStats(req, res));
 
 // Admin topic management
 router.get("/admin/topics", authenticate, authorize("admin"), (req, res) => paragraphController.getAdminTopics(req, res));
