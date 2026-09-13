@@ -6,7 +6,6 @@ export const RegisterSchema = z
         email: z.string().email("Email không hợp lệ"),
         password: z.string().min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
         confirmPassword: z.string(),
-        level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).default("B1"),
     })
     .refine((data) => data.password === data.confirmPassword, {
         message: "Mật khẩu xác nhận không khớp",
@@ -23,18 +22,10 @@ export const CreateUserSchema = z.object({
     email: z.string().email("Email không hợp lệ"),
     password: z.string().min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
     role: z.enum(["user", "admin"]).default("user"),
-    level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).default("B1"),
-    target: z
-        .enum(["General English", "TOEIC", "IELTS", "Communication", "Academic English"])
-        .default("IELTS"),
 });
 
 export const UpdateProfileSchema = z.object({
     name: z.string().min(2, "Tên phải có ít nhất 2 ký tự").optional(),
     avatar: z.string().optional(),
-    level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).optional(),
-    target: z
-        .enum(["General English", "TOEIC", "IELTS", "Communication", "Academic English"])
-        .optional(),
     dailyGoal: z.number().min(1).max(50).optional(),
 });

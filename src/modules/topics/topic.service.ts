@@ -178,11 +178,9 @@ export class TopicService {
 
         return cefrDefs.map((def) => {
             const questionCount = memoryStore.questions.filter((q) => q.level === def.code).length;
-            const usersCount = memoryStore.users.filter((u) => u.level === def.code).length;
             return {
                 ...def,
                 questionCount,
-                usersCount,
             };
         });
     }

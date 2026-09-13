@@ -14,7 +14,7 @@ export const UserFooter: React.FC = () => {
               <span className="font-bold text-slate-900">AI English Writing Practice</span>
             </div>
             <p className="text-sm leading-relaxed text-slate-500 max-w-md">
-              Hệ thống luyện viết câu tiếng Anh chuẩn CEFR với trí tuệ nhân tạo. Tự động chấm điểm, phát hiện lỗi ngữ pháp, phân tích điểm yếu và tối ưu phản xạ câu văn.
+              Hệ thống luyện viết tiếng Anh với AI. Tự tạo đề theo chủ đề, cấp độ và ngữ pháp; tự động chấm điểm, phát hiện lỗi và giải thích cách cải thiện bài viết.
             </p>
           </div>
 

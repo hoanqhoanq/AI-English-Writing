@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { User, Target, Award, Flame, Save, CheckCircle, Sparkles } from 'lucide-react';
+import { User, Save, CheckCircle, Sparkles } from 'lucide-react';
 
 export const ProfilePage: React.FC = () => {
   const { user, updateUser } = useAuth();
 
   const [name, setName] = useState(user?.name || 'Học viên');
-  const [level, setLevel] = useState(user?.level || 'B1');
-  const [target, setTarget] = useState(user?.target || 'IELTS');
   const [dailyGoal, setDailyGoal] = useState(user?.dailyGoal || 5);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -18,8 +16,6 @@ export const ProfilePage: React.FC = () => {
     try {
       await updateUser({
         name,
-        level: level as any,
-        target: target as any,
         dailyGoal: Number(dailyGoal),
       });
       setSavedSuccess(true);
@@ -36,10 +32,10 @@ export const ProfilePage: React.FC = () => {
       <div className="border-b border-slate-200/80 pb-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-2">
           <User className="h-6 w-6 text-indigo-600" />
-          <span>Hồ sơ & Mục tiêu học tập</span>
+          <span>Hồ sơ cá nhân</span>
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Cài đặt trình độ CEFR hiện tại, mục tiêu chứng chỉ và số câu muốn luyện mỗi ngày.
+          Cài đặt tên hiển thị và số câu muốn luyện mỗi ngày.
         </p>
       </div>
 
@@ -78,43 +74,6 @@ export const ProfilePage: React.FC = () => {
                 required
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:bg-white focus:outline-none"
               />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                  Trình độ CEFR mong muốn rèn luyện
-                </label>
-                <select
-                  value={level}
-                  onChange={(e) => setLevel(e.target.value as any)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:bg-white focus:outline-none font-semibold"
-                >
-                  <option value="A1">A1 - Sơ cấp (Beginner)</option>
-                  <option value="A2">A2 - Tiền trung cấp (Elementary)</option>
-                  <option value="B1">B1 - Trung cấp (Intermediate)</option>
-                  <option value="B2">B2 - Trung cao cấp (Upper Intermediate)</option>
-                  <option value="C1">C1 - Cao cấp (Advanced)</option>
-                  <option value="C2">C2 - Thành thạo (Proficient)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                  Mục tiêu luyện tập
-                </label>
-                <select
-                  value={target}
-                  onChange={(e) => setTarget(e.target.value as any)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:bg-white focus:outline-none font-semibold"
-                >
-                  <option value="IELTS">IELTS Writing (Band 6.0 - 8.0+)</option>
-                  <option value="TOEIC">TOEIC Writing & Speaking</option>
-                  <option value="General English">Giao tiếp hàng ngày</option>
-                  <option value="Academic English">Tiếng Anh học thuật</option>
-                  <option value="Business English">Tiếng Anh thương mại & công sở</option>
-                </select>
-              </div>
             </div>
 
             <div>

@@ -7,6 +7,10 @@ import { memoryStore, MemoryAIAnalysis } from "../../db/memoryStore";
 import { aiService } from "../ai/ai.service";
 import { CefrLevel } from "../../types";
 
+// Weakness analysis no longer personalizes by an account-level CEFR (users don't
+// have one); this is a fixed neutral seed value for the AI diagnostic input.
+const DEFAULT_ANALYSIS_LEVEL: CefrLevel = "B1";
+
 export class AnalyticsService {
     private isMongoActive(): boolean {
         return mongoose.connection.readyState === 1;
@@ -259,18 +263,14 @@ export class AnalyticsService {
     }
 
     async performAIAnalysis(userId: string) {
-        let userLevel: CefrLevel = "B1";
+        const userLevel: CefrLevel = DEFAULT_ANALYSIS_LEVEL;
         let attempts: any[] = [];
         let errors: any[] = [];
 
         if (this.isMongoActive()) {
-            const user = await UserModel.findById(userId);
-            if (user) userLevel = user.level;
             attempts = await WritingAttemptModel.find({ userId }).sort({ createdAt: -1 });
             errors = await WritingErrorModel.find({ userId });
         } else {
-            const user = memoryStore.users.find((u) => u._id === userId);
-            if (user) userLevel = user.level as any;
             attempts = memoryStore.attempts.filter((a) => a.userId === userId);
             errors = memoryStore.errors.filter((e) => e.userId === userId);
         }

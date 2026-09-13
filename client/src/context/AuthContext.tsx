@@ -7,7 +7,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<User>;
-  register: (name: string, email: string, password: string, confirmPassword: string, level?: string, target?: string) => Promise<User>;
+  register: (name: string, email: string, password: string, confirmPassword: string) => Promise<User>;
   logout: () => Promise<void>;
   updateUser: (data: Partial<User>) => Promise<void>;
 }
@@ -64,11 +64,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     name: string,
     email: string,
     password: string,
-    confirmPassword: string,
-    level = 'B1',
-    target = 'IELTS'
+    confirmPassword: string
   ): Promise<User> => {
-    const res = await api.post('/auth/register', { name, email, password, confirmPassword, level, target });
+    const res = await api.post('/auth/register', { name, email, password, confirmPassword });
     if (res.data.success) {
       const { user: userData, accessToken } = res.data.data;
       setAccessToken(accessToken);

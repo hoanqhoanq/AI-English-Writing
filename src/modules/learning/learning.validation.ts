@@ -45,6 +45,7 @@ export const GenerateAIWritingQuestionSchema = z
         tenseSlug: z.string().trim().min(1, "Thiếu chủ điểm ngữ pháp"),
         topicKey: z.string().trim().min(1).optional(),
         customTopic: z.string().trim().min(2, "Chủ đề tùy chỉnh quá ngắn").max(100, "Chủ đề tùy chỉnh tối đa 100 ký tự").optional(),
+        level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).optional(),
     })
     .refine((data) => !!data.topicKey !== !!data.customTopic, {
         message: "Vui lòng chọn đúng một trong hai: topicKey hoặc customTopic",

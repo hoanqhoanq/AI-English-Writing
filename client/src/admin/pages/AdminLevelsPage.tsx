@@ -5,7 +5,6 @@ import {
   GraduationCap,
   Target,
   BookOpen,
-  Users,
   CheckCircle2,
   AlertTriangle,
   RefreshCw,
@@ -118,13 +117,6 @@ export const AdminLevelsPage: React.FC = () => {
                     <BookOpen className="h-3.5 w-3.5 text-emerald-500" /> Câu trong kho:
                   </span>
                   <span className="font-bold text-emerald-700">{lvl.questionCount} câu</span>
-                </div>
-
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 flex items-center gap-1">
-                    <Users className="h-3.5 w-3.5 text-blue-500" /> Học viên theo học:
-                  </span>
-                  <span className="font-bold text-slate-800">{lvl.usersCount} học viên</span>
                 </div>
               </div>
             </div>

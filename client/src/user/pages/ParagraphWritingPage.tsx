@@ -6,9 +6,9 @@ import { Topic, ParagraphDifficulty, ParagraphGenerateResponse, ParagraphStats }
 import { FileText, Sparkles, BarChart3 } from 'lucide-react';
 
 const DIFFICULTIES: { key: ParagraphDifficulty; label: string; labelVi: string; sub: string; words: string }[] = [
-  { key: 'easy', label: 'EASY', labelVi: 'Dễ', sub: 'Beginner', words: '50-70 từ' },
-  { key: 'medium', label: 'MEDIUM', labelVi: 'Trung bình', sub: 'Intermediate', words: '80-120 từ' },
-  { key: 'hard', label: 'HARD', labelVi: 'Khó', sub: 'Advanced', words: '120-180 từ' },
+  { key: 'easy', label: 'EASY', labelVi: 'Dễ', sub: 'Beginner (A1-A2)', words: '50-70 từ' },
+  { key: 'medium', label: 'MEDIUM', labelVi: 'Trung bình', sub: 'Intermediate (B1-B2)', words: '80-120 từ' },
+  { key: 'hard', label: 'HARD', labelVi: 'Khó', sub: 'Advanced (C1-C2)', words: '120-180 từ' },
 ];
 
 export const ParagraphWritingPage: React.FC = () => {

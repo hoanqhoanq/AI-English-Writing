@@ -1,4 +1,4 @@
-import { UserRole, CefrLevel } from "./index";
+import { UserRole } from "./index";
 
 declare global {
     namespace Express {
@@ -8,7 +8,6 @@ declare global {
                 email: string;
                 role: UserRole;
                 name: string;
-                level: CefrLevel;
             };
         }
     }

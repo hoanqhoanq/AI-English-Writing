@@ -45,7 +45,6 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
             email: decoded.email,
             role: decoded.role,
             name: decoded.name,
-            level: decoded.level,
         };
         next();
     } catch (error: any) {

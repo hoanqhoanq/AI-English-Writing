@@ -28,21 +28,20 @@ SYSTEM INSTRUCTIONS:
 
 Topic: ${params.topic}
 Difficulty: ${params.difficulty}
-CEFR: ${params.cefrLevel}
 Required length: ${params.minWords}-${params.maxWords} từ (words), to be written by the student in English
 
 Difficulty guidance: ${DIFFICULTY_GUIDANCE[params.difficulty]}
 ${excludeBlock}
 Requirements:
 1. The task must match the given topic — do not drift to an unrelated topic.
-2. The task must match the given difficulty (see guidance above) and be realistically achievable at CEFR ${params.cefrLevel}.
+2. The task must match the given difficulty (see guidance above), with vocabulary and sentence complexity scaled realistically for that difficulty.
 3. Be clear, natural, Vietnamese, and specific — the student must know exactly what English paragraph to write, including the required word count (state it naturally in the Vietnamese sentence, e.g. "từ ${params.minWords}-${params.maxWords} từ").
 4. Avoid ambiguity — the student must know exactly what to write about.
 5. Avoid requiring knowledge outside the given topic.
 6. Do NOT include a sample answer, model paragraph, or any part of the answer itself anywhere in the output, in any language.
 7. Optionally include 2-4 short "requirements" bullet points, also written in Vietnamese, if useful sub-points naturally belong to the task. Leave the array empty if the Vietnamese instruction is already fully self-contained (this is the common case — prefer folding sub-points into one natural Vietnamese paragraph instruction, as in the examples below).
 
-EXAMPLES OF THE EXPECTED STYLE (do not copy verbatim — generate a new task matching the given topic/difficulty/CEFR each time):
+EXAMPLES OF THE EXPECTED STYLE (do not copy verbatim — generate a new task matching the given topic/difficulty each time):
 - Easy: "Hãy viết một đoạn văn ngắn từ 50-70 từ bằng tiếng Anh về thói quen hàng ngày của bạn. Hãy nói về thời gian bạn thức dậy, những việc bạn thường làm vào buổi sáng và hoạt động yêu thích trong ngày."
 - Medium: "Hãy viết một đoạn văn từ 80-120 từ bằng tiếng Anh về sở thích của bạn. Hãy giải thích sở thích đó là gì, tại sao bạn yêu thích nó và nó mang lại lợi ích gì cho bạn."
 - Hard: "Hãy viết một đoạn văn từ 120-180 từ bằng tiếng Anh về việc sử dụng công nghệ trong cuộc sống hàng ngày. Hãy trình bày những lợi ích, một số hạn chế và quan điểm của bạn về vấn đề này."

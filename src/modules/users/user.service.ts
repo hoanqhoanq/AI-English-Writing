@@ -8,9 +8,14 @@ export class UserService {
         return mongoose.connection.readyState === 1;
     }
 
+    // Excludes password always, plus the retired level/target fields — some
+    // pre-existing Mongo documents still physically have them from before that
+    // schema change, and a plain read would otherwise pass them straight through.
+    private static readonly SAFE_PROJECTION = "-password -level -target";
+
     async getProfile(userId: string) {
         if (this.isMongoActive()) {
-            const user = await UserModel.findById(userId).select("-password");
+            const user = await UserModel.findById(userId).select(UserService.SAFE_PROJECTION);
             if (!user) throw new Error("Không tìm thấy người dùng");
             return user;
         } else {
@@ -23,7 +28,9 @@ export class UserService {
 
     async updateProfile(userId: string, updateData: any) {
         if (this.isMongoActive()) {
-            const user = await UserModel.findByIdAndUpdate(userId, { $set: updateData }, { new: true }).select("-password");
+            const user = await UserModel.findByIdAndUpdate(userId, { $set: updateData }, { new: true }).select(
+                UserService.SAFE_PROJECTION
+            );
             if (!user) throw new Error("Không tìm thấy người dùng");
             return user;
         } else {
@@ -41,7 +48,7 @@ export class UserService {
 
     async getAllUsers() {
         if (this.isMongoActive()) {
-            const users = await UserModel.find().select("-password").sort({ createdAt: -1 });
+            const users = await UserModel.find().select(UserService.SAFE_PROJECTION).sort({ createdAt: -1 });
             return users;
         } else {
             return memoryStore.users.map((u) => {
@@ -66,7 +73,7 @@ export class UserService {
             if (!user) throw new Error("Không tìm thấy người dùng");
             user.isActive = !user.isActive;
             await user.save();
-            const { password, ...safe } = user.toObject();
+            const { password, level, target, ...safe } = user.toObject() as any;
             return safe;
         } else {
             const index = memoryStore.users.findIndex((u) => u._id === userId);
@@ -80,7 +87,9 @@ export class UserService {
 
     async updateUser(userId: string, data: any) {
         if (this.isMongoActive()) {
-            const user = await UserModel.findByIdAndUpdate(userId, { $set: data }, { new: true }).select("-password");
+            const user = await UserModel.findByIdAndUpdate(userId, { $set: data }, { new: true }).select(
+                UserService.SAFE_PROJECTION
+            );
             if (!user) throw new Error("Không tìm thấy người dùng");
             return user;
         } else {
@@ -98,7 +107,7 @@ export class UserService {
 
     async deleteUser(userId: string) {
         if (this.isMongoActive()) {
-            const user = await UserModel.findByIdAndDelete(userId);
+            const user = await UserModel.findByIdAndDelete(userId).select(UserService.SAFE_PROJECTION);
             if (!user) throw new Error("Không tìm thấy người dùng");
             return user;
         } else {
@@ -118,8 +127,6 @@ export class UserService {
                 email: data.email.toLowerCase().trim(),
                 password: hashedPassword,
                 role: data.role || "user",
-                level: data.level || "B1",
-                target: data.target || "IELTS",
                 dailyTarget: data.dailyTarget || 5,
                 isActive: data.isActive !== undefined ? data.isActive : true,
             });
@@ -132,8 +139,6 @@ export class UserService {
                 email: data.email.toLowerCase().trim(),
                 password: hashedPassword,
                 role: data.role || "user",
-                level: data.level || "B1",
-                target: data.target || "IELTS",
                 dailyGoal: data.dailyTarget || 5,
                 streak: 1,
                 totalWriting: 0,

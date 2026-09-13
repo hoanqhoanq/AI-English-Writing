@@ -2,13 +2,6 @@ export type UserRole = "user" | "admin";
 
 export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 
-export type LearningTarget =
-    | "General English"
-    | "TOEIC"
-    | "IELTS"
-    | "Communication"
-    | "Academic English";
-
 export type DifficultyLevel = "easy" | "medium" | "hard";
 
 export type SessionStatus = "IN_PROGRESS" | "COMPLETED" | "ABANDONED";

@@ -22,7 +22,6 @@ import {
 import {
   BarChart3,
   Flame,
-  Target,
   Trophy,
   AlertTriangle,
   Brain,
@@ -136,8 +135,8 @@ export const AnalyticsPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Top 4 Metrics */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Top 3 Metrics */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-bold uppercase tracking-wider">Tổng số câu đã viết</span>
@@ -162,7 +161,6 @@ export const AnalyticsPage: React.FC = () => {
             {overview?.averageScore ?? user?.averageScore ?? 82}
             <span className="text-sm font-semibold text-slate-400">/100</span>
           </p>
-          <p className="mt-1 text-xs text-emerald-600 font-medium">Trình độ tương đương: {user?.level || 'B1'}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -177,19 +175,6 @@ export const AnalyticsPage: React.FC = () => {
             <span className="text-sm font-semibold text-slate-400">ngày</span>
           </p>
           <p className="mt-1 text-xs text-amber-600 font-medium">Duy trì phong độ đều đặn!</p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Mục tiêu học tập</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
-              <Target className="h-4 w-4" />
-            </div>
-          </div>
-          <p className="mt-2 text-2xl font-extrabold text-purple-700 truncate">
-            {user?.target || 'IELTS'}
-          </p>
-          <p className="mt-1 text-xs text-slate-500">Cấp độ mục tiêu: B2 / C1</p>
         </div>
       </div>
 
@@ -208,7 +193,7 @@ export const AnalyticsPage: React.FC = () => {
             </div>
 
             <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-bold text-indigo-800">
-              Đánh giá cấp độ: {aiAnalysis.overallLevel || user?.level || 'B1'}
+              Đánh giá cấp độ: {aiAnalysis.overallLevel}
             </span>
           </div>
 

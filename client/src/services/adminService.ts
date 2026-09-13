@@ -40,8 +40,6 @@ export const adminService = {
     email: string;
     password: string;
     role?: 'user' | 'admin';
-    level?: string;
-    target?: string;
   }): Promise<AdminUser> => {
     const res = await api.post('/users', data);
     return res.data.data;

@@ -3,7 +3,6 @@ import { ParagraphTopicModel } from "./paragraph-topic.model";
 import { ParagraphAttemptModel, IParagraphRevision } from "./paragraph-attempt.model";
 import { aiService } from "../ai/ai.service";
 import { UserModel } from "../users/user.model";
-import { CefrLevel } from "../../types";
 import { PARAGRAPH_DIFFICULTY_MAP, ParagraphDifficulty, difficultyFromLevelTier } from "./paragraph-difficulty.constants";
 
 const MAX_REVISIONS = 30;
@@ -134,12 +133,6 @@ export class ParagraphService {
 
         const { levelTier, minWords, maxWords } = PARAGRAPH_DIFFICULTY_MAP[difficulty];
 
-        // CEFR level is always looked up server-side from the user's own account —
-        // never trusted from the request body (no level field is even accepted here).
-        const user = await UserModel.findById(userId).select("level").lean();
-        if (!user) throw new Error("Không tìm thấy người dùng");
-        const cefrLevel = ((user as any).level as CefrLevel) || "B1";
-
         const recentTopics = await ParagraphTopicModel.find({
             createdBy: userId,
             topicCategory: topic,
@@ -158,7 +151,6 @@ export class ParagraphService {
             levelTier,
             minWords,
             maxWords,
-            cefrLevel,
             excludePrompts,
         });
 
@@ -182,7 +174,6 @@ export class ParagraphService {
             promptVi: saved.instruction,
             topic,
             difficulty,
-            cefrLevel,
             minWords: saved.minWords,
             maxWords: saved.maxWords,
             requirements: saved.requirements,

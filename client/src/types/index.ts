@@ -5,8 +5,6 @@ export interface User {
   email: string;
   role: 'user' | 'admin';
   avatar?: string;
-  level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
-  target: 'General English' | 'TOEIC' | 'IELTS' | 'Communication' | 'Academic English';
   dailyGoal: number;
   streak: number;
   totalWriting: number;
@@ -169,8 +167,6 @@ export interface AdminUser {
   name: string;
   email: string;
   role: 'user' | 'admin';
-  level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
-  target: string;
   dailyTarget?: number;
   streak?: number;
   isActive: boolean;
@@ -190,7 +186,6 @@ export interface CefrLevelDef {
   grammarFocus: string;
   recommendedDaily: number;
   questionCount: number;
-  usersCount: number;
   color: string;
 }
 
@@ -317,6 +312,7 @@ export interface AIWritingGeneratedQuestion {
   tenseVi: string;
   topic: string;
   topicVi: string;
+  level?: string;
   difficulty: string;
 }
 
@@ -385,7 +381,6 @@ export interface ParagraphGenerateResponse {
   promptVi: string;
   topic: string;
   difficulty: ParagraphDifficulty;
-  cefrLevel: string;
   minWords: number;
   maxWords: number;
   requirements: string[];

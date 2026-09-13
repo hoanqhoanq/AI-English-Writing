@@ -40,8 +40,6 @@ export const seedDatabase = async (): Promise<void> => {
                     email: bootstrapEmail,
                     password: hashedPassword,
                     role: "admin",
-                    level: "C2",
-                    target: "Academic English",
                     isActive: true,
                 });
                 adminId = createdAdmin._id;

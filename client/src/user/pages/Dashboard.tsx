@@ -20,9 +20,6 @@ export const Dashboard: React.FC = () => {
       <div className="rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 p-6 sm:p-10 text-white shadow-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-300 border border-indigo-400/30">
-              Trình độ hiện tại: {user?.level || 'B1'}
-            </span>
             <span className="rounded-full bg-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-300 border border-amber-400/30 flex items-center gap-1">
               <Flame className="h-3.5 w-3.5 fill-current" /> {user?.streak || 4} ngày streak
             </span>
@@ -31,7 +28,7 @@ export const Dashboard: React.FC = () => {
             Xin chào, {user?.name || 'Học viên'}! 👋
           </h1>
           <p className="text-sm text-indigo-200 max-w-md">
-            Mục tiêu của bạn: <strong className="text-white">{user?.target || 'IELTS'}</strong> · Chỉ tiêu hôm nay: <strong className="text-white">{user?.dailyGoal || 5} câu</strong>
+            Chỉ tiêu hôm nay: <strong className="text-white">{user?.dailyGoal || 5} câu</strong>
           </p>
         </div>
 
@@ -100,7 +97,7 @@ export const Dashboard: React.FC = () => {
               Luyện viết câu trực tuyến
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              Dịch câu theo chủ đề, nhận đánh giá ngữ pháp và sửa lỗi tức thì.
+              Nhập chủ đề, chọn cấp độ và thì, để AI tự sinh đề và chấm bài cho bạn.
             </p>
           </div>
           <div className="flex items-center gap-1 text-xs font-bold text-indigo-600">

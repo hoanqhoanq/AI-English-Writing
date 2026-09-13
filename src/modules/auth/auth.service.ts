@@ -4,7 +4,6 @@ import { RefreshTokenSessionModel } from "./refreshToken.model";
 import { memoryStore, MemoryUser, MemoryRefreshToken } from "../../db/memoryStore";
 import { hashPassword, comparePassword } from "../../utils/password";
 import { signToken, generateRefreshToken, hashRefreshToken } from "../../utils/jwt";
-import { CefrLevel } from "../../types";
 import { config } from "../../config/env";
 
 interface SafeUser {
@@ -12,8 +11,6 @@ interface SafeUser {
     name: string;
     email: string;
     role: "user" | "admin";
-    level: string;
-    target: string;
     dailyGoal: number;
     streak: number;
     totalWriting: number;
@@ -41,7 +38,6 @@ export class AuthService {
             email: user.email,
             role: user.role,
             name: user.name,
-            level: user.level,
         });
 
         const refreshToken = generateRefreshToken();
@@ -79,7 +75,7 @@ export class AuthService {
         }
     }
 
-    async register(data: { name: string; email: string; password: string; level?: string; target?: string }, userAgent?: string): Promise<AuthResult> {
+    async register(data: { name: string; email: string; password: string }, userAgent?: string): Promise<AuthResult> {
         const email = data.email.toLowerCase().trim();
 
         if (this.isMongoActive()) {
@@ -93,8 +89,6 @@ export class AuthService {
                 name: data.name.trim(),
                 email,
                 password: hashedPassword,
-                level: (data.level || "B1") as CefrLevel,
-                target: data.target || "General English",
                 role: "user",
                 dailyGoal: 5,
                 streak: 0,
@@ -116,8 +110,6 @@ export class AuthService {
                 email,
                 password: hashedPassword,
                 role: "user",
-                level: (data.level || "B1") as any,
-                target: (data.target || "General English") as any,
                 dailyGoal: 5,
                 streak: 0,
                 totalWriting: 0,
@@ -241,8 +233,6 @@ export class AuthService {
                 email: user.email,
                 role: user.role,
                 avatar: user.avatar,
-                level: user.level,
-                target: user.target,
                 dailyGoal: user.dailyGoal,
                 streak: user.streak,
                 totalWriting: user.totalWriting,
@@ -258,8 +248,6 @@ export class AuthService {
                 email: user.email,
                 role: user.role,
                 avatar: user.avatar,
-                level: user.level,
-                target: user.target,
                 dailyGoal: user.dailyGoal,
                 streak: user.streak,
                 totalWriting: user.totalWriting,
@@ -275,8 +263,6 @@ export class AuthService {
             name: user.name,
             email: user.email,
             role: user.role,
-            level: user.level,
-            target: user.target,
             dailyGoal: user.dailyGoal,
             streak: user.streak,
             totalWriting: user.totalWriting,
@@ -290,8 +276,6 @@ export class AuthService {
             name: user.name,
             email: user.email,
             role: user.role,
-            level: user.level,
-            target: user.target,
             dailyGoal: user.dailyGoal,
             streak: user.streak,
             totalWriting: user.totalWriting,

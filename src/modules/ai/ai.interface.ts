@@ -34,7 +34,6 @@ export interface IGenerateParagraphPromptInput {
     levelTier: ParagraphLevelTier;
     minWords: number;
     maxWords: number;
-    cefrLevel: CefrLevel;
     // Optional: recent prompts to avoid repeating (used by "Tạo đề khác").
     excludePrompts?: string[];
 }

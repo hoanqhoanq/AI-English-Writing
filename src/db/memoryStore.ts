@@ -9,8 +9,6 @@ export interface MemoryUser {
     password: string;
     role: "user" | "admin";
     avatar?: string;
-    level: "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
-    target: "General English" | "TOEIC" | "IELTS" | "Communication" | "Academic English";
     dailyGoal: number;
     streak: number;
     totalWriting: number;
@@ -190,8 +188,6 @@ class MemoryStore {
                 email: config.adminBootstrapEmail.toLowerCase().trim(),
                 password: bcrypt.hashSync(config.adminBootstrapPassword, salt),
                 role: "admin",
-                level: "C2",
-                target: "Academic English",
                 dailyGoal: 10,
                 streak: 0,
                 totalWriting: 0,

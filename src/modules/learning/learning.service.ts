@@ -19,7 +19,14 @@ const XP_TOPIC_COMPLETED = 100;
 const XP_PARAGRAPH_GOOD_ATTEMPT = 40;
 const AI_WRITING_EXCLUDE_PROMPT_LIMIT = 5;
 
-const CEFR_TO_DIFFICULTY: Record<CefrLevel, DifficultyLevel> = {
+// Grammar AI Writing scales by tense + topic only — never by an account-level
+// CEFR (users don't have one). Used as the default when the caller (the
+// tense-page AI Writing tab) doesn't send an explicit level — the standalone
+// AI Writing page always sends one, chosen per-exercise by the user.
+const AI_WRITING_DEFAULT_LEVEL: CefrLevel = "B1";
+const AI_WRITING_DEFAULT_DIFFICULTY: DifficultyLevel = "medium";
+
+const AI_WRITING_CEFR_TO_DIFFICULTY: Record<CefrLevel, DifficultyLevel> = {
     A1: "easy",
     A2: "easy",
     B1: "medium",
@@ -307,7 +314,8 @@ export class LearningService {
         userId: string,
         tenseSlug: string,
         topicKey?: string,
-        customTopic?: string
+        customTopic?: string,
+        requestedLevel?: CefrLevel
     ) {
         this.assertMongo();
 
@@ -329,12 +337,8 @@ export class LearningService {
             topicLabelVi = found.labelVi;
         }
 
-        // CEFR level is always looked up server-side from the user's own account —
-        // never trusted from the request body (no level field is even accepted here).
-        const user = await UserModel.findById(userId).select("level").lean();
-        if (!user) throw new Error("Không tìm thấy người dùng");
-        const level = ((user as any).level as CefrLevel) || "B1";
-        const difficulty = CEFR_TO_DIFFICULTY[level];
+        const level = requestedLevel || AI_WRITING_DEFAULT_LEVEL;
+        const difficulty = requestedLevel ? AI_WRITING_CEFR_TO_DIFFICULTY[requestedLevel] : AI_WRITING_DEFAULT_DIFFICULTY;
 
         const recentQuestions = await WritingQuestionModel.find({
             createdBy: userId,
@@ -380,6 +384,7 @@ export class LearningService {
             tenseVi: tense.titleVi,
             topic: topicLabel,
             topicVi: topicLabelVi,
+            level: saved.level,
             difficulty: saved.difficulty,
         };
     }

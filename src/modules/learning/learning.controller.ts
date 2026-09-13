@@ -84,8 +84,8 @@ export class LearningController {
                 ApiResponse.error(res, "Chưa xác thực người dùng", 401);
                 return;
             }
-            const { tenseSlug, topicKey, customTopic } = req.body;
-            const question = await learningService.generateAIWritingQuestion(userId, tenseSlug, topicKey, customTopic);
+            const { tenseSlug, topicKey, customTopic, level } = req.body;
+            const question = await learningService.generateAIWritingQuestion(userId, tenseSlug, topicKey, customTopic, level);
             ApiResponse.success(res, question, "Tạo đề bài AI thành công");
         } catch (error: any) {
             ApiResponse.error(res, error.message || "AI không thể tạo câu hỏi hợp lệ. Vui lòng thử lại.", 400);

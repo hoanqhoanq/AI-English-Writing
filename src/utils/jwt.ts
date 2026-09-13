@@ -7,7 +7,6 @@ export interface IJwtPayload {
     email: string;
     role: "user" | "admin";
     name: string;
-    level: string;
 }
 
 export const signToken = (payload: IJwtPayload): string => {

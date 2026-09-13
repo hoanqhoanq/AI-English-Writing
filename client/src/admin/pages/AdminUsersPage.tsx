@@ -84,8 +84,6 @@ export const AdminUsersPage: React.FC = () => {
           email: editingUser.email || '',
           password: passwordInput.trim(),
           role: editingUser.role || 'user',
-          level: editingUser.level || 'B1',
-          target: editingUser.target || 'IELTS',
         });
         setUsers((prev) => [created, ...prev]);
         showToast('Tạo người dùng mới thành công');
@@ -198,7 +196,7 @@ export const AdminUsersPage: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              setEditingUser({ name: '', email: '', role: 'user', level: 'B1', target: 'IELTS' });
+              setEditingUser({ name: '', email: '', role: 'user' });
               setPasswordInput('');
               setShowPassword(false);
               setIsModalOpen(true);
@@ -219,8 +217,6 @@ export const AdminUsersPage: React.FC = () => {
               <tr>
                 <th className="px-4 py-3">Học viên</th>
                 <th className="px-4 py-3">Vai trò</th>
-                <th className="px-4 py-3">Trình độ CEFR</th>
-                <th className="px-4 py-3">Mục tiêu</th>
                 <th className="px-4 py-3">Lượt làm</th>
                 <th className="px-4 py-3">Điểm TB</th>
                 <th className="px-4 py-3">Trạng thái</th>
@@ -230,7 +226,7 @@ export const AdminUsersPage: React.FC = () => {
             <tbody className="divide-y divide-slate-100 font-medium">
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-10 text-center text-slate-400">
+                  <td colSpan={6} className="py-10 text-center text-slate-400">
                     Không tìm thấy người dùng phù hợp với bộ lọc
                   </td>
                 </tr>
@@ -261,12 +257,6 @@ export const AdminUsersPage: React.FC = () => {
                           {u.role === 'admin' ? 'Admin' : 'Học viên'}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="rounded bg-indigo-50 px-2 py-0.5 text-xs font-bold text-indigo-700 border border-indigo-100">
-                          {u.level || 'B1'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-slate-600">{u.target || 'IELTS'}</td>
                       <td className="px-4 py-3 font-semibold text-slate-800">{u.totalAttempts || 0}</td>
                       <td className="px-4 py-3 font-semibold text-slate-800">
                         {u.averageScore ? `${u.averageScore} đ` : '—'}
@@ -405,48 +395,15 @@ export const AdminUsersPage: React.FC = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Vai trò</label>
-                  <select
-                    value={editingUser.role || 'user'}
-                    onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value as any })}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-900 focus:border-purple-500 focus:outline-none"
-                  >
-                    <option value="user">Học viên (User)</option>
-                    <option value="admin">Quản trị (Admin)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Cấp độ CEFR</label>
-                  <select
-                    value={editingUser.level || 'B1'}
-                    onChange={(e) => setEditingUser({ ...editingUser, level: e.target.value as any })}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-900 focus:border-purple-500 focus:outline-none"
-                  >
-                    <option value="A1">A1 - Sơ cấp</option>
-                    <option value="A2">A2 - Tiền trung cấp</option>
-                    <option value="B1">B1 - Trung cấp</option>
-                    <option value="B2">B2 - Trên trung cấp</option>
-                    <option value="C1">C1 - Cao cấp</option>
-                    <option value="C2">C2 - Thành thạo</option>
-                  </select>
-                </div>
-              </div>
-
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Mục tiêu học tập</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Vai trò</label>
                 <select
-                  value={editingUser.target || 'IELTS'}
-                  onChange={(e) => setEditingUser({ ...editingUser, target: e.target.value as any })}
+                  value={editingUser.role || 'user'}
+                  onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value as any })}
                   className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-900 focus:border-purple-500 focus:outline-none"
                 >
-                  <option value="General English">Tiếng Anh Giao Tiếp Tổng Quát</option>
-                  <option value="IELTS">Luyện thi IELTS</option>
-                  <option value="TOEIC">Luyện thi TOEIC</option>
-                  <option value="Academic English">Tiếng Anh Học Thuật</option>
-                  <option value="Communication">Giao tiếp công sở</option>
+                  <option value="user">Học viên (User)</option>
+                  <option value="admin">Quản trị (Admin)</option>
                 </select>
               </div>
 
