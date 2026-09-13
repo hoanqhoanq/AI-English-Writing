@@ -255,7 +255,7 @@ export const PracticePage: React.FC = () => {
 
             <div className="space-y-2">
               <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">✨ Đề bài AI tạo</span>
-              <p className="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">🇻🇳 {question.promptVi}</p>
+              <p className="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">{question.promptVi}</p>
             </div>
           </div>
 
