@@ -217,7 +217,6 @@ export const AdminUsersPage: React.FC = () => {
               <tr>
                 <th className="px-4 py-3">Học viên</th>
                 <th className="px-4 py-3">Vai trò</th>
-                <th className="px-4 py-3">Lượt làm</th>
                 <th className="px-4 py-3">Điểm TB</th>
                 <th className="px-4 py-3">Trạng thái</th>
                 <th className="px-4 py-3 text-right">Thao tác</th>
@@ -226,7 +225,7 @@ export const AdminUsersPage: React.FC = () => {
             <tbody className="divide-y divide-slate-100 font-medium">
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-10 text-center text-slate-400">
+                  <td colSpan={5} className="py-10 text-center text-slate-400">
                     Không tìm thấy người dùng phù hợp với bộ lọc
                   </td>
                 </tr>
@@ -257,9 +256,8 @@ export const AdminUsersPage: React.FC = () => {
                           {u.role === 'admin' ? 'Admin' : 'Học viên'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 font-semibold text-slate-800">{u.totalAttempts || 0}</td>
                       <td className="px-4 py-3 font-semibold text-slate-800">
-                        {u.averageScore ? `${u.averageScore} đ` : '—'}
+                        {u.role === 'admin' ? '—' : u.averageScore ? `${u.averageScore} đ` : '—'}
                       </td>
                       <td className="px-4 py-3">
                         <span

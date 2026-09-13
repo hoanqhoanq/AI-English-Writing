@@ -104,9 +104,6 @@ export const AdminOverviewPage: React.FC = () => {
             <span className="text-3xl font-black text-slate-900">{stats?.attempts?.total || 18}</span>
             <span className="text-xs text-purple-600 font-semibold">AI Chấm tức thì</span>
           </div>
-          <div className="mt-2 text-xs text-slate-500">
-            Độ chính xác toàn hệ thống: <span className="font-semibold text-slate-800">{stats?.attempts?.accuracy || 82}%</span>
-          </div>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">

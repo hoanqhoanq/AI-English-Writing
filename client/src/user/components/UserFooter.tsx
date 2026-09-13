@@ -45,7 +45,7 @@ export const UserFooter: React.FC = () => {
         </div>
 
         <div className="mt-8 border-t border-slate-100 pt-6 text-center text-xs text-slate-400">
-          © {new Date().getFullYear()} AI English Writing Practice. All rights reserved.
+           Developed by Hoang
         </div>
       </div>
     </footer>
