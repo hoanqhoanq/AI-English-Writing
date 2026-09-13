@@ -444,3 +444,50 @@ export interface ParagraphAttemptRecord {
   updatedAt: string;
 }
 
+// --- Admin: Paragraph Writing evaluation history ---
+// Mirrors the backend IParagraphRevision shape exactly (nested `criteria`,
+// backend field name `score`) rather than reusing ParagraphEvaluationResult,
+// whose shape (flattened criteria, `overallScore`) genuinely differs — mapping
+// one onto the other would silently mangle fields.
+
+export interface ParagraphRevisionRecord {
+  text: string;
+  wordCount: number;
+  score: number;
+  criteria: {
+    content: CategoryAnalysis;
+    organization: CategoryAnalysis;
+    coherence: CategoryAnalysis;
+    grammar: CategoryAnalysis;
+    vocabulary: CategoryAnalysis;
+    sentenceStructure: CategoryAnalysis;
+    naturalness: CategoryAnalysis;
+  };
+  errors: WritingErrorDetail[];
+  strengths: string[];
+  weaknesses: string[];
+  correctedSuggestion: string;
+  overallFeedback: string;
+  aiProvider?: string;
+  submittedAt: string;
+}
+
+export interface AdminParagraphAttemptRecord {
+  _id: string;
+  userId: string;
+  topicId: string;
+  currentUserAnswer: string;
+  currentScore: number;
+  revisions: ParagraphRevisionRecord[];
+  userName?: string;
+  userEmail?: string;
+  topicTitle?: string;
+  topicInstruction?: string;
+  topicCategory?: string;
+  levelTier?: string;
+  minWords?: number;
+  maxWords?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+

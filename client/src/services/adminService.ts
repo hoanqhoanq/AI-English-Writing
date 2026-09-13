@@ -8,7 +8,7 @@ import {
   SystemStats,
   AdminEvaluationRecord,
   ParagraphTopic,
-  ParagraphAttemptRecord,
+  AdminParagraphAttemptRecord,
   AdminLearningTopic,
 } from '../types';
 
@@ -138,7 +138,7 @@ export const adminService = {
     userId?: string;
     page?: number;
     limit?: number;
-  }): Promise<{ attempts: ParagraphAttemptRecord[]; total: number; page: number; totalPages: number }> => {
+  }): Promise<{ attempts: AdminParagraphAttemptRecord[]; total: number; page: number; totalPages: number }> => {
     const res = await api.get('/paragraph/admin/attempts', { params });
     return res.data.data;
   },

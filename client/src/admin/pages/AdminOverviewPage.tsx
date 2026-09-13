@@ -7,26 +7,12 @@ import {
   BookOpen,
   Sparkles,
   BarChart3,
-  GraduationCap,
-  AlertTriangle,
   RefreshCw,
   Plus,
   UserPlus,
   Layers,
   ArrowUpRight,
 } from 'lucide-react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts';
 
 export const AdminOverviewPage: React.FC = () => {
   const [stats, setStats] = useState<SystemStats | null>(null);
@@ -47,34 +33,6 @@ export const AdminOverviewPage: React.FC = () => {
   useEffect(() => {
     loadStats();
   }, []);
-
-  const levelDistributionData = stats?.questions?.byLevel
-    ? Object.entries(stats.questions.byLevel).map(([lvl, count]) => ({
-        level: lvl,
-        count,
-      }))
-    : [
-        { level: 'A1', count: 4 },
-        { level: 'A2', count: 6 },
-        { level: 'B1', count: 12 },
-        { level: 'B2', count: 8 },
-        { level: 'C1', count: 5 },
-        { level: 'C2', count: 2 },
-      ];
-
-  const errorColors = ['#ef4444', '#f97316', '#eab308', '#6366f1', '#8b5cf6', '#ec4899', '#14b8a6'];
-  const errorDistributionData = stats?.errors?.byType
-    ? Object.entries(stats.errors.byType).map(([type, count]) => ({
-        name: type,
-        value: count,
-      }))
-    : [
-        { name: 'GRAMMAR', value: 14 },
-        { name: 'PREPOSITION', value: 9 },
-        { name: 'ARTICLE', value: 7 },
-        { name: 'TENSE', value: 6 },
-        { name: 'SPELLING', value: 4 },
-      ];
 
   return (
     <div className="space-y-6">
@@ -164,70 +122,6 @@ export const AdminOverviewPage: React.FC = () => {
           </div>
           <div className="mt-2 text-xs text-slate-500">
             Chất lượng bài làm đạt mức khá giỏi
-          </div>
-        </div>
-      </div>
-
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <GraduationCap className="h-4 w-4 text-purple-600" />
-              Phân bố câu hỏi theo cấp độ CEFR
-            </h3>
-            <Link to="/admin/questions" className="text-xs font-semibold text-purple-700 hover:text-purple-900 flex items-center gap-1">
-              Xem chi tiết <ArrowUpRight className="h-3 w-3" />
-            </Link>
-          </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={levelDistributionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="level" tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1e293b', borderRadius: '12px', border: 'none', color: '#fff', fontSize: '12px' }}
-                  cursor={{ fill: '#f8fafc' }}
-                />
-                <Bar dataKey="count" name="Số lượng câu" fill="#7c3aed" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-rose-600" />
-              Tỷ lệ các loại lỗi phổ biến do AI phát hiện
-            </h3>
-            <Link to="/admin/evaluations" className="text-xs font-semibold text-purple-700 hover:text-purple-900 flex items-center gap-1">
-              Xem lịch sử <ArrowUpRight className="h-3 w-3" />
-            </Link>
-          </div>
-          <div className="h-64 flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={errorDistributionData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={80}
-                  paddingAngle={4}
-                  dataKey="value"
-                  label={({ name, percent }: { name?: string; percent?: number }) => `${name || ''} (${((percent || 0) * 100).toFixed(0)}%)`}
-                >
-                  {errorDistributionData.map((entry, index) => (
-                    <Cell key={`cell-${entry.name || index}`} fill={errorColors[index % errorColors.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1e293b', borderRadius: '12px', border: 'none', color: '#fff', fontSize: '12px' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
           </div>
         </div>
       </div>

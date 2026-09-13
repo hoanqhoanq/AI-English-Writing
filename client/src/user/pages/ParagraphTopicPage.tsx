@@ -1,17 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
-import { ParagraphTopic, ParagraphAttemptRecord, ParagraphSubmitResponse, ParagraphDifficulty, ParagraphGenerateResponse } from '../../types';
+import { ParagraphTopic, ParagraphAttemptRecord, ParagraphSubmitResponse } from '../../types';
 import { ParagraphScorePanel } from '../components/ParagraphScorePanel';
 import { PronounceButton } from '../components/PronounceButton';
-import { ArrowLeft, Send, RotateCcw, AlertCircle, ArrowRight, Shuffle } from 'lucide-react';
-
-const TIER_TO_DIFFICULTY: Record<string, ParagraphDifficulty> = {
-  Beginner: 'easy',
-  Intermediate: 'medium',
-  Advanced: 'hard',
-};
+import { ArrowLeft, Send, RotateCcw, AlertCircle, Shuffle } from 'lucide-react';
 
 export const ParagraphTopicPage: React.FC = () => {
   const { topicId } = useParams<{ topicId: string }>();
@@ -21,8 +15,6 @@ export const ParagraphTopicPage: React.FC = () => {
   const [text, setText] = useState('');
   const [result, setResult] = useState<ParagraphSubmitResponse | null>(null);
   const [isEditing, setIsEditing] = useState(true);
-  const [genError, setGenError] = useState<string | null>(null);
-  const generatingRef = useRef(false);
 
   const { data: topic, isLoading: loadingTopic } = useQuery<ParagraphTopic>({
     queryKey: ['paragraph', 'topic', topicId],
@@ -61,32 +53,6 @@ export const ParagraphTopicPage: React.FC = () => {
     if (e) e.preventDefault();
     if (!text.trim() || submitMutation.isPending) return;
     submitMutation.mutate(text.trim());
-  };
-
-  const generateAnotherMutation = useMutation({
-    mutationFn: async () => {
-      if (!topic) throw new Error('Không tìm thấy đề bài');
-      const difficulty = TIER_TO_DIFFICULTY[topic.levelTier];
-      const res = await api.post('/paragraph/generate', { topic: topic.topicCategory, difficulty });
-      return res.data.data as ParagraphGenerateResponse;
-    },
-    onSuccess: (data) => {
-      navigate(`/paragraph-writing/${data.topicId}`);
-    },
-    onError: (err: any) => {
-      setGenError(err?.response?.data?.message || 'AI không thể tạo đề bài. Vui lòng thử lại.');
-    },
-  });
-
-  const handleGenerateAnother = () => {
-    if (generatingRef.current) return;
-    generatingRef.current = true;
-    setGenError(null);
-    generateAnotherMutation.mutate(undefined, {
-      onSettled: () => {
-        generatingRef.current = false;
-      },
-    });
   };
 
   if (loadingTopic) {
@@ -192,10 +158,6 @@ export const ParagraphTopicPage: React.FC = () => {
         <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
           <ParagraphScorePanel evaluation={result.evaluation} scoreHistory={result.scoreHistory} />
 
-          {genError && (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{genError}</div>
-          )}
-
           <div className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-slate-100">
             <button
               type="button"
@@ -207,29 +169,14 @@ export const ParagraphTopicPage: React.FC = () => {
             </button>
 
             {topic.source === 'ai_user_generated' && (
-              <>
-                <button
-                  type="button"
-                  onClick={handleGenerateAnother}
-                  disabled={generateAnotherMutation.isPending}
-                  className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
-                >
-                  {generateAnotherMutation.isPending ? (
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-400 border-t-transparent" />
-                  ) : (
-                    <ArrowRight className="h-4 w-4" />
-                  )}
-                  <span>Tạo đề khác</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => navigate('/paragraph-writing')}
-                  className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-                >
-                  <Shuffle className="h-4 w-4" />
-                  <span>Đổi chủ đề</span>
-                </button>
-              </>
+              <button
+                type="button"
+                onClick={() => navigate('/paragraph-writing')}
+                className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                <Shuffle className="h-4 w-4" />
+                <span>Làm đề mới</span>
+              </button>
             )}
           </div>
         </div>

@@ -275,7 +275,7 @@ export class ParagraphService {
         if (query.userId) filter.userId = query.userId;
 
         const [attempts, total] = await Promise.all([
-            ParagraphAttemptModel.find(filter).select("-revisions").sort({ updatedAt: -1 }).skip(skip).limit(limit).lean(),
+            ParagraphAttemptModel.find(filter).sort({ updatedAt: -1 }).skip(skip).limit(limit).lean(),
             ParagraphAttemptModel.countDocuments(filter),
         ]);
 
@@ -283,9 +283,26 @@ export class ParagraphService {
         const users = await UserModel.find({ _id: { $in: userIds } }).select("name email").lean();
         const userMap = new Map(users.map((u: any) => [String(u._id), u]));
 
+        const topicIds = [...new Set(attempts.map((a: any) => String(a.topicId)))];
+        const topics = await ParagraphTopicModel.find({ _id: { $in: topicIds } })
+            .select("title instruction levelTier minWords maxWords topicCategory")
+            .lean();
+        const topicMap = new Map(topics.map((t: any) => [String(t._id), t]));
+
         const attemptsWithUser = attempts.map((a: any) => {
             const user = userMap.get(String(a.userId));
-            return { ...a, userName: user ? user.name : "", userEmail: user ? user.email : "" };
+            const topic = topicMap.get(String(a.topicId));
+            return {
+                ...a,
+                userName: user ? user.name : "",
+                userEmail: user ? user.email : "",
+                topicTitle: topic ? topic.title : "",
+                topicInstruction: topic ? topic.instruction : "",
+                topicCategory: topic ? topic.topicCategory : "",
+                levelTier: topic ? topic.levelTier : "",
+                minWords: topic ? topic.minWords : undefined,
+                maxWords: topic ? topic.maxWords : undefined,
+            };
         });
 
         return { attempts: attemptsWithUser, total, page, totalPages: Math.ceil(total / limit) };
