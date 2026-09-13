@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 interface AdminProtectedRouteProps {
@@ -8,13 +8,6 @@ interface AdminProtectedRouteProps {
 
 export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
-  const location = useLocation();
-
-  useEffect(() => {
-    if (!isLoading && isAuthenticated && user?.role !== 'admin') {
-      window.location.replace('/dashboard');
-    }
-  }, [isAuthenticated, isLoading, user]);
 
   if (isLoading) {
     return (
@@ -27,14 +20,10 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
     );
   }
 
-  // Not logged in -> Redirect to Admin Login
-  if (!isAuthenticated || !user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  // A non-admin session cannot render the Admin entry point.
-  if (user.role !== 'admin') {
-    return null;
+  // Not authenticated, or authenticated but not an admin: both cases stay
+  // entirely within the Admin portal — never navigate to a User portal path.
+  if (!isAuthenticated || !user || user.role !== 'admin') {
+    return <Navigate to="/admin/login" replace />;
   }
 
   return <>{children}</>;

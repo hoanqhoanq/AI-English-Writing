@@ -14,9 +14,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// The User and Admin portals are separate bundles (see main.tsx vs admin/main.tsx)
+// each with their own instance of this module — `portal` only selects which
+// backend endpoints (and therefore which HttpOnly refresh-token cookie) this
+// instance talks to, so the two portals' sessions can never overlap.
+type Portal = 'user' | 'admin';
+
+const ENDPOINTS: Record<Portal, { login: string; refresh: string; logout: string }> = {
+  user: { login: '/auth/login', refresh: '/auth/refresh', logout: '/auth/logout' },
+  admin: { login: '/auth/admin/login', refresh: '/auth/admin/refresh', logout: '/auth/admin/logout' },
+};
+
+export const AuthProvider: React.FC<{ children: React.ReactNode; portal?: Portal }> = ({ children, portal = 'user' }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const endpoints = ENDPOINTS[portal];
 
   const clearSession = useCallback(() => {
     setAccessToken(null);
@@ -29,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // one. If that fails, the visitor is simply not logged in.
     const bootstrapSession = async () => {
       try {
-        const res = await api.post('/auth/refresh');
+        const res = await api.post(endpoints.refresh);
         if (res.data.success && res.data.data) {
           const { user: userData, accessToken } = res.data.data;
           setAccessToken(accessToken);
@@ -47,10 +59,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const handleSessionExpired = () => clearSession();
     window.addEventListener('auth:session-expired', handleSessionExpired);
     return () => window.removeEventListener('auth:session-expired', handleSessionExpired);
-  }, [clearSession]);
+  }, [clearSession, endpoints.refresh]);
 
   const login = async (email: string, password: string): Promise<User> => {
-    const res = await api.post('/auth/login', { email, password });
+    const res = await api.post(endpoints.login, { email, password });
     if (res.data.success) {
       const { user: userData, accessToken } = res.data.data;
       setAccessToken(accessToken);
@@ -78,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async (): Promise<void> => {
     try {
-      await api.post('/auth/logout');
+      await api.post(endpoints.logout);
     } catch {
       // Even if the network call fails, clear local session state below.
     } finally {

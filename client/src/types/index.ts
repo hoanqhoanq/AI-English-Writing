@@ -27,6 +27,11 @@ export interface GrammarTopic {
   order: number;
 }
 
+export interface WritingQuestionHints {
+  vocabulary: string[];
+  grammar: string;
+}
+
 export interface WritingQuestion {
   _id: string;
   id?: string;
@@ -39,6 +44,7 @@ export interface WritingQuestion {
   grammarTopics?: string[];
   difficulty: 'easy' | 'medium' | 'hard';
   keywords: string[];
+  hints?: WritingQuestionHints;
 }
 
 export interface WritingErrorDetail {

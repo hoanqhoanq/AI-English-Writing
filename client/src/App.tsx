@@ -8,7 +8,7 @@ const queryClient = new QueryClient();
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+      <AuthProvider portal="user">
         <AppRoutes />
       </AuthProvider>
     </QueryClientProvider>

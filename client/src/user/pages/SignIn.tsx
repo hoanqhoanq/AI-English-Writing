@@ -18,12 +18,8 @@ export const SignIn: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const loggedUser = await login(email, password);
-      if (loggedUser.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+      await login(email, password);
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Đăng nhập không thành công');
     } finally {
@@ -42,9 +38,6 @@ export const SignIn: React.FC = () => {
           <p className="text-xs text-slate-500">
             Truy cập nền tảng luyện viết tiếng Anh thông minh cùng AI
           </p>
-          <Link to="/admin/login" className="text-[11px] font-bold text-purple-600 hover:underline">
-            Đăng nhập tài khoản Admin
-          </Link>
         </div>
 
         {error && (

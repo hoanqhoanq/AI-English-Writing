@@ -7,6 +7,7 @@ import { UserModel } from "../users/user.model";
 import { memoryStore, MemorySession, MemoryAttempt, MemoryError } from "../../db/memoryStore";
 import { aiService } from "../ai/ai.service";
 import { CefrLevel, DifficultyLevel } from "../../types";
+import { getGrammarStructureHint } from "./grammar-hints.constants";
 
 export class WritingService {
     private isMongoActive(): boolean {
@@ -67,13 +68,23 @@ export class WritingService {
         }
     }
 
+    // Scaffolding hints only — never the reference answer. Prefers a real
+    // structured `hints` value if one was ever set on the question; otherwise
+    // falls back to the existing `keywords` field for vocabulary and a static
+    // per-grammarTopic tip (never per-question) for structure.
+    private buildSafeHints(q: any): { vocabulary: string[]; grammar: string } {
+        const vocabulary = q.hints?.vocabulary?.length ? q.hints.vocabulary : q.keywords || [];
+        const grammar = q.hints?.grammar || getGrammarStructureHint(q.grammarTopic);
+        return { vocabulary, grammar };
+    }
+
     async getQuestionById(id: string, includeAnswers: boolean = false) {
         if (this.isMongoActive()) {
             const q = await WritingQuestionModel.findById(id);
             if (!q) throw new Error("Không tìm thấy câu hỏi");
             if (!includeAnswers) {
                 const { referenceAnswer, alternativeAnswers, ...safe } = q.toObject();
-                return safe;
+                return { ...safe, hints: this.buildSafeHints(safe) };
             }
             return q;
         } else {
@@ -81,7 +92,7 @@ export class WritingService {
             if (!q) throw new Error("Không tìm thấy câu hỏi");
             if (!includeAnswers) {
                 const { referenceAnswer, alternativeAnswers, ...safe } = q;
-                return safe;
+                return { ...safe, hints: this.buildSafeHints(safe) };
             }
             return q;
         }

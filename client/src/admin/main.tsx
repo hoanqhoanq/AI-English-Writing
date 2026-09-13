@@ -19,10 +19,9 @@ const queryClient = new QueryClient();
 
 const AdminApp: React.FC = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
+    <AuthProvider portal="admin">
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<AdminLoginPage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route
           path="/admin"
@@ -40,7 +39,7 @@ const AdminApp: React.FC = () => (
           <Route path="levels" element={<AdminLevelsPage />} />
           <Route path="evaluations" element={<AdminEvaluationsPage />} />
         </Route>
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/admin/login" replace />} />
       </Routes>
     </BrowserRouter>
     </AuthProvider>

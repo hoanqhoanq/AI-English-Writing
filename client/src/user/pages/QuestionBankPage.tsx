@@ -58,12 +58,7 @@ export const QuestionBankPage: React.FC = () => {
   });
 
   const handlePracticeSingle = (q: WritingQuestion) => {
-    navigate('/practice', {
-      state: {
-        customQuestions: [q],
-        fromGenerator: false,
-      },
-    });
+    navigate(`/writing/question/${q._id || q.id}`);
   };
 
   return (

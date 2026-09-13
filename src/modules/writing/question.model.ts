@@ -15,6 +15,14 @@ export interface IWritingQuestion extends Document {
     // Absent/undefined means an Admin-authored question (the original, only
     // source before AI Writing) — no backfill needed on existing documents.
     source?: "admin_manual" | "ai_user_generated";
+    // Optional, structured scaffolding hints (never a full sentence/answer).
+    // Absent on existing documents — the safe read path (getQuestionById with
+    // includeAnswers=false) fills in a sensible fallback from `keywords` +
+    // a static per-grammarTopic structure tip when this is unset.
+    hints?: {
+        vocabulary?: string[];
+        grammar?: string;
+    };
     createdAt: Date;
     updatedAt: Date;
 }
@@ -32,6 +40,10 @@ const WritingQuestionSchema = new Schema<IWritingQuestion>(
         isActive: { type: Boolean, default: true, index: true },
         createdBy: { type: Schema.Types.Mixed },
         source: { type: String, enum: ["admin_manual", "ai_user_generated"] },
+        hints: {
+            vocabulary: [{ type: String }],
+            grammar: { type: String },
+        },
     },
     { timestamps: true }
 );

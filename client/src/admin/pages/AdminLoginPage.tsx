@@ -16,11 +16,10 @@ export const AdminLoginPage: React.FC = () => {
     setError('');
     setLoading(true);
     try {
-      const user = await login(email, password);
-      if (user.role !== 'admin') {
-        setError('Tài khoản không có quyền quản trị. Vui lòng sử dụng tài khoản Admin.');
-        return;
-      }
+      // The backend's admin login endpoint rejects non-admin credentials
+      // outright (no session/cookie is ever issued for them), so a resolved
+      // login here is always a genuine admin — no client-side role check needed.
+      await login(email, password);
       navigate('/admin');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Đăng nhập Admin thất bại. Vui lòng kiểm tra lại thông tin.');

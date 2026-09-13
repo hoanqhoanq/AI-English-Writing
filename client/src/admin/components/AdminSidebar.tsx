@@ -123,7 +123,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
             type="button"
             onClick={() => {
               logout();
-              navigate('/login');
+              navigate('/admin/login');
             }}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-900/50 bg-rose-950/30 py-2 text-xs font-semibold text-rose-400 hover:bg-rose-900/40 hover:text-rose-300 transition"
           >

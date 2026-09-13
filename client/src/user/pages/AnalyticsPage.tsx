@@ -3,22 +3,8 @@ import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import {
   AnalyticsOverview,
-  ErrorCategoryStat,
-  TrendStat,
   AIWeaknessAnalysis,
 } from '../../types';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  LineChart,
-  Line,
-  CartesianGrid,
-} from 'recharts';
 import {
   BarChart3,
   Flame,
@@ -26,7 +12,6 @@ import {
   AlertTriangle,
   Brain,
   Sparkles,
-  TrendingUp,
   CheckCircle2,
   BookOpen,
 } from 'lucide-react';
@@ -35,8 +20,6 @@ export const AnalyticsPage: React.FC = () => {
   const { user } = useAuth();
 
   const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
-  const [errorStats, setErrorStats] = useState<ErrorCategoryStat[]>([]);
-  const [trendStats, setTrendStats] = useState<TrendStat[]>([]);
   const [aiAnalysis, setAiAnalysis] = useState<AIWeaknessAnalysis | null>(null);
   const [loadingAI, setLoadingAI] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -48,16 +31,12 @@ export const AnalyticsPage: React.FC = () => {
   const fetchAnalytics = async () => {
     setIsLoading(true);
     try {
-      const [ovRes, errRes, trendRes, aiRes] = await Promise.all([
+      const [ovRes, aiRes] = await Promise.all([
         api.get('/analytics/overview').catch(() => ({ data: { success: false } })),
-        api.get('/analytics/errors').catch(() => ({ data: { success: false } })),
-        api.get('/analytics/trends').catch(() => ({ data: { success: false } })),
         api.get('/analytics/ai-analysis').catch(() => ({ data: { success: false } })),
       ]);
 
       if (ovRes.data.success) setOverview(ovRes.data.data);
-      if (errRes.data.success) setErrorStats(errRes.data.data?.errors || errRes.data.data || []);
-      if (trendRes.data.success) setTrendStats(trendRes.data.data?.trends || trendRes.data.data || []);
       if (aiRes.data.success) setAiAnalysis(aiRes.data.data);
     } catch (err) {
       console.error('Error fetching analytics:', err);
@@ -80,26 +59,6 @@ export const AnalyticsPage: React.FC = () => {
       setLoadingAI(false);
     }
   };
-
-  const COLORS = ['#6366F1', '#EC4899', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'];
-
-  const displayTrends = trendStats.length > 0 ? trendStats : [
-    { date: 'T2', averageScore: 68, count: 3 },
-    { date: 'T3', averageScore: 74, count: 4 },
-    { date: 'T4', averageScore: 70, count: 2 },
-    { date: 'T5', averageScore: 82, count: 5 },
-    { date: 'T6', averageScore: 88, count: 4 },
-    { date: 'T7', averageScore: 85, count: 3 },
-    { date: 'CN', averageScore: 92, count: 6 },
-  ];
-
-  const displayErrors = errorStats.length > 0 ? errorStats : [
-    { type: 'Thì động từ (Tense)', count: 8, percentage: 38, examples: [] },
-    { type: 'Giới từ (Preposition)', count: 5, percentage: 24, examples: [] },
-    { type: 'Mạo từ (Articles)', count: 4, percentage: 19, examples: [] },
-    { type: 'Dùng từ (Word Choice)', count: 3, percentage: 14, examples: [] },
-    { type: 'Chính tả (Spelling)', count: 1, percentage: 5, examples: [] },
-  ];
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -242,79 +201,6 @@ export const AnalyticsPage: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Trend Chart */}
-        <div className="lg:col-span-7 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-indigo-600" />
-              <span>Biểu đồ biến thiên điểm số</span>
-            </h3>
-            <span className="text-xs text-slate-400">Theo thời gian</span>
-          </div>
-
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={displayTrends}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                <XAxis dataKey="date" stroke="#94A3B8" fontSize={12} />
-                <YAxis domain={[0, 100]} stroke="#94A3B8" fontSize={12} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: '12px',
-                    border: '1px solid #E2E8F0',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="averageScore"
-                  name="Điểm TB"
-                  stroke="#4F46E5"
-                  strokeWidth={3}
-                  dot={{ fill: '#4F46E5', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Error distribution chart */}
-        <div className="lg:col-span-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-rose-500" />
-              <span>Phân bố các loại lỗi</span>
-            </h3>
-            <span className="text-xs text-slate-400">Tỷ lệ %</span>
-          </div>
-
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={displayErrors} layout="vertical">
-                <XAxis type="number" stroke="#94A3B8" fontSize={11} />
-                <YAxis dataKey="type" type="category" width={110} stroke="#475569" fontSize={11} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: '12px',
-                    border: '1px solid #E2E8F0',
-                  }}
-                />
-                <Bar dataKey="count" name="Số lỗi mắc" fill="#6366F1" radius={[0, 8, 8, 0]}>
-                  {displayErrors.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

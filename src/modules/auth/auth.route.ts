@@ -14,4 +14,10 @@ router.get("/me", authenticate, (req, res) => authController.getMe(req, res));
 // intentionally does NOT go through `authenticate` (the access token may already be expired).
 router.post("/refresh", (req, res) => authController.refresh(req, res));
 
+// Admin portal — separate endpoints so its refresh-token cookie never overlaps
+// with the User portal's, and so login itself rejects non-admin credentials.
+router.post("/admin/login", validate(LoginSchema), (req, res) => authController.adminLogin(req, res));
+router.post("/admin/refresh", (req, res) => authController.adminRefresh(req, res));
+router.post("/admin/logout", (req, res) => authController.adminLogout(req, res));
+
 export default router;
