@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { LearningTopicSummary, LearningProgressOverview } from '../../types';
 import { LearningTopicCard } from '../components/LearningTopicCard';
-import { BookOpen, Search, Sparkles, TrendingUp, PenSquare } from 'lucide-react';
+import { BookOpen, Search, TrendingUp, PenSquare } from 'lucide-react';
 
 type FilterKey = 'all' | 'grammar' | 'writing_skill' | 'completed' | 'in_progress' | 'not_started';
 
@@ -48,14 +48,6 @@ export const LearningHomePage: React.FC = () => {
   const grammarTopics = filtered.filter((t) => t.category === 'grammar');
   const writingTopics = filtered.filter((t) => t.category === 'writing_skill');
 
-  const slugByPracticeTag = useMemo(() => {
-    const map = new Map<string, { slug: string; category: string }>();
-    (topics || []).forEach((t: any) => {
-      if (t.practiceTag) map.set(t.practiceTag, { slug: t.slug, category: t.category });
-    });
-    return map;
-  }, [topics]);
-
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       <div>
@@ -95,45 +87,6 @@ export const LearningHomePage: React.FC = () => {
           ))}
         </div>
       </div>
-
-      {/* Recommended for you */}
-      {overview && overview.weakTopics.length > 0 && (
-        <div className="rounded-2xl border border-amber-100 bg-amber-50/60 p-5 space-y-2">
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-800">
-            <Sparkles className="h-4 w-4" />
-            Recommended for you
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {overview.weakTopics.map((w) => {
-              const linked = slugByPracticeTag.get(w.grammarTopic);
-              const content = (
-                <>
-                  → Ôn lại <strong>{w.grammarTopic}</strong> <span className="text-amber-500">({w.averageScore}đ)</span>
-                </>
-              );
-              return linked ? (
-                <Link
-                  key={w.grammarTopic}
-                  to={`/learning/${linked.category === 'grammar' ? 'grammar' : 'writing'}/${linked.slug}`}
-                  className="rounded-xl border border-amber-200 bg-white px-3 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-50 transition-colors"
-                >
-                  {content}
-                </Link>
-              ) : (
-                <span key={w.grammarTopic} className="rounded-xl border border-amber-200 bg-white px-3 py-2 text-xs font-semibold text-amber-800">
-                  {content}
-                </span>
-              );
-            })}
-            <Link
-              to="/paragraph-writing"
-              className="rounded-xl border border-amber-200 bg-white px-3 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-50 transition-colors"
-            >
-              → Thử Paragraph Writing
-            </Link>
-          </div>
-        </div>
-      )}
 
       {/* My Progress summary */}
       {overview && (
