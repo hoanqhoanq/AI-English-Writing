@@ -22,7 +22,6 @@ import AdminLayout from '../admin/layouts/AdminLayout';
 import AdminOverviewPage from '../admin/pages/AdminOverviewPage';
 import AdminUsersPage from '../admin/pages/AdminUsersPage';
 import AdminQuestionsPage from '../admin/pages/AdminQuestionsPage';
-import AdminTopicsPage from '../admin/pages/AdminTopicsPage';
 import AdminLevelsPage from '../admin/pages/AdminLevelsPage';
 import AdminEvaluationsPage from '../admin/pages/AdminEvaluationsPage';
 import AdminLoginPage from '../admin/pages/AdminLoginPage';
@@ -64,7 +63,6 @@ export const AppRoutes: React.FC = () => {
             <Route path="/admin" element={<AdminOverviewPage />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/questions" element={<AdminQuestionsPage />} />
-            <Route path="/admin/topics" element={<AdminTopicsPage />} />
             <Route path="/admin/paragraph-topics" element={<AdminParagraphTopicsPage />} />
             <Route path="/admin/learning-topics" element={<AdminLearningTopicsPage />} />
             <Route path="/admin/levels" element={<AdminLevelsPage />} />

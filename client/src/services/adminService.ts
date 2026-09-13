@@ -76,44 +76,18 @@ export const adminService = {
     await api.delete(`/writing/admin/questions/${id}`);
   },
 
-  // Topic Management
+  // Topic/Grammar read-only lookups — used by Admin Question management filters.
+  // Admin CRUD for these was removed with the "Chủ đề & Ngữ pháp" page; the
+  // backend write routes stay in place (dormant), the data itself is still
+  // used by User/AI features.
   getTopics: async (all: boolean = true): Promise<Topic[]> => {
     const res = await api.get('/topics/topics', { params: { all } });
     return res.data.data;
   },
 
-  createTopic: async (data: Partial<Topic>): Promise<Topic> => {
-    const res = await api.post('/topics/topics', data);
-    return res.data.data;
-  },
-
-  updateTopic: async (id: string, data: Partial<Topic>): Promise<Topic> => {
-    const res = await api.put(`/topics/topics/${id}`, data);
-    return res.data.data;
-  },
-
-  deleteTopic: async (id: string): Promise<void> => {
-    await api.delete(`/topics/topics/${id}`);
-  },
-
-  // Grammar Management
   getGrammars: async (all: boolean = true): Promise<GrammarTopic[]> => {
     const res = await api.get('/topics/grammar', { params: { all } });
     return res.data.data;
-  },
-
-  createGrammar: async (data: Partial<GrammarTopic>): Promise<GrammarTopic> => {
-    const res = await api.post('/topics/grammar', data);
-    return res.data.data;
-  },
-
-  updateGrammar: async (id: string, data: Partial<GrammarTopic>): Promise<GrammarTopic> => {
-    const res = await api.put(`/topics/grammar/${id}`, data);
-    return res.data.data;
-  },
-
-  deleteGrammar: async (id: string): Promise<void> => {
-    await api.delete(`/topics/grammar/${id}`);
   },
 
   // CEFR Levels Management

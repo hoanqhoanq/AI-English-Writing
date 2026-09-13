@@ -7,7 +7,6 @@ import AdminLayout from './layouts/AdminLayout';
 import AdminOverviewPage from './pages/AdminOverviewPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminQuestionsPage from './pages/AdminQuestionsPage';
-import AdminTopicsPage from './pages/AdminTopicsPage';
 import AdminLevelsPage from './pages/AdminLevelsPage';
 import AdminEvaluationsPage from './pages/AdminEvaluationsPage';
 import AdminLoginPage from './pages/AdminLoginPage';
@@ -36,7 +35,6 @@ const AdminApp: React.FC = () => (
           <Route index element={<AdminOverviewPage />} />
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="questions" element={<AdminQuestionsPage />} />
-          <Route path="topics" element={<AdminTopicsPage />} />
           <Route path="paragraph-topics" element={<AdminParagraphTopicsPage />} />
           <Route path="learning-topics" element={<AdminLearningTopicsPage />} />
           <Route path="levels" element={<AdminLevelsPage />} />
