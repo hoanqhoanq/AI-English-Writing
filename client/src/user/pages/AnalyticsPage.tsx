@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -18,47 +19,37 @@ import {
 
 export const AnalyticsPage: React.FC = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
-  const [aiAnalysis, setAiAnalysis] = useState<AIWeaknessAnalysis | null>(null);
-  const [loadingAI, setLoadingAI] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // Query keys under ['analytics', 'overview'] are invalidated right after a
+  // writing attempt is saved (Practice, Question Bank, Paragraph Writing), so
+  // this refetches with fresh database numbers as soon as that happens —
+  // no page reload needed, and no polling in between.
+  const { data: overview, isLoading } = useQuery<AnalyticsOverview>({
+    queryKey: ['analytics', 'overview'],
+    queryFn: async () => (await api.get('/analytics/overview')).data.data,
+  });
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, []);
+  const { data: aiAnalysis } = useQuery<AIWeaknessAnalysis>({
+    queryKey: ['analytics', 'ai-analysis'],
+    queryFn: async () => (await api.get('/analytics/ai-analysis')).data.data,
+  });
 
-  const fetchAnalytics = async () => {
-    setIsLoading(true);
-    try {
-      const [ovRes, aiRes] = await Promise.all([
-        api.get('/analytics/overview').catch(() => ({ data: { success: false } })),
-        api.get('/analytics/ai-analysis').catch(() => ({ data: { success: false } })),
-      ]);
-
-      if (ovRes.data.success) setOverview(ovRes.data.data);
-      if (aiRes.data.success) setAiAnalysis(aiRes.data.data);
-    } catch (err) {
-      console.error('Error fetching analytics:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleTriggerAIAnalysis = async () => {
-    setLoadingAI(true);
-    try {
-      const res = await api.post('/analytics/ai-analysis');
-      if (res.data.success && res.data.data) {
-        setAiAnalysis(res.data.data);
-      }
-    } catch (err) {
+  const triggerAIMutation = useMutation({
+    mutationFn: async () => (await api.post('/analytics/ai-analysis')).data.data as AIWeaknessAnalysis,
+    onSuccess: (data) => {
+      queryClient.setQueryData(['analytics', 'ai-analysis'], data);
+    },
+    onError: (err) => {
       console.error('Failed to trigger AI weakness diagnosis:', err);
       alert('Không thể tạo phân tích AI lúc này. Vui lòng thử lại sau!');
-    } finally {
-      setLoadingAI(false);
-    }
+    },
+  });
+
+  const handleTriggerAIAnalysis = () => {
+    triggerAIMutation.mutate();
   };
+  const loadingAI = triggerAIMutation.isPending;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -104,7 +95,7 @@ export const AnalyticsPage: React.FC = () => {
             </div>
           </div>
           <p className="mt-2 text-3xl font-extrabold text-slate-900">
-            {overview?.totalWriting ?? user?.totalWriting ?? 18}
+            {overview?.totalAttempts ?? user?.totalWriting ?? 18}
           </p>
           <p className="mt-1 text-xs text-slate-500">Mục tiêu ngày: {user?.dailyGoal || 5} câu</p>
         </div>
@@ -130,7 +121,7 @@ export const AnalyticsPage: React.FC = () => {
             </div>
           </div>
           <p className="mt-2 text-3xl font-extrabold text-amber-600">
-            {overview?.currentStreak ?? user?.streak ?? 4}{' '}
+            {user?.streak ?? 4}{' '}
             <span className="text-sm font-semibold text-slate-400">ngày</span>
           </p>
           <p className="mt-1 text-xs text-amber-600 font-medium">Duy trì phong độ đều đặn!</p>

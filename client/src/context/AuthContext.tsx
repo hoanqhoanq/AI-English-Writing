@@ -10,6 +10,7 @@ interface AuthContextType {
   register: (name: string, email: string, password: string, confirmPassword: string) => Promise<User>;
   logout: () => Promise<void>;
   updateUser: (data: Partial<User>) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -105,6 +106,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; portal?: Portal
     }
   };
 
+  // Re-pulls the current user (streak/totalWriting/averageScore live here,
+  // not in analytics) without a full re-login — called after a writing
+  // attempt is saved so those numbers reflect the database immediately.
+  const refreshUser = useCallback(async () => {
+    try {
+      const res = await api.get('/auth/me');
+      if (res.data.success && res.data.data) {
+        setUser(res.data.data);
+      }
+    } catch {
+      // Leave the current session state untouched; a genuine auth failure
+      // is already handled by the session-expired flow above.
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -115,6 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; portal?: Portal
         register,
         logout,
         updateUser,
+        refreshUser,
       }}
     >
       {children}

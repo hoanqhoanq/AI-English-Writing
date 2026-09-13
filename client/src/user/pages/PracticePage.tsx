@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import {
   AIWritingTopicOption,
   AIWritingGeneratedQuestion,
@@ -26,6 +27,9 @@ interface AIWritingSelection {
 }
 
 export const PracticePage: React.FC = () => {
+  const queryClient = useQueryClient();
+  const { refreshUser } = useAuth();
+
   // Config form state
   const [topicInput, setTopicInput] = useState('');
   const [level, setLevel] = useState('A1');
@@ -122,6 +126,8 @@ export const PracticePage: React.FC = () => {
       });
       if (res.data.success) {
         setEvaluation(res.data.data.evaluation || res.data.data);
+        queryClient.invalidateQueries({ queryKey: ['analytics', 'overview'] });
+        refreshUser();
       }
     } catch (err) {
       // no-op: user can retry

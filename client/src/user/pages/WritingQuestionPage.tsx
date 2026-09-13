@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { WritingQuestion, EvaluationResult } from '../../types';
 import { PracticeResultPanel } from '../components/PracticeResultPanel';
 import { PronounceButton } from '../components/PronounceButton';
@@ -14,6 +15,8 @@ type SafeWritingQuestion = Omit<WritingQuestion, 'referenceAnswer' | 'alternativ
 export const WritingQuestionPage: React.FC = () => {
   const { questionId } = useParams<{ questionId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { refreshUser } = useAuth();
 
   const [answer, setAnswer] = useState('');
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
@@ -36,6 +39,8 @@ export const WritingQuestionPage: React.FC = () => {
     },
     onSuccess: (data) => {
       setEvaluation(data);
+      queryClient.invalidateQueries({ queryKey: ['analytics', 'overview'] });
+      refreshUser();
     },
   });
 

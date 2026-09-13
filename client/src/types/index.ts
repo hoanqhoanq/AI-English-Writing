@@ -123,16 +123,15 @@ export interface AttemptRecord {
 }
 
 export interface AnalyticsOverview {
-  totalWriting: number;
+  totalAttempts: number;
   averageScore: number;
-  currentStreak: number;
-  dailyGoal: number;
-  todayCompleted: number;
-  statusBreakdown: {
-    correct: number;
-    partially_correct: number;
-    incorrect: number;
-  };
+  highestScore: number;
+  lowestScore: number;
+  accuracy: number;
+  totalErrors: number;
+  correctCount: number;
+  partialCount: number;
+  incorrectCount: number;
 }
 
 export interface ErrorCategoryStat {

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
   PenTool,
-  Sparkles,
   BarChart3,
   Flame,
   ArrowRight,
@@ -42,7 +41,7 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Quick Launch Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <Link
           to="/learning"
           className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:border-teal-300 hover:shadow-md transition-all space-y-4 group"
@@ -102,27 +101,6 @@ export const Dashboard: React.FC = () => {
           </div>
           <div className="flex items-center gap-1 text-xs font-bold text-indigo-600">
             <span>Bắt đầu ngay</span>
-            <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-          </div>
-        </Link>
-
-        <Link
-          to="/generator"
-          className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:border-purple-300 hover:shadow-md transition-all space-y-4 group"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 group-hover:scale-110 transition-transform">
-            <Sparkles className="h-6 w-6" />
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-slate-900 group-hover:text-purple-600 transition-colors">
-              AI Sinh đề theo yêu cầu
-            </h3>
-            <p className="text-xs text-slate-500 mt-1">
-              Tạo câu hỏi luyện viết theo ngữ cảnh tự do với công nghệ Gemini.
-            </p>
-          </div>
-          <div className="flex items-center gap-1 text-xs font-bold text-purple-600">
-            <span>Khám phá Gemini AI</span>
             <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
           </div>
         </Link>

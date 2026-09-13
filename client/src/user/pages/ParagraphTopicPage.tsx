@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { ParagraphTopic, ParagraphAttemptRecord, ParagraphSubmitResponse } from '../../types';
 import { ParagraphScorePanel } from '../components/ParagraphScorePanel';
 import { PronounceButton } from '../components/PronounceButton';
@@ -11,6 +12,7 @@ export const ParagraphTopicPage: React.FC = () => {
   const { topicId } = useParams<{ topicId: string }>();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
 
   const [text, setText] = useState('');
   const [result, setResult] = useState<ParagraphSubmitResponse | null>(null);
@@ -44,6 +46,8 @@ export const ParagraphTopicPage: React.FC = () => {
       setIsEditing(false);
       queryClient.invalidateQueries({ queryKey: ['paragraph', 'attempt', topicId] });
       queryClient.invalidateQueries({ queryKey: ['learning', 'overview'] });
+      queryClient.invalidateQueries({ queryKey: ['analytics', 'overview'] });
+      refreshUser();
     },
   });
 
