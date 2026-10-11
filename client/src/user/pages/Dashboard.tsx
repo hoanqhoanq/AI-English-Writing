@@ -11,16 +11,18 @@ import {
 } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
+  // Lấy thông tin người dùng đang đăng nhập từ AuthContext (tên, streak, mục tiêu mỗi ngày)
   const { user } = useAuth();
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
-      {/* Welcome Banner */}
+      {/* Banner chào mừng: streak, tên người dùng, chỉ tiêu số câu mỗi ngày và nút vào luyện viết */}
       <div className="rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 p-6 sm:p-10 text-white shadow-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
+            {/* Số ngày liên tiếp có luyện viết (streak), lấy từ hồ sơ người dùng */}
             <span className="rounded-full bg-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-300 border border-amber-400/30 flex items-center gap-1">
-              <Flame className="h-3.5 w-3.5 fill-current" /> {user?.streak || 4} ngày streak
+              <Flame className="h-3.5 w-3.5 fill-current" /> {user?.streak ?? 0} ngày streak
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold">
@@ -31,6 +33,7 @@ export const Dashboard: React.FC = () => {
           </p>
         </div>
 
+        {/* Nút chuyển sang trang luyện viết câu */}
         <Link
           to="/practice"
           className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-sm font-bold text-indigo-900 shadow-lg hover:bg-indigo-50 transition-all self-start sm:self-auto"
@@ -40,8 +43,9 @@ export const Dashboard: React.FC = () => {
         </Link>
       </div>
 
-      {/* Quick Launch Cards */}
+      {/* Bốn thẻ lối tắt tới các chức năng chính */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {/* Thẻ 1: Writing Learning (học ngữ pháp và kỹ năng viết theo chủ đề) */}
         <Link
           to="/learning"
           className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:border-teal-300 hover:shadow-md transition-all space-y-4 group"
@@ -63,6 +67,7 @@ export const Dashboard: React.FC = () => {
           </div>
         </Link>
 
+        {/* Thẻ 2: Viết đoạn văn */}
         <Link
           to="/paragraph-writing"
           className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:border-fuchsia-300 hover:shadow-md transition-all space-y-4 group"
@@ -84,6 +89,7 @@ export const Dashboard: React.FC = () => {
           </div>
         </Link>
 
+        {/* Thẻ 3: Luyện viết câu (AI sinh đề và chấm bài) */}
         <Link
           to="/practice"
           className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all space-y-4 group"
@@ -105,6 +111,7 @@ export const Dashboard: React.FC = () => {
           </div>
         </Link>
 
+        {/* Thẻ 4: Thống kê và chẩn đoán lỗi */}
         <Link
           to="/analytics"
           className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:border-emerald-300 hover:shadow-md transition-all space-y-4 group"

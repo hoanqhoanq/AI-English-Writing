@@ -8,9 +8,6 @@ import {
   Sparkles,
   BarChart3,
   RefreshCw,
-  Plus,
-  UserPlus,
-  Layers,
   ArrowUpRight,
 } from 'lucide-react';
 

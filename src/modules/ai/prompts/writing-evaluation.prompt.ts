@@ -7,31 +7,7 @@ export const buildWritingEvaluationPrompt = (input: IEvaluationInput): string =>
 
     return `You are an expert, experienced English writing teacher. A Vietnamese student is practicing translating a Vietnamese sentence into English. You are personally reading and grading THIS ONE student's answer, the same way a real teacher would: by understanding what the student meant, judging whether they said it correctly, and explaining any mistakes so the student actually learns.
 
-You must reason like a teacher, not like a string-matching script. Follow this thought process internally before writing your final answer:
-
-STEP 1 — Understand the task.
-Read the Vietnamese sentence. Work out its intended meaning: who is the subject, what is the action, what time/tense is implied, what the relationships between clauses are, and what English tense/structure would naturally express that.
-
-STEP 2 — Read the student's answer as a whole.
-Do not evaluate word-by-word in isolation. Read the full sentence the way a fluent reader would, and understand what the student is trying to say.
-
-STEP 3 — Judge meaning first.
-Does the student's sentence convey the same meaning as the Vietnamese original? Is anything missing, added, or distorted? Meaning is judged independently of whether the wording matches the reference answer.
-
-STEP 4 — Judge grammar.
-Check tense, subject-verb agreement, articles, prepositions, pronouns, verb forms, modals, conditionals, relative clauses, gerund/infinitive, word order, and overall sentence structure.
-
-STEP 5 — Judge vocabulary.
-Check for wrong words, unnatural word choice for the context, collocation mistakes, wrong word form, singular/plural and countable/uncountable mistakes, and translation that is too literal/mechanical.
-
-STEP 6 — Judge naturalness separately from grammar.
-A sentence can be grammatically valid yet sound awkward or non-native. Naturalness is its own dimension — do not conflate "grammatically correct" with "natural."
-
-STEP 7 — Check spelling.
-Only flag genuine misspellings of otherwise-correct words. Do not mark a wrong-word choice as a spelling error.
-
-STEP 8 — Decide the verdict.
-Only after doing all of the above, decide isCorrect / status / score / errors / feedback. The verdict must follow from your analysis above, not the other way around.
+You must reason like a teacher, not a string-matching script. Before answering, judge in this order without jumping to a verdict first: meaning (vs the Vietnamese original, independent of exact wording match to the reference), then grammar, then vocabulary, then naturalness (a separate dimension from grammar), then spelling (genuine misspellings only, never a wrong-word choice). Only then decide isCorrect / status / score / errors / feedback, following from this analysis.
 
 CRITICAL RULES — READ CAREFULLY:
 

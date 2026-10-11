@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { PronounceButton } from '../components/PronounceButton';
 import { ScoreBadge } from '../components/ScoreBadge';
 import { ErrorViewer } from '../components/ErrorViewer';
@@ -8,7 +8,6 @@ import {
   PenTool,
   Sparkles,
   BarChart3,
-  BookOpen,
   ArrowRight,
   Brain,
   Zap,
@@ -16,15 +15,15 @@ import {
 } from 'lucide-react';
 
 export const Home: React.FC = () => {
-  const navigate = useNavigate();
-
-  // Quick Demo Interactive Sandbox
+  // Ô thử nghiệm nhanh (Quick Demo): câu mẫu cố định, câu người dùng gõ và kết quả chấm
   const samplePrompt = 'Tôi thức dậy lúc 6 giờ sáng mỗi ngày.';
   const sampleRef = 'I wake up at 6 AM every day.';
+  // Trạng thái: câu người dùng gõ, cờ đang chấm và kết quả chấm
   const [quickInput, setQuickInput] = useState('');
   const [evaluating, setEvaluating] = useState(false);
   const [quickResult, setQuickResult] = useState<any>(null);
 
+  // Chấm thử: gọi POST /ai/evaluate-writing (không lưu vào database); nếu API lỗi thì tạo kết quả tạm ngay trên trình duyệt
   const handleQuickEvaluate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!quickInput.trim() || evaluating) return;
@@ -42,7 +41,7 @@ export const Home: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
-      // Fallback local heuristic
+      // Dự phòng cục bộ khi API lỗi: gõ đúng hệt đáp án mẫu thì 100 điểm, còn lại 80 điểm
       const cleanInput = quickInput.trim().toLowerCase();
       const isExact = cleanInput === sampleRef.toLowerCase();
       setQuickResult({
@@ -68,9 +67,10 @@ export const Home: React.FC = () => {
     }
   };
 
+  // Giao diện trang chủ: banner giới thiệu, ô thử nghiệm nhanh và ba điểm nổi bật
   return (
     <div className="space-y-16">
-      {/* Hero Section */}
+      {/* Banner giới thiệu (Hero): tiêu đề, mô tả và hai nút kêu gọi hành động */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-indigo-900 via-slate-900 to-slate-950 px-6 py-16 sm:px-12 sm:py-24 text-white shadow-2xl">
         <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-300 backdrop-blur-md">
@@ -90,6 +90,7 @@ export const Home: React.FC = () => {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            {/* Nút vào trang luyện viết câu */}
             <Link
               to="/practice"
               className="inline-flex items-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 transition-all hover:scale-105"
@@ -98,6 +99,7 @@ export const Home: React.FC = () => {
               <span>Bắt đầu luyện viết ngay</span>
             </Link>
 
+            {/* Nút AI sinh đề theo yêu cầu (lưu ý: đường dẫn /generator hiện chưa có trang tương ứng) */}
             <Link
               to="/generator"
               className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-sm hover:bg-white/20 transition-all"
@@ -109,7 +111,7 @@ export const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* Interactive Quick Try Sandbox */}
+      {/* Ô thử nghiệm nhanh: gõ bản dịch của một câu mẫu rồi bấm chấm để xem kết quả ngay */}
       <div className="max-w-3xl mx-auto rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2">
@@ -129,6 +131,7 @@ export const Home: React.FC = () => {
           </div>
         </div>
 
+        {/* Biểu mẫu thử nghiệm: ô nhập bản dịch, nút gõ thử câu thiếu giới từ và nút Chấm câu này */}
         <form onSubmit={handleQuickEvaluate} className="space-y-3">
           <input
             type="text"
@@ -167,6 +170,7 @@ export const Home: React.FC = () => {
           </div>
         </form>
 
+        {/* Kết quả thử nghiệm: điểm, đáp án chuẩn (có nút nghe), danh sách lỗi và liên kết tới trang luyện tập đầy đủ */}
         {quickResult && (
           <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 space-y-4 animate-in fade-in duration-200">
             <div className="flex items-center justify-between">
@@ -197,7 +201,7 @@ export const Home: React.FC = () => {
         )}
       </div>
 
-      {/* Key Feature Pillars */}
+      {/* Ba điểm nổi bật của hệ thống */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">

@@ -7,6 +7,7 @@ export const SignUp: React.FC = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  // Trạng thái biểu mẫu: họ tên, email, mật khẩu, xác nhận mật khẩu, thông báo lỗi và cờ đang chờ server
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,6 +15,7 @@ export const SignUp: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Khi bấm Đăng ký: kiểm tra mật khẩu >= 8 ký tự và khớp ô xác nhận, rồi gọi API đăng ký; thành công thì vào /dashboard
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -38,6 +40,7 @@ export const SignUp: React.FC = () => {
     }
   };
 
+  // Giao diện trang đăng ký: tiêu đề, khung báo lỗi, biểu mẫu 4 ô nhập, liên kết sang trang đăng nhập
   return (
     <div className="flex min-h-[75vh] items-center justify-center py-8">
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
@@ -51,6 +54,7 @@ export const SignUp: React.FC = () => {
           </p>
         </div>
 
+        {/* Khung báo lỗi (mật khẩu ngắn, không khớp, email đã tồn tại...) */}
         {error && (
           <div className="mb-4 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs font-semibold text-rose-700 flex items-center gap-2">
             <AlertCircle className="h-4 w-4 shrink-0" />
@@ -58,6 +62,7 @@ export const SignUp: React.FC = () => {
           </div>
         )}
 
+        {/* Biểu mẫu đăng ký: họ tên, email, mật khẩu, xác nhận mật khẩu và nút gửi */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
@@ -138,6 +143,7 @@ export const SignUp: React.FC = () => {
           </button>
         </form>
 
+        {/* Liên kết sang trang đăng nhập cho người đã có tài khoản */}
         <p className="mt-6 text-center text-xs text-slate-500">
           Đã có tài khoản?{' '}
           <Link to="/signin" className="font-bold text-indigo-600 hover:underline">

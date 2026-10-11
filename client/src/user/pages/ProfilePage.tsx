@@ -5,11 +5,13 @@ import { User, Save, CheckCircle, Sparkles } from 'lucide-react';
 export const ProfilePage: React.FC = () => {
   const { user, updateUser } = useAuth();
 
+  // Trạng thái: tên hiển thị và mục tiêu số câu mỗi ngày (lấy giá trị ban đầu từ hồ sơ), cờ báo lưu thành công, cờ đang lưu
   const [name, setName] = useState(user?.name || 'Học viên');
   const [dailyGoal, setDailyGoal] = useState(user?.dailyGoal || 5);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Lưu hồ sơ: gọi updateUser (PUT /users/profile); hiện thông báo thành công 3 giây rồi tự ẩn
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -27,8 +29,10 @@ export const ProfilePage: React.FC = () => {
     }
   };
 
+  // Giao diện trang hồ sơ cá nhân
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      {/* Tiêu đề trang */}
       <div className="border-b border-slate-200/80 pb-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-2">
           <User className="h-6 w-6 text-indigo-600" />
@@ -40,6 +44,7 @@ export const ProfilePage: React.FC = () => {
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+        {/* Thông báo lưu hồ sơ thành công */}
         {savedSuccess && (
           <div className="mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 p-4 text-xs font-bold text-emerald-800 flex items-center gap-2">
             <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
@@ -47,7 +52,9 @@ export const ProfilePage: React.FC = () => {
           </div>
         )}
 
+        {/* Biểu mẫu chỉnh sửa hồ sơ */}
         <form onSubmit={handleSave} className="space-y-6">
+          {/* Thẻ tóm tắt tài khoản: chữ cái đầu của tên, tên, email */}
           <div className="flex items-center gap-4 border-b border-slate-100 pb-6">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-2xl font-black text-white shadow-lg shadow-indigo-600/20">
               {user?.name ? user.name[0].toUpperCase() : 'H'}
@@ -77,6 +84,7 @@ export const ProfilePage: React.FC = () => {
             </div>
 
             <div>
+              {/* Mục tiêu số câu luyện mỗi ngày (thanh trượt từ 1 đến 20 câu) */}
               <div className="flex justify-between items-center mb-1.5">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-600">
                   Mục tiêu số câu viết mỗi ngày:
@@ -94,6 +102,7 @@ export const ProfilePage: React.FC = () => {
             </div>
           </div>
 
+          {/* Nút lưu cài đặt (bị khóa trong lúc đang lưu) */}
           <div className="flex justify-end pt-4 border-t border-slate-100">
             <button
               type="submit"

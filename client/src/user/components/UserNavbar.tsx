@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   Compass,
+  ListChecks,
 } from 'lucide-react';
 
 export const UserNavbar: React.FC = () => {
@@ -27,6 +28,7 @@ export const UserNavbar: React.FC = () => {
   const navLinks = [
     { name: 'Writing Learning', path: '/learning', icon: Compass },
     { name: 'Ngân hàng câu', path: '/questions', icon: BookOpen },
+    { name: 'Grammar Quiz', path: '/quiz', icon: ListChecks },
     { name: 'Thống kê & Lỗi', path: '/analytics', icon: BarChart3 },
   ];
 
@@ -93,10 +95,10 @@ export const UserNavbar: React.FC = () => {
               {/* Streak Counter */}
               <div
                 className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800"
-                title={`Chuỗi học tập liên tiếp: ${user.streak || 1} ngày`}
+                title={`Chuỗi học tập liên tiếp: ${user.streak ?? 0} ngày`}
               >
                 <Flame className="h-4 w-4 fill-amber-500 text-amber-500 animate-bounce" />
-                <span>{user.streak || 1} ngày</span>
+                <span>{user.streak ?? 0} ngày</span>
               </div>
 
               {/* User Dropdown */}

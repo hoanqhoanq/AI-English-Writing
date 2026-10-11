@@ -28,9 +28,9 @@ export const ParagraphScorePanel: React.FC<ParagraphScorePanelProps> = ({ evalua
           <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Kết quả đánh giá AI</span>
           <div className="mt-1 flex items-center gap-3">
             <ScoreBadge score={evaluation.overallScore} size="xl" showLabel />
-            {evaluation.provider && (
+            {evaluation.provider === 'heuristic_fallback' && (
               <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-500">
-                {evaluation.provider === 'gemini' ? '✨ Gemini AI Pro' : '⚡ Chế độ dự phòng (không phải AI)'}
+                ⚡ Chế độ dự phòng (không phải AI)
               </span>
             )}
           </div>

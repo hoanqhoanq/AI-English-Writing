@@ -7,11 +7,13 @@ export const SignIn: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // Trạng thái biểu mẫu: email, mật khẩu, thông báo lỗi và cờ đang chờ server
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Khi bấm Đăng nhập: gọi API đăng nhập qua AuthContext; thành công thì chuyển sang /dashboard, thất bại thì hiện lỗi server trả về
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -27,6 +29,7 @@ export const SignIn: React.FC = () => {
     }
   };
 
+  // Giao diện trang đăng nhập: tiêu đề, khung báo lỗi, biểu mẫu email/mật khẩu, liên kết sang trang đăng ký
   return (
     <div className="flex min-h-[75vh] items-center justify-center py-8">
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
@@ -40,6 +43,7 @@ export const SignIn: React.FC = () => {
           </p>
         </div>
 
+        {/* Khung báo lỗi, chỉ hiện khi đăng nhập thất bại */}
         {error && (
           <div className="mb-4 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs font-semibold text-rose-700 flex items-center gap-2">
             <AlertCircle className="h-4 w-4 shrink-0" />
@@ -47,6 +51,7 @@ export const SignIn: React.FC = () => {
           </div>
         )}
 
+        {/* Biểu mẫu đăng nhập: ô email, ô mật khẩu và nút gửi (nút bị khóa trong lúc chờ server) */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
@@ -91,6 +96,7 @@ export const SignIn: React.FC = () => {
           </button>
         </form>
 
+        {/* Liên kết sang trang đăng ký cho người chưa có tài khoản */}
         <div className="mt-6 border-t border-slate-100 pt-4 text-center space-y-2">
           <p className="text-xs text-slate-500">
             Chưa có tài khoản?{' '}

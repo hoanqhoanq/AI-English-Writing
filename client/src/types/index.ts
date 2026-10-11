@@ -94,6 +94,14 @@ export interface EvaluationResult {
   referenceAnswer?: string;
   alternativeAnswers?: string[];
   provider?: string;
+  // Present on the actual submitAttempt API response (writing.service.ts) but
+  // previously undeclared here — used for the attempt-comparison panel and
+  // the "related grammar" cross-links.
+  attemptId?: string;
+  questionId?: string;
+  level?: string;
+  topic?: string;
+  grammarTopic?: string;
 }
 
 export interface AttemptRecord {
@@ -494,5 +502,76 @@ export interface AdminParagraphAttemptRecord {
   maxWords?: number;
   createdAt: string;
   updatedAt: string;
+}
+
+// --- Grammar Quiz ---
+
+export interface QuizQuestionPublic {
+  questionId: string;
+  question: string;
+  options: string[];
+  questionNumber: number;
+  totalQuestions: number;
+  difficulty: string;
+  grammar: string;
+  topic: string;
+}
+
+export interface QuizGenerateResponse {
+  quizId: string;
+  difficulty: string;
+  grammar: string;
+  topic: string;
+  totalQuestions: number;
+  questions: QuizQuestionPublic[];
+}
+
+export interface QuizGradedQuestion {
+  questionId: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  selectedAnswer: number | null;
+  isCorrect: boolean;
+  explanation: string;
+  tense: string;
+  difficulty: string;
+  topic: string;
+}
+
+export interface QuizSubmitResult {
+  quizId: string;
+  difficulty: string;
+  grammar: string;
+  topic: string;
+  totalQuestions: number;
+  correctCount: number;
+  wrongCount: number;
+  score: number;
+  questions: QuizGradedQuestion[];
+}
+
+export interface QuizHistoryItem {
+  _id: string;
+  difficulty: string;
+  grammar: string;
+  topic: string;
+  questionCount: number;
+  correctCount: number;
+  wrongCount: number;
+  score: number;
+  status: 'generated' | 'completed';
+  startedAt: string;
+  completedAt?: string;
+  createdAt: string;
+}
+
+export interface QuizStats {
+  totalQuizzes: number;
+  totalQuestions: number;
+  averageScore: number;
+  overallAccuracy: number;
+  accuracyByTense: { tense: string; accuracy: number; total: number }[];
+  accuracyByLevel: { level: string; accuracy: number; total: number }[];
 }
 

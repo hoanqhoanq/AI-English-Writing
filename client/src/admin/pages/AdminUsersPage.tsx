@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import adminService from '../../services/adminService';
 import { AdminUser } from '../../types';
 import {
-  Users,
   Search,
   UserPlus,
   Lock,

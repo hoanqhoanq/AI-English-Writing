@@ -52,10 +52,6 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
-export const strictAuthenticate = (req: Request, res: Response, next: NextFunction): void => {
-    authenticate(req, res, next);
-};
-
 export const authorize = (...roles: UserRole[]) => {
     return (req: Request, res: Response, next: NextFunction): void => {
         if (!req.user) {

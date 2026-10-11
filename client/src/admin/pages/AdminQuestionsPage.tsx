@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import adminService from '../../services/adminService';
 import { WritingQuestion, Topic, GrammarTopic } from '../../types';
 import {
-  BookOpen,
   Search,
   Plus,
   Edit2,
@@ -11,9 +10,6 @@ import {
   CheckCircle2,
   AlertTriangle,
   RefreshCw,
-  Sparkles,
-  Layers,
-  GraduationCap,
 } from 'lucide-react';
 
 export const AdminQuestionsPage: React.FC = () => {

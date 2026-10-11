@@ -5,6 +5,7 @@ import api from '../../services/api';
 import { Topic, ParagraphDifficulty, ParagraphGenerateResponse, ParagraphStats } from '../../types';
 import { FileText, Sparkles, BarChart3 } from 'lucide-react';
 
+// Ba mức độ khó: mỗi mức tương ứng một trình độ CEFR và một khoảng số từ yêu cầu
 const DIFFICULTIES: { key: ParagraphDifficulty; label: string; labelVi: string; sub: string; words: string }[] = [
   { key: 'easy', label: 'EASY', labelVi: 'Dễ', sub: 'Beginner (A1-A2)', words: '50-70 từ' },
   { key: 'medium', label: 'MEDIUM', labelVi: 'Trung bình', sub: 'Intermediate (B1-B2)', words: '80-120 từ' },
@@ -12,25 +13,31 @@ const DIFFICULTIES: { key: ParagraphDifficulty; label: string; labelVi: string; 
 ];
 
 export const ParagraphWritingPage: React.FC = () => {
+  // Dùng để chuyển sang trang làm bài sau khi AI tạo xong đề
   const navigate = useNavigate();
+  // Trạng thái: chủ đề có sẵn đã chọn, chủ đề tự nhập, đang dùng chủ đề tự nhập hay không, độ khó, thông báo lỗi
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [customTopicInput, setCustomTopicInput] = useState('');
   const [useCustom, setUseCustom] = useState(false);
   const [difficulty, setDifficulty] = useState<ParagraphDifficulty | null>(null);
   const [genError, setGenError] = useState<string | null>(null);
+  // Cờ chặn bấm liên tiếp để không gọi AI nhiều lần
   const generatingRef = useRef(false);
 
+  // Lấy danh sách chủ đề có sẵn (GET /topics); dữ liệu ít thay đổi nên giữ trong bộ nhớ đệm
   const { data: topics } = useQuery<Topic[]>({
     queryKey: ['topics'],
     queryFn: async () => (await api.get('/topics')).data.data,
     staleTime: Infinity,
   });
 
+  // Lấy thống kê luyện đoạn văn của bản thân (GET /paragraph/my-stats)
   const { data: stats } = useQuery<ParagraphStats>({
     queryKey: ['paragraph', 'my-stats'],
     queryFn: async () => (await api.get('/paragraph/my-stats')).data.data,
   });
 
+  // Gọi AI sinh đề (POST /paragraph/generate) theo chủ đề và độ khó đã chọn; thành công thì chuyển sang trang làm bài của đề mới
   const generateMutation = useMutation({
     mutationFn: async () => {
       const topic = useCustom ? customTopicInput.trim() : selectedTopic;
@@ -45,9 +52,11 @@ export const ParagraphWritingPage: React.FC = () => {
     },
   });
 
+  // Chủ đề cuối cùng dùng để sinh đề: ưu tiên chủ đề tự nhập nếu đang chọn
   const chosenTopic = useCustom ? customTopicInput.trim() : selectedTopic;
   const canGenerate = !!chosenTopic && !!difficulty;
 
+  // Bấm Tạo đề bài: cần đủ chủ đề và độ khó, đồng thời chặn gọi lặp khi đang xử lý
   const handleGenerate = () => {
     if (!canGenerate || generatingRef.current) return;
     generatingRef.current = true;
@@ -59,6 +68,7 @@ export const ParagraphWritingPage: React.FC = () => {
     });
   };
 
+  // Giao diện trang Viết đoạn văn: tiêu đề, tiến độ, bước 1 chọn chủ đề, bước 2 chọn độ khó, nút tạo đề
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div>
@@ -71,6 +81,7 @@ export const ParagraphWritingPage: React.FC = () => {
         </p>
       </div>
 
+      {/* Thẻ tiến độ cá nhân, chỉ hiện khi đã từng luyện đoạn văn */}
       {stats && stats.topicsPracticed > 0 && (
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
@@ -94,6 +105,7 @@ export const ParagraphWritingPage: React.FC = () => {
               <p className="text-lg font-extrabold text-emerald-600">{stats.bestScore}</p>
             </div>
           </div>
+          {/* Điểm trung bình theo từng độ khó */}
           {stats.byDifficulty.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-slate-100">
               {stats.byDifficulty.map((d) => (
@@ -106,15 +118,18 @@ export const ParagraphWritingPage: React.FC = () => {
         </div>
       )}
 
+      {/* Khung chính: chọn chủ đề, chọn độ khó và tạo đề bằng AI */}
       <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
         <div className="flex items-center gap-2 text-sm font-bold text-indigo-700">
           <Sparkles className="h-4 w-4" />
           AI PARAGRAPH WRITING
         </div>
 
+        {/* Bước 1: chọn chủ đề */}
         <div className="space-y-3">
           <p className="text-sm font-semibold text-slate-800">1. Chọn chủ đề bạn muốn viết</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            {/* Các nút chọn chủ đề có sẵn */}
             {(topics || []).map((t) => (
               <button
                 key={t._id}
@@ -135,6 +150,7 @@ export const ParagraphWritingPage: React.FC = () => {
             ))}
           </div>
 
+          {/* Ô nhập chủ đề riêng; khi gõ hoặc bấm vào ô này thì bỏ chọn chủ đề có sẵn */}
           <div className="flex items-center gap-2 pt-1">
             <input
               type="text"
@@ -153,6 +169,7 @@ export const ParagraphWritingPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Bước 2: chọn độ khó (Dễ, Trung bình, Khó) */}
         <div className="space-y-3 border-t border-slate-100 pt-5">
           <p className="text-sm font-semibold text-slate-800">2. Chọn độ khó</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -175,10 +192,12 @@ export const ParagraphWritingPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Thông báo lỗi khi AI không tạo được đề */}
         {genError && (
           <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{genError}</div>
         )}
 
+        {/* Nút Tạo đề bài (khóa khi chưa đủ chủ đề, độ khó hoặc đang tạo) */}
         <div className="border-t border-slate-100 pt-5">
           <button
             type="button"

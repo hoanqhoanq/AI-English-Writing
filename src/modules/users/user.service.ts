@@ -140,7 +140,7 @@ export class UserService {
                 password: hashedPassword,
                 role: data.role || "user",
                 dailyGoal: data.dailyTarget || 5,
-                streak: 1,
+                streak: 0,
                 totalWriting: 0,
                 averageScore: 0,
                 isActive: data.isActive !== undefined ? data.isActive : true,

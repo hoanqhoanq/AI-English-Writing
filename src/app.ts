@@ -14,6 +14,7 @@ import aiRouter from "./modules/ai/ai.route";
 import analyticsRouter from "./modules/analytics/analytics.route";
 import paragraphRouter from "./modules/paragraph/paragraph.route";
 import learningRouter from "./modules/learning/learning.route";
+import quizRouter from "./modules/quiz/quiz.route";
 import { errorHandler } from "./middlewares/error.middleware";
 
 const app = express();
@@ -46,6 +47,7 @@ app.use(express.urlencoded({
     limit: "5mb"
 }));
 
+// GET /health và GET /api/health — Kiểm tra server còn hoạt động (công khai), dùng cho giám sát/triển khai.
 app.get("/health", (req, res) => {
     res.json({
         success: true,
@@ -60,16 +62,18 @@ app.get("/api/health", (req, res) => {
     });
 });
 
-// API Routes
-app.use("/api/auth", authRouter);
-app.use("/api/users", userRouter);
-app.use("/api", topicRouter);
+// API Routes — mỗi module nghiệp vụ được gắn vào một tiền tố /api/<tên>.
+// Mô tả chi tiết từng endpoint nằm ở chú thích trong file *.route.ts của module đó.
+app.use("/api/auth", authRouter); // Đăng ký, đăng nhập, đăng xuất, refresh token (User + Admin)
+app.use("/api/users", userRouter); // Hồ sơ cá nhân và quản lý người dùng (admin)
+app.use("/api", topicRouter); // Chủ đề, chủ điểm ngữ pháp, cấp độ CEFR (gắn 2 lần: /api và /api/topics)
 app.use("/api/topics", topicRouter);
-app.use("/api/writing", writingRouter);
-app.use("/api/ai", aiRouter);
-app.use("/api/analytics", analyticsRouter);
-app.use("/api/paragraph", paragraphRouter);
-app.use("/api/learning", learningRouter);
+app.use("/api/writing", writingRouter); // Ngân hàng câu hỏi, nộp bài viết câu để AI chấm, lịch sử làm bài
+app.use("/api/ai", aiRouter); // Chấm thử một câu không lưu database
+app.use("/api/analytics", analyticsRouter); // Thống kê cá nhân, thống kê hệ thống (admin), chẩn đoán điểm yếu bằng AI
+app.use("/api/paragraph", paragraphRouter); // Luyện viết đoạn văn: đề, nộp bài, lịch sử các lần sửa
+app.use("/api/learning", learningRouter); // Học ngữ pháp theo chủ đề, tiến độ, AI sinh câu hỏi luyện viết
+app.use("/api/quiz", quizRouter); // Trắc nghiệm ngữ pháp: sinh quiz bằng AI, nộp bài, lịch sử, thống kê
 
 // Path to client frontend build (client/dist)
 const possibleDistPaths = [

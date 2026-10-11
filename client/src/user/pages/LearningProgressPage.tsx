@@ -7,11 +7,13 @@ import { XPLevelBadge } from '../components/XPLevelBadge';
 import { ArrowLeft, TrendingUp, AlertCircle, History, CheckCircle2, PlayCircle, Circle } from 'lucide-react';
 
 export const LearningProgressPage: React.FC = () => {
+  // Lấy tổng quan tiến độ học (XP, Level, % hoàn thành, chủ điểm yếu...) từ GET /learning/progress-overview
   const { data: overview, isLoading } = useQuery<LearningProgressOverview>({
     queryKey: ['learning', 'overview'],
     queryFn: async () => (await api.get('/learning/progress-overview')).data.data,
   });
 
+  // Đang tải dữ liệu: hiện vòng quay chờ
   if (isLoading || !overview) {
     return (
       <div className="flex items-center justify-center rounded-3xl border border-slate-200 bg-white py-20">
@@ -20,8 +22,10 @@ export const LearningProgressPage: React.FC = () => {
     );
   }
 
+  // Giao diện trang tiến độ: XP/Level, thanh tiến độ, bốn ô thống kê, chủ điểm yếu, chủ đề luyện gần đây
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Liên kết quay lại trang Writing Learning */}
       <Link to="/learning" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600">
         <ArrowLeft className="h-3.5 w-3.5" /> Quay lại Writing Learning
       </Link>
@@ -33,6 +37,7 @@ export const LearningProgressPage: React.FC = () => {
         </h1>
       </div>
 
+      {/* Thẻ XP, Level, streak và hai thanh tiến độ Grammar, Writing */}
       <div className="rounded-3xl border border-indigo-100 bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 p-6 sm:p-8 text-white shadow-xl space-y-4">
         <XPLevelBadge xp={overview.xp} level={overview.level} streak={overview.streak} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -57,6 +62,7 @@ export const LearningProgressPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Bốn ô thống kê: tổng số chủ đề, đã hoàn thành, đang học, chưa học */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center">
           <p className="text-2xl font-extrabold text-slate-900">{overview.totalTopics}</p>
@@ -79,11 +85,13 @@ export const LearningProgressPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Điểm viết trung bình của người dùng */}
       <div className="rounded-2xl border border-slate-200 bg-white p-5">
         <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Điểm viết trung bình</p>
         <p className="text-3xl font-extrabold text-indigo-600">{overview.averageScore}%</p>
       </div>
 
+      {/* Các chủ điểm ngữ pháp yếu nhất (điểm trung bình thấp) cần ôn thêm */}
       {overview.weakTopics.length > 0 && (
         <div className="rounded-2xl border border-rose-100 bg-rose-50/40 p-5 space-y-2">
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-rose-800">
@@ -99,6 +107,7 @@ export const LearningProgressPage: React.FC = () => {
         </div>
       )}
 
+      {/* Các chủ đề vừa luyện gần đây */}
       {overview.recentTopics.length > 0 && (
         <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-2">
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">

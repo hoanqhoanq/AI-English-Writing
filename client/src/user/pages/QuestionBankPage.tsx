@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { WritingQuestion, Topic, GrammarTopic } from '../../types';
+import { WritingQuestion, Topic } from '../../types';
 import { PronounceButton } from '../components/PronounceButton';
 import {
   BookOpen,
@@ -10,35 +10,35 @@ import {
 } from 'lucide-react';
 
 export const QuestionBankPage: React.FC = () => {
+  // Dùng để chuyển sang trang làm bài khi bấm Luyện câu này
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'bank'>('bank');
+  // Trạng thái: danh sách câu hỏi, danh sách chủ đề, bộ lọc đang chọn, từ khóa tìm kiếm và cờ đang tải
   const [questions, setQuestions] = useState<WritingQuestion[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
-  const [grammars, setGrammars] = useState<GrammarTopic[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // Tải dữ liệu một lần khi mở trang
   useEffect(() => {
     fetchInitialData();
   }, []);
 
+  // Gọi song song GET /writing/questions (tối đa 100 câu, không kèm đáp án) và GET /topics (danh sách chủ đề)
   const fetchInitialData = async () => {
     setIsLoading(true);
     try {
-      const [qRes, tRes, gRes] = await Promise.all([
+      const [qRes, tRes] = await Promise.all([
         api.get('/writing/questions', { params: { limit: '100' } }),
         api.get('/topics'),
-        api.get('/grammar'),
       ]);
 
       if (qRes.data.success && qRes.data.data?.questions) {
         setQuestions(qRes.data.data.questions);
       }
       if (tRes.data.success) setTopics(tRes.data.data);
-      if (gRes.data.success) setGrammars(gRes.data.data);
     } catch (err) {
       console.error('Error fetching questions bank:', err);
     } finally {
@@ -46,6 +46,7 @@ export const QuestionBankPage: React.FC = () => {
     }
   };
 
+  // Lọc danh sách câu hỏi ngay trên trình duyệt theo chủ đề, cấp độ và từ khóa tìm kiếm
   const filteredQuestions = questions.filter((q) => {
     const matchTopic = selectedTopic === 'all' || q.topic === selectedTopic;
     const matchLevel = selectedLevel === 'all' || q.level === selectedLevel;
@@ -57,13 +58,15 @@ export const QuestionBankPage: React.FC = () => {
     return matchTopic && matchLevel && matchSearch;
   });
 
+  // Bấm Luyện câu này: chuyển sang trang làm bài của câu hỏi đó
   const handlePracticeSingle = (q: WritingQuestion) => {
     navigate(`/writing/question/${q._id || q.id}`);
   };
 
+  // Giao diện Ngân hàng câu hỏi: tiêu đề, thanh lọc, lưới các thẻ câu hỏi
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      {/* Header */}
+      {/* Phần đầu trang: tiêu đề và huy hiệu tổng số câu */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/80 pb-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-2">
@@ -75,21 +78,17 @@ export const QuestionBankPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Tab switcher */}
+        {/* Badge tổng số câu hỏi (chỉ còn 1 nguồn dữ liệu, không còn là tab switcher) */}
         <div className="flex rounded-xl bg-slate-100 p-1 self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={() => setActiveTab('bank')}
-            className="flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all bg-white text-indigo-700 shadow-sm"
-          >
+          <div className="flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold bg-white text-indigo-700 shadow-sm">
             <BookOpen className="h-4 w-4" />
             <span>Ngân hàng câu hỏi ({filteredQuestions.length})</span>
-          </button>
+          </div>
         </div>
       </div>
 
       <div className="space-y-6">
-        {/* Filter Bar */}
+        {/* Thanh lọc: ô tìm kiếm, chọn chủ đề, chọn cấp độ CEFR */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-12 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="sm:col-span-6 relative">
             <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
@@ -134,7 +133,7 @@ export const QuestionBankPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Questions Grid */}
+        {/* Lưới các thẻ câu hỏi: có vòng quay khi đang tải và thông báo khi không có kết quả */}
         {isLoading ? (
           <div className="py-20 text-center text-slate-500">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent mx-auto mb-3" />
@@ -146,6 +145,7 @@ export const QuestionBankPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Mỗi câu hỏi là một thẻ: cấp độ, chủ đề, đề tiếng Việt, từ khóa và nút Luyện câu này */}
             {filteredQuestions.map((q) => (
               <div
                 key={q._id || q.id}

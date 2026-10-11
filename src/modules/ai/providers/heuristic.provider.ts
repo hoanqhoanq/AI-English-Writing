@@ -5,6 +5,8 @@ import {
     IGenerateParagraphPromptInput,
     IParagraphEvaluationInput,
     IWeaknessAnalysisInput,
+    IGenerateQuizInput,
+    IGeneratedQuizQuestion,
 } from "../ai.interface";
 import {
     CefrLevel,
@@ -16,6 +18,188 @@ import {
     IWeaknessAnalysisResult,
     IErrorDetail,
 } from "../../../types";
+
+interface IHeuristicQuizTemplate {
+    question: string;
+    options: string[];
+    correctAnswer: number;
+    explanation: string;
+}
+
+// Two hand-written, grammatically correct MCQ templates per tense — used only
+// when Gemini is unavailable/misconfigured (see generateQuizQuestions below).
+// Fallback quality is deliberately simple, matching the existing precedent in
+// generateWritingQuestions()'s own hand-written pool.
+const HEURISTIC_QUIZ_TEMPLATES: Record<string, IHeuristicQuizTemplate[]> = {
+    "Present Simple": [
+        {
+            question: "She ___ to school every day.",
+            options: ["go", "goes", "going", "went"],
+            correctAnswer: 1,
+            explanation: "Chủ ngữ 'She' (ngôi thứ 3 số ít) ở thì hiện tại đơn cần thêm 's/es' vào động từ: 'go' → 'goes'.",
+        },
+        {
+            question: "Water ___ at 100 degrees Celsius.",
+            options: ["boil", "boils", "is boiling", "boiled"],
+            correctAnswer: 1,
+            explanation: "Sự thật khoa học/chân lý luôn dùng thì hiện tại đơn, chủ ngữ số ít 'Water' cần 'boils'.",
+        },
+    ],
+    "Present Continuous": [
+        {
+            question: "Look! The children ___ in the yard right now.",
+            options: ["play", "plays", "are playing", "played"],
+            correctAnswer: 2,
+            explanation: "Hành động đang xảy ra ngay lúc nói ('right now') dùng thì hiện tại tiếp diễn: 'are playing'.",
+        },
+        {
+            question: "I ___ this book at the moment.",
+            options: ["read", "am reading", "reads", "read"],
+            correctAnswer: 1,
+            explanation: "'At the moment' báo hiệu hành động đang diễn ra, dùng 'am/is/are + V-ing': 'am reading'.",
+        },
+    ],
+    "Past Simple": [
+        {
+            question: "They ___ to Da Nang last summer.",
+            options: ["travel", "travels", "traveled", "have traveled"],
+            correctAnswer: 2,
+            explanation: "'Last summer' là mốc thời gian đã kết thúc trong quá khứ, dùng thì quá khứ đơn: 'traveled'.",
+        },
+        {
+            question: "He ___ his homework before dinner yesterday.",
+            options: ["finish", "finishes", "finished", "was finishing"],
+            correctAnswer: 2,
+            explanation: "Hành động đã xảy ra và kết thúc ở quá khứ ('yesterday') dùng quá khứ đơn: 'finished'.",
+        },
+    ],
+    "Past Continuous": [
+        {
+            question: "I ___ TV when my mother called me.",
+            options: ["watch", "watched", "was watching", "have watched"],
+            correctAnswer: 2,
+            explanation: "Hành động đang diễn ra thì bị hành động khác (quá khứ đơn) xen vào dùng quá khứ tiếp diễn: 'was watching'.",
+        },
+        {
+            question: "While she ___ dinner, the phone rang.",
+            options: ["cooks", "cooked", "was cooking", "is cooking"],
+            correctAnswer: 2,
+            explanation: "'While' + hành động đang diễn ra trong quá khứ dùng quá khứ tiếp diễn: 'was cooking'.",
+        },
+    ],
+    "Present Perfect": [
+        {
+            question: "He has lived here ___ 2020.",
+            options: ["for", "since", "during", "from"],
+            correctAnswer: 1,
+            explanation: "'Since' đi với mốc thời gian bắt đầu (2020) trong thì hiện tại hoàn thành; 'for' đi với khoảng thời gian.",
+        },
+        {
+            question: "I ___ never ___ sushi before.",
+            options: ["have / eaten", "has / eaten", "did / eat", "am / eating"],
+            correctAnswer: 0,
+            explanation: "Trải nghiệm chưa từng xảy ra tính đến hiện tại dùng hiện tại hoàn thành: 'have never eaten'.",
+        },
+    ],
+    "Present Perfect Continuous": [
+        {
+            question: "She ___ English for three years.",
+            options: ["studies", "studied", "has been studying", "is studying"],
+            correctAnswer: 2,
+            explanation: "Hành động bắt đầu trong quá khứ và vẫn tiếp diễn, nhấn mạnh khoảng thời gian, dùng hiện tại hoàn thành tiếp diễn: 'has been studying'.",
+        },
+        {
+            question: "They ___ since 8 AM this morning.",
+            options: ["work", "worked", "have been working", "has worked"],
+            correctAnswer: 2,
+            explanation: "'Since 8 AM' + nhấn mạnh hành động liên tục đến hiện tại dùng 'have been working'.",
+        },
+    ],
+    "Past Perfect": [
+        {
+            question: "By the time we arrived, the movie ___ already ___.",
+            options: ["has / started", "had / started", "did / start", "was / starting"],
+            correctAnswer: 1,
+            explanation: "Hành động xảy ra trước một hành động khác trong quá khứ ('by the time we arrived') dùng quá khứ hoàn thành: 'had started'.",
+        },
+        {
+            question: "She ___ finished her work before he came.",
+            options: ["has", "had", "have", "was"],
+            correctAnswer: 1,
+            explanation: "Hành động hoàn tất trước một mốc quá khứ khác ('before he came') dùng 'had + V3'.",
+        },
+    ],
+    "Past Perfect Continuous": [
+        {
+            question: "He was tired because he ___ all day.",
+            options: ["worked", "had worked", "had been working", "works"],
+            correctAnswer: 2,
+            explanation: "Nhấn mạnh quá trình kéo dài trước một thời điểm/kết quả trong quá khứ dùng quá khứ hoàn thành tiếp diễn: 'had been working'.",
+        },
+        {
+            question: "They ___ for two hours before the rain stopped.",
+            options: ["walked", "had walked", "had been walking", "were walking"],
+            correctAnswer: 2,
+            explanation: "Khoảng thời gian kéo dài liên tục trước một mốc quá khứ khác dùng 'had been + V-ing'.",
+        },
+    ],
+    "Future Simple": [
+        {
+            question: "I think it ___ rain tomorrow.",
+            options: ["will", "is", "was", "would"],
+            correctAnswer: 0,
+            explanation: "Dự đoán về tương lai (không có kế hoạch/căn cứ cụ thể) dùng 'will + V': 'will rain'.",
+        },
+        {
+            question: "She ___ help you with your homework later.",
+            options: ["will", "is", "does", "did"],
+            correctAnswer: 0,
+            explanation: "Quyết định nhất thời tại thời điểm nói dùng 'will': 'will help'.",
+        },
+    ],
+    "Be Going To": [
+        {
+            question: "Look at those clouds! It ___ to rain.",
+            options: ["will", "is going", "was going", "goes"],
+            correctAnswer: 1,
+            explanation: "Dự đoán có căn cứ rõ ràng (nhìn thấy mây đen) dùng 'be going to': 'is going to rain'.",
+        },
+        {
+            question: "We ___ to visit our grandparents this weekend.",
+            options: ["are going", "will", "go", "went"],
+            correctAnswer: 0,
+            explanation: "Kế hoạch đã được sắp xếp trước dùng 'be going to': 'are going to visit'.",
+        },
+    ],
+    "Future Continuous": [
+        {
+            question: "This time tomorrow, I ___ on a plane to Hanoi.",
+            options: ["will be", "am", "was", "will"],
+            correctAnswer: 0,
+            explanation: "Hành động đang diễn ra tại một thời điểm cụ thể trong tương lai dùng tương lai tiếp diễn: 'will be flying/being'.",
+        },
+        {
+            question: "At 8 PM tonight, we ___ dinner.",
+            options: ["will have", "will be having", "have", "had"],
+            correctAnswer: 1,
+            explanation: "Hành động đang xảy ra tại một mốc giờ cụ thể trong tương lai dùng 'will be + V-ing': 'will be having'.",
+        },
+    ],
+    "Future Perfect": [
+        {
+            question: "By next year, I ___ my degree.",
+            options: ["will finish", "will have finished", "finish", "finished"],
+            correctAnswer: 1,
+            explanation: "Hành động sẽ hoàn tất trước một mốc thời gian trong tương lai ('by next year') dùng tương lai hoàn thành: 'will have finished'.",
+        },
+        {
+            question: "By the time she arrives, we ___ the report.",
+            options: ["will have completed", "will complete", "complete", "completed"],
+            correctAnswer: 0,
+            explanation: "'By the time' + mốc tương lai đòi hỏi hành động hoàn tất trước đó, dùng 'will have + V3'.",
+        },
+    ],
+};
 
 export class HeuristicProvider implements AIProvider {
     readonly name = "heuristic_fallback";
@@ -164,55 +348,62 @@ export class HeuristicProvider implements AIProvider {
             detectedPenalty += 15;
         }
 
-        // 3. Word difference fallback
-        if (errors.length === 0) {
-            const missingInUser = refWords.filter(
-                (rw) => !userWords.some((uw) => normalize(uw) === normalize(rw))
-            );
-            if (missingInUser.length > 0) {
-                errors.push({
-                    type: "VOCABULARY",
-                    category: "WORD_CHOICE",
-                    severity: "major",
-                    wrongText: userTrim,
-                    correctText: refTrim,
-                    explanation: `Câu của bạn chưa diễn đạt trọn vẹn so với mẫu: cần lưu ý cách dùng các từ '${missingInUser.slice(0, 3).join(", ")}'.`,
-                });
-                detectedPenalty += 25;
-            }
-        }
+        // 3. Deliberately NOT a "differs from reference = wrong" check. This
+        // fallback has no way to verify true semantic equivalence, so when
+        // neither concrete rule above fired, it must not penalize a legitimate
+        // paraphrase just for using different words than the one sample answer
+        // — the reference answer is an example, not the only correct wording.
+        // (Previously this block flagged any reference word missing from the
+        // user's answer as a VOCABULARY error with a 25-point penalty, which
+        // scored valid paraphrases like "Every day, she attends school." as
+        // partially_correct against "She goes to school every day." — that is
+        // exactly the "reference answer = only correct answer" anti-pattern.)
 
         const score = Math.max(20, Math.min(90, 100 - detectedPenalty));
         const status = score >= 90 ? "correct" : score >= 60 ? "partially_correct" : "incorrect";
+        const isCorrect = status === "correct";
         const grammarScore = Math.max(30, score - 5);
         const vocabScore = score;
         const meaningScore = Math.max(50, score + 5);
         const structureScore = score;
         const naturalnessScore = Math.max(40, score - 10);
+        const noConcreteIssue = errors.length === 0;
 
         return {
-            isCorrect: false,
+            isCorrect,
             status,
             score,
-            summary: "Câu trả lời còn một số điểm khác biệt so với cách diễn đạt chuẩn, được đánh giá bằng bộ quy tắc dự phòng (không phải AI) vì dịch vụ AI hiện không khả dụng.",
+            summary: noConcreteIssue
+                ? "Không phát hiện lỗi ngữ pháp cụ thể qua bộ quy tắc dự phòng; câu trả lời diễn đạt khác câu mẫu nhưng điều đó không tự nó là lỗi."
+                : "Câu trả lời còn một số điểm khác biệt so với cách diễn đạt chuẩn, được đánh giá bằng bộ quy tắc dự phòng (không phải AI) vì dịch vụ AI hiện không khả dụng.",
             meaningAnalysis: { score: meaningScore, correct: meaningScore >= 70, feedback: "Ý nghĩa cơ bản đã được truyền tải nhưng chưa được AI phân tích sâu do đang dùng chế độ dự phòng." },
             grammarAnalysis: { score: grammarScore, feedback: "Phát hiện bằng quy tắc cố định, có thể chưa đầy đủ so với phân tích AI thực sự." },
-            vocabularyAnalysis: { score: vocabScore, feedback: "Từ vựng được so sánh sơ bộ với đáp án mẫu." },
+            vocabularyAnalysis: {
+                score: vocabScore,
+                feedback: noConcreteIssue
+                    ? "Từ vựng khác với câu mẫu nhưng không bị xem là lỗi (câu mẫu không phải đáp án duy nhất)."
+                    : "Từ vựng được so sánh sơ bộ với đáp án mẫu.",
+            },
             structureAnalysis: { score: structureScore, feedback: "Cấu trúc câu chưa được phân tích chi tiết ở chế độ dự phòng." },
             naturalnessAnalysis: { score: naturalnessScore, feedback: "Độ tự nhiên chưa được đánh giá đầy đủ ở chế độ dự phòng." },
             correctAnswer: refTrim,
             alternativeAnswers: altAnswers,
             errors,
-            strengths: ["Ý nghĩa cơ bản đã được truyền tải", "Cố gắng sử dụng từ vựng đúng ngữ cảnh"],
-            weaknesses: ["Chưa thể phân tích chi tiết do dịch vụ AI đang tạm thời không khả dụng"],
-            overallFeedback:
-                score >= 80
+            strengths: noConcreteIssue
+                ? ["Không phát hiện lỗi ngữ pháp cụ thể", "Diễn đạt được ý câu gốc theo cách riêng"]
+                : ["Ý nghĩa cơ bản đã được truyền tải", "Cố gắng sử dụng từ vựng đúng ngữ cảnh"],
+            weaknesses: noConcreteIssue ? [] : ["Chưa thể phân tích chi tiết do dịch vụ AI đang tạm thời không khả dụng"],
+            overallFeedback: noConcreteIssue
+                ? "Câu trả lời của bạn không khớp với câu mẫu nhưng không phát hiện lỗi ngữ pháp cụ thể - đây có thể là một cách diễn đạt đúng khác. (Đánh giá tạm thời bằng bộ quy tắc dự phòng, không phải AI, vì dịch vụ AI hiện không khả dụng.)"
+                : score >= 80
                     ? "Bạn đã làm khá tốt, chỉ cần chỉnh sửa một số lỗi ngữ pháp hoặc dùng từ chưa chuẩn. (Đánh giá tạm thời bằng bộ quy tắc dự phòng, không phải AI.)"
                     : "Câu trả lời có một số điểm ngữ pháp cần lưu ý để tự nhiên và chính xác hơn. (Đánh giá tạm thời bằng bộ quy tắc dự phòng, không phải AI.)",
-            recommendations: [
-                "Đọc kỹ câu gốc tiếng Việt để chú ý thì và mạo từ.",
-                "So sánh câu của bạn với đáp án gợi ý để rút kinh nghiệm.",
-            ],
+            recommendations: noConcreteIssue
+                ? ["Thử nộp lại sau ít phút để nhận đánh giá chi tiết hơn từ AI khi dịch vụ khả dụng trở lại."]
+                : [
+                      "Đọc kỹ câu gốc tiếng Việt để chú ý thì và mạo từ.",
+                      "So sánh câu của bạn với đáp án gợi ý để rút kinh nghiệm.",
+                  ],
             scoreBreakdown: {
                 grammar: grammarScore,
                 vocabulary: vocabScore,
@@ -317,5 +508,51 @@ export class HeuristicProvider implements AIProvider {
             promptVi: `${templateByDifficulty[params.difficulty]} (Đề tạm thời bằng bộ quy tắc dự phòng, không phải AI, vì dịch vụ AI hiện không khả dụng.)`,
             requirements: [],
         };
+    }
+
+    private buildTenseQuestion(tense: string, template: IHeuristicQuizTemplate, params: IGenerateQuizInput): IGeneratedQuizQuestion {
+        return {
+            question: template.question,
+            options: template.options,
+            correctAnswer: template.correctAnswer,
+            explanation: `${template.explanation} (Câu hỏi tạm thời bằng bộ quy tắc dự phòng, không phải AI, vì dịch vụ AI hiện không khả dụng.)`,
+            tense,
+            difficulty: params.difficulty,
+            topic: params.topic,
+        };
+    }
+
+    async generateQuizQuestions(params: IGenerateQuizInput): Promise<IGeneratedQuizQuestion[]> {
+        const tenses = params.grammarTopics.length > 0 ? params.grammarTopics : ["Present Simple"];
+
+        if (params.perTenseTargets) {
+            // Respect the exact per-tense breakdown so distribution stays
+            // correct even in fallback mode — cycle each tense's own small
+            // template pool to fill its target count.
+            const results: IGeneratedQuizQuestion[] = [];
+            for (const [tense, count] of Object.entries(params.perTenseTargets)) {
+                const templates = HEURISTIC_QUIZ_TEMPLATES[tense] || HEURISTIC_QUIZ_TEMPLATES["Present Simple"];
+                for (let i = 0; i < count; i++) {
+                    results.push(this.buildTenseQuestion(tense, templates[i % templates.length], params));
+                }
+            }
+            return results;
+        }
+
+        const pool: IGeneratedQuizQuestion[] = [];
+        for (const tense of tenses) {
+            const templates = HEURISTIC_QUIZ_TEMPLATES[tense] || HEURISTIC_QUIZ_TEMPLATES["Present Simple"];
+            for (const t of templates) {
+                pool.push(this.buildTenseQuestion(tense, t, params));
+            }
+        }
+
+        if (pool.length === 0) {
+            pool.push(
+                ...HEURISTIC_QUIZ_TEMPLATES["Present Simple"].map((t) => this.buildTenseQuestion("Present Simple", t, params))
+            );
+        }
+
+        return Array.from({ length: params.questionCount }, (_, index) => pool[index % pool.length]);
     }
 }

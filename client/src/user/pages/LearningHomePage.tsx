@@ -8,6 +8,7 @@ import { BookOpen, Search, TrendingUp, PenSquare } from 'lucide-react';
 
 type FilterKey = 'all' | 'grammar' | 'writing_skill' | 'completed' | 'in_progress' | 'not_started';
 
+// Các nút lọc hiển thị trên trang: theo nhóm (Grammar, Writing Skills) hoặc theo trạng thái học của người dùng
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'all', label: 'Tất cả' },
   { key: 'grammar', label: 'Grammar' },
@@ -18,19 +19,23 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 ];
 
 export const LearningHomePage: React.FC = () => {
+  // Trạng thái: từ khóa tìm kiếm và bộ lọc đang chọn
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterKey>('all');
 
+  // Lấy danh sách chủ đề học kèm trạng thái của người dùng (GET /learning/topics)
   const { data: topics, isLoading } = useQuery<LearningTopicSummary[]>({
     queryKey: ['learning', 'topics'],
     queryFn: async () => (await api.get('/learning/topics')).data.data,
   });
 
+  // Lấy tổng quan tiến độ (GET /learning/progress-overview) để hiện thẻ My Progress
   const { data: overview } = useQuery<LearningProgressOverview>({
     queryKey: ['learning', 'overview'],
     queryFn: async () => (await api.get('/learning/progress-overview')).data.data,
   });
 
+  // Lọc chủ đề theo từ khóa và bộ lọc đang chọn; chỉ tính lại khi dữ liệu hoặc bộ lọc thay đổi
   const filtered = useMemo(() => {
     if (!topics) return [];
     return topics.filter((t) => {
@@ -45,9 +50,11 @@ export const LearningHomePage: React.FC = () => {
     });
   }, [topics, search, filter]);
 
+  // Tách kết quả đã lọc thành hai nhóm để hiển thị riêng
   const grammarTopics = filtered.filter((t) => t.category === 'grammar');
   const writingTopics = filtered.filter((t) => t.category === 'writing_skill');
 
+  // Giao diện trang Writing Learning: tiêu đề, thanh tìm kiếm và lọc, thẻ tiến độ, hai nhóm chủ đề
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       <div>
@@ -60,7 +67,7 @@ export const LearningHomePage: React.FC = () => {
         </p>
       </div>
 
-      {/* Search & Filter */}
+      {/* Thanh tìm kiếm và các nút lọc */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
@@ -88,7 +95,7 @@ export const LearningHomePage: React.FC = () => {
         </div>
       </div>
 
-      {/* My Progress summary */}
+      {/* Thẻ tóm tắt tiến độ (bấm vào để xem trang chi tiết) */}
       {overview && (
         <Link
           to="/learning/progress"
@@ -124,12 +131,14 @@ export const LearningHomePage: React.FC = () => {
         </Link>
       )}
 
+      {/* Đang tải thì hiện vòng quay chờ; tải xong thì hiện các nhóm chủ đề */}
       {isLoading ? (
         <div className="flex items-center justify-center rounded-3xl border border-slate-200 bg-white py-16">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
         </div>
       ) : (
         <>
+          {/* Nhóm chủ đề Grammar (12 thì) */}
           {grammarTopics.length > 0 && (
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
@@ -143,6 +152,7 @@ export const LearningHomePage: React.FC = () => {
             </div>
           )}
 
+          {/* Nhóm chủ đề Writing Skills (kỹ năng viết) */}
           {writingTopics.length > 0 && (
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
@@ -156,6 +166,7 @@ export const LearningHomePage: React.FC = () => {
             </div>
           )}
 
+          {/* Thông báo khi không có chủ đề nào phù hợp với bộ lọc */}
           {filtered.length === 0 && (
             <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center text-slate-400">
               Không tìm thấy chủ đề phù hợp.

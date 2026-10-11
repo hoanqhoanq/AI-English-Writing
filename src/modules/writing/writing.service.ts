@@ -8,6 +8,7 @@ import { memoryStore, MemorySession, MemoryAttempt, MemoryError } from "../../db
 import { aiService } from "../ai/ai.service";
 import { CefrLevel, DifficultyLevel } from "../../types";
 import { getGrammarStructureHint } from "./grammar-hints.constants";
+import { computeNextStreak } from "../../utils/streak";
 
 export class WritingService {
     private isMongoActive(): boolean {
@@ -538,8 +539,9 @@ export class WritingService {
 
                 user.totalWriting = total;
                 user.averageScore = newAvg;
+                // Streak theo ngày liên tiếp — phải tính trước khi ghi đè lastPracticeDate.
+                user.streak = computeNextStreak(user.streak, user.lastPracticeDate);
                 user.lastPracticeDate = new Date();
-                user.streak = (user.streak || 0) + 1;
                 await user.save();
             }
         } else {
@@ -626,7 +628,8 @@ export class WritingService {
                     ...u,
                     totalWriting: total,
                     averageScore: newAvg,
-                    streak: u.streak + 1,
+                    streak: computeNextStreak(u.streak, u.lastPracticeDate),
+                    lastPracticeDate: new Date(),
                     updatedAt: new Date(),
                 };
             }
@@ -685,6 +688,7 @@ export class WritingService {
 
         if (this.isMongoActive()) {
             const filter: any = { userId };
+            if (query.questionId) filter.questionId = query.questionId;
             if (query.level && query.level !== "All") filter.level = query.level;
             if (query.topic && query.topic !== "All") filter.topic = query.topic;
             if (query.status && query.status !== "All") filter.status = query.status;
@@ -708,6 +712,7 @@ export class WritingService {
             return { attempts, total, page, totalPages: Math.ceil(total / limit) };
         } else {
             let filtered = memoryStore.attempts.filter((a) => a.userId === userId);
+            if (query.questionId) filtered = filtered.filter((a) => a.questionId === query.questionId);
             if (query.level && query.level !== "All") filtered = filtered.filter((a) => a.level === query.level);
             if (query.topic && query.topic !== "All") filtered = filtered.filter((a) => a.topic === query.topic);
             if (query.status && query.status !== "All") filtered = filtered.filter((a) => a.status === query.status);

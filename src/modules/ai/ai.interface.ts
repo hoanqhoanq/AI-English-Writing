@@ -68,6 +68,8 @@ export interface AIProvider {
     evaluateParagraph(input: IParagraphEvaluationInput): Promise<IParagraphEvaluationResult>;
 
     generateParagraphPrompt(params: IGenerateParagraphPromptInput): Promise<IGeneratedParagraphPrompt>;
+
+    generateQuizQuestions(params: IGenerateQuizInput): Promise<IGeneratedQuizQuestion[]>;
 }
 
 export interface IGenerateQuestionsInput {
@@ -78,4 +80,41 @@ export interface IGenerateQuestionsInput {
     numberOfQuestions: number;
     // Optional: recent prompts to avoid repeating (used by AI Writing's "Thử đề khác").
     excludePrompts?: string[];
+}
+
+export interface IGenerateQuizInput {
+    difficulty: CefrLevel;
+    // One or more tense titles (e.g. "Present Simple") the quiz should cover.
+    grammarTopics: string[];
+    // Human-readable topic label, or a generic multi-topic instruction when the
+    // user picked "All" in the Grammar Quiz config screen.
+    topic: string;
+    questionCount: number;
+    // Optional explicit per-tense question counts (tense title -> count),
+    // summing to questionCount. When present, the prompt renders this exact
+    // breakdown instead of leaving distribution to the model. Used for both
+    // the initial batch and top-up/regeneration rounds (where counts are the
+    // still-missing amounts per tense).
+    perTenseTargets?: Record<string, number>;
+    // Question texts already accepted in a previous round of the same quiz
+    // generation — only set on regeneration/top-up calls, so the model knows
+    // not to repeat or reword them.
+    excludeQuestions?: string[];
+}
+
+export interface IGeneratedQuizQuestion {
+    question: string;
+    // Exactly 4 items.
+    options: string[];
+    // Index (0-3) into `options`.
+    correctAnswer: number;
+    explanation: string;
+    tense: string;
+    difficulty: CefrLevel;
+    topic: string;
+    // Which AIProvider produced this question ("gemini" or
+    // "heuristic_fallback") — set by ai.service.ts, used by quiz.service.ts to
+    // relax near-duplicate filtering for the intentionally-small Heuristic
+    // fallback template pool.
+    provider?: string;
 }

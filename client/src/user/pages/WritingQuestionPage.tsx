@@ -8,26 +8,31 @@ import { PracticeResultPanel } from '../components/PracticeResultPanel';
 import { PronounceButton } from '../components/PronounceButton';
 import { Send, RotateCcw, ArrowLeft, Lightbulb, ChevronDown, ChevronUp } from 'lucide-react';
 
+// Kiểu câu hỏi an toàn: không có đáp án chuẩn, vì API chỉ trả đáp án cho AI ở server sau khi nộp bài
 // The question bank's detail endpoint never returns the reference answer
 // pre-submit — this type reflects that at compile time too.
 type SafeWritingQuestion = Omit<WritingQuestion, 'referenceAnswer' | 'alternativeAnswers'>;
 
 export const WritingQuestionPage: React.FC = () => {
+  // Lấy id câu hỏi từ đường dẫn /writing/question/:questionId
   const { questionId } = useParams<{ questionId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { refreshUser } = useAuth();
 
+  // Trạng thái: câu trả lời đang gõ, kết quả chấm của AI (null khi chưa nộp) và cờ hiện/ẩn gợi ý
   const [answer, setAnswer] = useState('');
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
   const [showHints, setShowHints] = useState(false);
 
+  // Tải câu hỏi (GET /writing/questions/:id): đề tiếng Việt và gợi ý, không kèm đáp án
   const { data: question, isLoading, isError } = useQuery<SafeWritingQuestion>({
     queryKey: ['writing', 'question', questionId],
     queryFn: async () => (await api.get(`/writing/questions/${questionId}`)).data.data,
     enabled: !!questionId,
   });
 
+  // Nộp bài (POST /writing/attempts): server lấy đáp án chuẩn, AI chấm; thành công thì hiện kết quả và làm mới thống kê, streak
   const submitMutation = useMutation({
     mutationFn: async () => {
       const res = await api.post('/writing/attempts', {
@@ -44,18 +49,22 @@ export const WritingQuestionPage: React.FC = () => {
     },
   });
 
+  // Bấm Nộp bài: bỏ qua nếu ô trống hoặc đang chấm dở
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!answer.trim() || submitMutation.isPending) return;
     submitMutation.mutate();
   };
 
+  // Làm lại câu này: xóa kết quả để quay về ô nhập
   const handleRetry = () => {
     setEvaluation(null);
   };
 
+  // Đếm số từ của câu đang gõ để hiển thị dưới ô nhập
   const wordCount = answer.trim().split(/\s+/).filter(Boolean).length;
 
+  // Đang tải câu hỏi: hiện vòng quay chờ
   if (isLoading) {
     return (
       <div className="flex items-center justify-center rounded-3xl border border-slate-200 bg-white py-20">
@@ -64,6 +73,7 @@ export const WritingQuestionPage: React.FC = () => {
     );
   }
 
+  // Không tìm thấy câu hỏi (id sai hoặc câu hỏi đã bị xóa)
   if (isError || !question) {
     return (
       <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center">
@@ -75,12 +85,14 @@ export const WritingQuestionPage: React.FC = () => {
     );
   }
 
+  // Giao diện trang làm bài: đề bài, gợi ý, ô nhập câu trả lời hoặc kết quả chấm
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <Link to="/questions" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600">
         <ArrowLeft className="h-3.5 w-3.5" /> Quay lại Ngân hàng câu hỏi
       </Link>
 
+      {/* Thẻ đề bài: cấp độ, chủ đề, chủ điểm ngữ pháp và đề tiếng Việt kèm nút nghe phát âm */}
       <div className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm space-y-4">
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700 border border-indigo-200/60">
@@ -103,6 +115,7 @@ export const WritingQuestionPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Thẻ Gợi ý (từ vựng, ngữ pháp): gấp lại mặc định, chỉ hiện khi câu hỏi có gợi ý và không làm lộ đáp án */}
       {(!!question.hints?.vocabulary?.length || !!question.hints?.grammar) && (
         <div className="rounded-3xl border border-amber-200/70 bg-amber-50/40 shadow-sm overflow-hidden">
           <button
@@ -147,6 +160,7 @@ export const WritingQuestionPage: React.FC = () => {
         </div>
       )}
 
+      {/* Chưa nộp thì hiện ô nhập câu trả lời; đã nộp thì hiện kết quả chấm và các nút tiếp theo */}
       {!evaluation ? (
         <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm space-y-4">
           <label htmlFor="writing-question-answer" className="text-sm font-semibold text-slate-800">
@@ -163,12 +177,14 @@ export const WritingQuestionPage: React.FC = () => {
             autoFocus
           />
 
+          {/* Thông báo lỗi khi không gọi được AI chấm bài */}
           {submitMutation.isError && (
             <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs font-semibold text-rose-700">
               Không thể đánh giá bài viết lúc này. Vui lòng thử lại sau.
             </div>
           )}
 
+          {/* Bộ đếm từ/ký tự và nút Nộp bài (khóa khi ô trống hoặc đang chấm) */}
           <div className="flex items-center justify-between pt-2">
             <div className="text-xs text-slate-400">{wordCount} từ · {answer.length} ký tự</div>
             <button
@@ -192,6 +208,7 @@ export const WritingQuestionPage: React.FC = () => {
         </form>
       ) : (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
+          {/* Bảng kết quả dùng chung: điểm, 5 chỉ tiêu, lỗi, gợi ý và so sánh với lần nộp trước */}
           <PracticeResultPanel evaluation={evaluation} />
 
           <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-slate-100">

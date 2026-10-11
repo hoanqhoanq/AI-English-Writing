@@ -5,8 +5,6 @@ import {
   GraduationCap,
   Target,
   BookOpen,
-  CheckCircle2,
-  AlertTriangle,
   RefreshCw,
   Sparkles,
 } from 'lucide-react';

@@ -5,6 +5,8 @@ import { useAuth } from '../../context/AuthContext';
 import {
   AnalyticsOverview,
   AIWeaknessAnalysis,
+  QuizHistoryItem,
+  QuizStats,
 } from '../../types';
 import {
   BarChart3,
@@ -15,26 +17,43 @@ import {
   Sparkles,
   CheckCircle2,
   BookOpen,
+  ListChecks,
 } from 'lucide-react';
 
 export const AnalyticsPage: React.FC = () => {
+  // Lấy thông tin người dùng (mục tiêu ngày, streak, số bài) từ AuthContext
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
+  // Các truy vấn dữ liệu của trang (React Query): tự làm mới khi có bài mới, không cần tải lại trang, không polling
   // Query keys under ['analytics', 'overview'] are invalidated right after a
   // writing attempt is saved (Practice, Question Bank, Paragraph Writing), so
   // this refetches with fresh database numbers as soon as that happens —
   // no page reload needed, and no polling in between.
-  const { data: overview, isLoading } = useQuery<AnalyticsOverview>({
+  const { data: overview } = useQuery<AnalyticsOverview>({
     queryKey: ['analytics', 'overview'],
     queryFn: async () => (await api.get('/analytics/overview')).data.data,
   });
 
+  // Lấy bản chẩn đoán AI đã lưu gần nhất (GET /analytics/ai-analysis); chỉ đọc, không gọi AI
   const { data: aiAnalysis } = useQuery<AIWeaknessAnalysis>({
     queryKey: ['analytics', 'ai-analysis'],
     queryFn: async () => (await api.get('/analytics/ai-analysis')).data.data,
   });
 
+  // Lấy 5 bài Quiz gần nhất (GET /quiz/history)
+  const { data: quizHistory } = useQuery<{ attempts: QuizHistoryItem[] }>({
+    queryKey: ['quiz', 'history'],
+    queryFn: async () => (await api.get('/quiz/history', { params: { limit: 5 } })).data.data,
+  });
+
+  // Lấy thống kê Quiz: điểm trung bình, tỷ lệ đúng tổng và theo từng thì (GET /quiz/stats)
+  const { data: quizStats } = useQuery<QuizStats>({
+    queryKey: ['quiz', 'stats'],
+    queryFn: async () => (await api.get('/quiz/stats')).data.data,
+  });
+
+  // Khi học viên bấm nút: gọi AI chẩn đoán điểm yếu mới (POST /analytics/ai-analysis) rồi cập nhật thẻ chẩn đoán ngay
   const triggerAIMutation = useMutation({
     mutationFn: async () => (await api.post('/analytics/ai-analysis')).data.data as AIWeaknessAnalysis,
     onSuccess: (data) => {
@@ -46,14 +65,16 @@ export const AnalyticsPage: React.FC = () => {
     },
   });
 
+  // Xử lý nút Chẩn đoán điểm yếu AI mới
   const handleTriggerAIAnalysis = () => {
     triggerAIMutation.mutate();
   };
   const loadingAI = triggerAIMutation.isPending;
 
+  // Giao diện trang Thống kê: số liệu tổng quan, chẩn đoán điểm yếu của AI, thống kê Grammar Quiz
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {/* Header */}
+      {/* Phần đầu trang: tiêu đề và nút yêu cầu AI chẩn đoán điểm yếu */}
       <div className="border-b border-slate-200/80 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-2">
@@ -85,7 +106,7 @@ export const AnalyticsPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Top 3 Metrics */}
+      {/* Ba thẻ số liệu: tổng số câu đã viết, điểm trung bình, chuỗi ngày học (streak) */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between text-slate-500">
@@ -121,14 +142,14 @@ export const AnalyticsPage: React.FC = () => {
             </div>
           </div>
           <p className="mt-2 text-3xl font-extrabold text-amber-600">
-            {user?.streak ?? 4}{' '}
+            {user?.streak ?? 0}{' '}
             <span className="text-sm font-semibold text-slate-400">ngày</span>
           </p>
           <p className="mt-1 text-xs text-amber-600 font-medium">Duy trì phong độ đều đặn!</p>
         </div>
       </div>
 
-      {/* AI Diagnosis Card */}
+      {/* Thẻ báo cáo chẩn đoán điểm yếu của AI (chỉ hiện khi đã có bản chẩn đoán được lưu) */}
       {aiAnalysis && (
         <div className="rounded-3xl border border-indigo-200 bg-gradient-to-br from-indigo-50/70 via-white to-purple-50/50 p-6 sm:p-8 shadow-sm space-y-5">
           <div className="flex items-center justify-between">
@@ -152,7 +173,7 @@ export const AnalyticsPage: React.FC = () => {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Strengths */}
+            {/* Cột Điểm mạnh nổi bật */}
             <div className="rounded-2xl bg-emerald-50/60 border border-emerald-200/80 p-4 space-y-2">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600" />
@@ -171,7 +192,7 @@ export const AnalyticsPage: React.FC = () => {
               </ul>
             </div>
 
-            {/* Recommendations */}
+            {/* Cột Khuyến nghị cải thiện */}
             <div className="rounded-2xl bg-amber-50/60 border border-amber-200/80 p-4 space-y-2">
               <span className="text-xs font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1.5">
                 <AlertTriangle className="h-4 w-4 text-amber-600" />
@@ -190,6 +211,71 @@ export const AnalyticsPage: React.FC = () => {
               </ul>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Thẻ thống kê Grammar Quiz: tỷ lệ đúng theo thì và lịch sử làm bài (chỉ hiện khi đã làm ít nhất một bài) */}
+      {quizStats && quizStats.totalQuizzes > 0 && (
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-5">
+          <div className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+              <ListChecks className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-900">Grammar Quiz</h3>
+              <p className="text-xs text-slate-500">
+                {quizStats.totalQuizzes} bài đã làm · Điểm trung bình {quizStats.averageScore}/100 · Tỷ lệ đúng{' '}
+                {quizStats.overallAccuracy}%
+              </p>
+            </div>
+          </div>
+
+          {/* Tỷ lệ đúng theo từng thì, thì làm sai nhiều nhất đứng đầu; thanh xanh từ 80% trở lên, vàng từ 60%, đỏ dưới 60% */}
+          {quizStats.accuracyByTense.length > 0 && (
+            <div className="space-y-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Tỷ lệ đúng theo thì (thường sai nhất trước)
+              </span>
+              <div className="space-y-1.5">
+                {quizStats.accuracyByTense.slice(0, 6).map((t) => (
+                  <div key={t.tense} className="flex items-center gap-3">
+                    <span className="w-40 shrink-0 truncate text-xs font-medium text-slate-700">{t.tense}</span>
+                    <div className="h-2 flex-1 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${
+                          t.accuracy >= 80 ? 'bg-emerald-500' : t.accuracy >= 60 ? 'bg-amber-500' : 'bg-rose-500'
+                        }`}
+                        style={{ width: `${t.accuracy}%` }}
+                      />
+                    </div>
+                    <span className="w-10 shrink-0 text-right text-xs font-bold text-slate-600">{t.accuracy}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Danh sách các bài Quiz gần nhất */}
+          {quizHistory && quizHistory.attempts.length > 0 && (
+            <div className="space-y-2 border-t border-slate-100 pt-4">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Lịch sử gần đây</span>
+              <div className="space-y-1.5">
+                {quizHistory.attempts.map((a) => (
+                  <div
+                    key={a._id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs"
+                  >
+                    <span className="font-semibold text-slate-700">
+                      {a.difficulty} • {a.grammar} • {a.questionCount} câu
+                    </span>
+                    <span className="font-bold text-indigo-700">
+                      {a.correctCount}/{a.questionCount} ({a.score} điểm)
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

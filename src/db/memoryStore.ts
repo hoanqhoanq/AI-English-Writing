@@ -11,6 +11,7 @@ export interface MemoryUser {
     avatar?: string;
     dailyGoal: number;
     streak: number;
+    lastPracticeDate?: Date;
     totalWriting: number;
     averageScore: number;
     isActive: boolean;

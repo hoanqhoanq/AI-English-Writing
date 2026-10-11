@@ -19,14 +19,3 @@ export const SubmitAttemptSchema = z
         message: "Vui lòng nhập câu trả lời tiếng Anh của bạn",
         path: ["answer"],
     });
-
-export const HistoryQuerySchema = z.object({
-    page: z.coerce.number().default(1),
-    limit: z.coerce.number().default(10),
-    level: z.string().optional(),
-    topic: z.string().optional(),
-    status: z.enum(["correct", "partially_correct", "incorrect"]).optional(),
-    errorType: z.string().optional(),
-    startDate: z.string().optional(),
-    endDate: z.string().optional(),
-});

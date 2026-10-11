@@ -17,6 +17,7 @@ import LearningTopicPage from '../user/pages/LearningTopicPage';
 import LearningProgressPage from '../user/pages/LearningProgressPage';
 import ParagraphWritingPage from '../user/pages/ParagraphWritingPage';
 import ParagraphTopicPage from '../user/pages/ParagraphTopicPage';
+import GrammarQuizPage from '../user/pages/GrammarQuizPage';
 import ProtectedRoute from './ProtectedRoute';
 import UserRoute from './UserRoute';
 import RootRedirect from '../pages/RootRedirect';
@@ -50,6 +51,7 @@ export const AppRoutes: React.FC = () => {
             <Route path="/learning/:category/:slug" element={<LearningTopicPage />} />
             <Route path="/paragraph-writing" element={<ParagraphWritingPage />} />
             <Route path="/paragraph-writing/:topicId" element={<ParagraphTopicPage />} />
+            <Route path="/quiz" element={<GrammarQuizPage />} />
           </Route>
         </Route>
       </Route>

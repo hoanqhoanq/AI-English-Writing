@@ -262,7 +262,10 @@ export class AnalyticsService {
         return { scoreTimeline, weeklyActivity };
     }
 
+    // Only ever called from the explicit "Chẩn đoán điểm yếu AI mới" button
+    // (POST /analytics/ai-analysis) — never from the lazy GET lookup above.
     async performAIAnalysis(userId: string) {
+        console.log(`[AI SERVICE] Analytics AI analysis requested explicitly (userId=${userId})`);
         const userLevel: CefrLevel = DEFAULT_ANALYSIS_LEVEL;
         let attempts: any[] = [];
         let errors: any[] = [];
@@ -380,15 +383,22 @@ export class AnalyticsService {
         }
     }
 
+    // Read-only lookup — must NEVER call Gemini. Previously fell back to
+    // performAIAnalysis() (a real Gemini call) when no analysis existed yet,
+    // which meant simply opening the Analytics page (this is fetched by a
+    // useQuery that runs on mount) could silently spend Gemini quota before
+    // the user ever asked for an AI diagnosis. Returning null when none
+    // exists is safe: the frontend already guards on `{aiAnalysis && (...)}`
+    // and simply omits the AI Diagnosis card. The explicit "Chẩn đoán điểm
+    // yếu AI mới" button (POST /analytics/ai-analysis → performAIAnalysis)
+    // is unaffected and remains the only way to trigger a real analysis.
     async getLatestAIAnalysis(userId: string) {
         if (this.isMongoActive()) {
             const doc = await AIAnalysisModel.findOne({ userId }).sort({ createdAt: -1 });
-            if (!doc) return this.performAIAnalysis(userId);
-            return doc;
+            return doc || null;
         } else {
             const doc = memoryStore.analyses.find((a) => a.userId === userId);
-            if (!doc) return this.performAIAnalysis(userId);
-            return doc;
+            return doc || null;
         }
     }
 
