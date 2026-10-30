@@ -1,0 +1,18 @@
+name: ai-english-writing
+values:
+  - key: baseUrl
+    value: ''
+  - key: userEmail
+    value: ''
+  - key: userPassword
+    value: ''
+  - key: userAccessToken
+    secret: true
+  - key: adminEmail
+    value: ''
+  - key: adminPassword
+    value: ''
+  - key: adminAccessToken
+    secret: true
+  - key: userId
+    secret: true

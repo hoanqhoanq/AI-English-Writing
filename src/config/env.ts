@@ -81,5 +81,41 @@ export const config = {
         .map((name) => name.trim().toLowerCase())
         .filter(Boolean),
 
+    // AI Quiz Solver (upload PDF/DOCX → answers). Solving a whole quiz is a
+    // much larger generation than grading one sentence, so it gets its own
+    // per-call timeout instead of the 6s cap used by the grading calls, plus a
+    // total deadline for the whole job (all batches/providers together).
+    quizSolver: {
+        maxFileMb: positiveNumber(process.env.QUIZ_SOLVER_MAX_FILE_MB, 10),
+        maxPdfPages: positiveNumber(process.env.QUIZ_SOLVER_MAX_PDF_PAGES, 50),
+        aiTimeoutMs: positiveNumber(process.env.QUIZ_SOLVER_AI_TIMEOUT_MS, 45000),
+        // Max time on one provider (all its fallback models) before trying the
+        // next provider — an overloaded Gemini can't stall the whole solve.
+        providerBudgetMs: positiveNumber(process.env.QUIZ_SOLVER_PROVIDER_BUDGET_MS, 50000),
+        jobTimeoutMs: positiveNumber(process.env.QUIZ_SOLVER_JOB_TIMEOUT_MS, 180000),
+        // Estimated prompt tokens / questions per AI call. A quiz that fits
+        // is solved in a single call; longer ones are split into batches.
+        batchMaxTokens: positiveNumber(process.env.QUIZ_SOLVER_BATCH_MAX_TOKENS, 5000),
+        batchMaxQuestions: positiveNumber(process.env.QUIZ_SOLVER_BATCH_MAX_QUESTIONS, 15),
+        concurrency: positiveNumber(process.env.QUIZ_SOLVER_CONCURRENCY, 2),
+        // Hard cap on extracted text, so one upload can't turn into an
+        // unbounded number of AI calls.
+        maxTextChars: positiveNumber(process.env.QUIZ_SOLVER_MAX_TEXT_CHARS, 150000),
+        // How long a finished result stays in memory (re-uploading the same
+        // file or refreshing the page returns it without a new AI call).
+        resultTtlMs: positiveNumber(process.env.QUIZ_SOLVER_RESULT_TTL_MS, 15 * 60 * 1000),
+        // Optional Gemini thinking level for quiz solving (minimal|low|medium|high).
+        // Unset = the model's own default; only change it after checking accuracy.
+        geminiThinkingLevel: (() => {
+            const raw = (process.env.QUIZ_SOLVER_GEMINI_THINKING_LEVEL || "").trim().toLowerCase();
+            return ["minimal", "low", "medium", "high"].includes(raw) ? raw : "";
+        })(),
+    },
+
     nodeEnv: process.env.NODE_ENV || "development",
 };
+
+function positiveNumber(raw: string | undefined, fallback: number): number {
+    const value = Number(raw);
+    return Number.isFinite(value) && value > 0 ? value : fallback;
+}

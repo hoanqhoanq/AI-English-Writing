@@ -4,9 +4,12 @@ import { ApiResponse } from "../utils/apiResponse";
 // Simple in-memory rate limiter for AI requests
 const requestCounts = new Map<string, { count: number; resetTime: number }>();
 
-export const aiRateLimiter = (maxRequests: number = 30, windowMs: number = 60 * 1000) => {
+// `scope` (optional) gives an endpoint its own counter instead of sharing the
+// per-user counter with every other AI endpoint.
+export const aiRateLimiter = (maxRequests: number = 30, windowMs: number = 60 * 1000, scope?: string) => {
     return (req: Request, res: Response, next: NextFunction): void => {
-        const key = req.user?.id || req.ip || "unknown";
+        const userKey = req.user?.id || req.ip || "unknown";
+        const key = scope ? `${scope}:${userKey}` : userKey;
         const now = Date.now();
         const record = requestCounts.get(key);
 

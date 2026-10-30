@@ -70,6 +70,24 @@ export interface AIProvider {
     generateParagraphPrompt(params: IGenerateParagraphPromptInput): Promise<IGeneratedParagraphPrompt>;
 
     generateQuizQuestions(params: IGenerateQuizInput): Promise<IGeneratedQuizQuestion[]>;
+
+    // Optional raw JSON generation for features that build their own prompt
+    // and validate the result themselves (AI Quiz Solver). Only real AI
+    // providers implement it — the Heuristic provider deliberately does not,
+    // so such features never receive rule-generated "answers".
+    generateJson?(prompt: string, options: IRawJsonOptions): Promise<string>;
+}
+
+export interface IRawJsonOptions {
+    // Per-call timeout (replaces the default 6s cap used by grading calls).
+    timeoutMs: number;
+    // Absolute epoch-ms deadline for the whole operation; no new model call
+    // is started after it.
+    deadline?: number;
+    // Only applied by OpenAI-compatible providers (Gemini keeps its default).
+    temperature?: number;
+    // Gemini thinking level, if explicitly configured.
+    thinkingLevel?: string;
 }
 
 export interface IGenerateQuestionsInput {

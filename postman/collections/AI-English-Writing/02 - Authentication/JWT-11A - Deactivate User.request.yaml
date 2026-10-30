@@ -1,0 +1,12 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/users/{{userId}}/status"
+method: PUT
+body:
+  type: json
+  content: "{\r\n  \"isActive\": true\r\n}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{adminAccessToken}}"
+order: 20000

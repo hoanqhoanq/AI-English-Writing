@@ -1,0 +1,9 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/writing/questions?level=A1&limit=5&page=1"
+method: GET
+queryParams:
+  level: A1
+  limit: "5"
+  page: "1"
+order: 1000

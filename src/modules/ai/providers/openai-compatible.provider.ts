@@ -8,6 +8,7 @@ import {
     IWeaknessAnalysisInput,
     IGenerateQuizInput,
     IGeneratedQuizQuestion,
+    IRawJsonOptions,
 } from "../ai.interface";
 import {
     CefrLevel,
@@ -63,11 +64,12 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
     // per-model timeout) via AbortController. Throws immediately on any
     // connectivity/HTTP failure — no retry here, so a request is bounded by
     // exactly one call per provider in the ai.service.ts fallback chain.
-    private async callChatJson(prompt: string, temperature?: number): Promise<string> {
+    private async callChatJson(prompt: string, temperature?: number, timeoutOverrideMs?: number): Promise<string> {
         if (!this.apiKey) {
             throw new Error(`${this.name} API key is not configured`);
         }
-        const timeoutMs = Math.min(config.geminiRequestTimeoutMs, 6000);
+        // Only generateJson() (AI Quiz Solver) passes its own, longer timeout.
+        const timeoutMs = timeoutOverrideMs ?? Math.min(config.geminiRequestTimeoutMs, 6000);
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), timeoutMs);
         const start = Date.now();
@@ -138,9 +140,9 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
     // attempt is retried like any other malformed response. Every other
     // failure (429/503/timeout/network/...) still throws immediately so the
     // ai.service.ts chain moves on to the next provider — no connectivity retry.
-    private async callChatJsonForValidationLoop(prompt: string, temperature?: number): Promise<string> {
+    private async callChatJsonForValidationLoop(prompt: string, temperature?: number, timeoutOverrideMs?: number): Promise<string> {
         try {
-            return await this.callChatJson(prompt, temperature);
+            return await this.callChatJson(prompt, temperature, timeoutOverrideMs);
         } catch (err: any) {
             if (err?.__isJsonValidateFailed) {
                 return "";
@@ -165,6 +167,22 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
     private looksVietnamese(text: string): boolean {
         const matches = text.match(VIETNAMESE_DIACRITICS_REGEX);
         return !!matches && matches.length >= MIN_VIETNAMESE_DIACRITIC_MATCHES;
+    }
+
+    // Raw JSON for callers that validate the result themselves (AI Quiz
+    // Solver). A provider-side json_validate_failed comes back as "" so the
+    // caller's validation retry handles it like any other malformed output.
+    async generateJson(prompt: string, options: IRawJsonOptions): Promise<string> {
+        let timeoutMs = options.timeoutMs;
+        if (options.deadline !== undefined) {
+            const remaining = options.deadline - Date.now();
+            if (remaining < 3000) {
+                throw new Error(`${this.name} request timed out (deadline reached)`);
+            }
+            timeoutMs = Math.min(timeoutMs, remaining);
+        }
+        const raw = await this.callChatJsonForValidationLoop(prompt, options.temperature, timeoutMs);
+        return this.cleanJsonString(raw);
     }
 
     async generateWritingQuestions(params: IGenerateQuestionsInput): Promise<IGeneratedQuestion[]> {

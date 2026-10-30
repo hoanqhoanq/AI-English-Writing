@@ -13,6 +13,7 @@ import {
   X,
   Compass,
   ListChecks,
+  FileQuestion,
 } from 'lucide-react';
 
 export const UserNavbar: React.FC = () => {
@@ -29,6 +30,7 @@ export const UserNavbar: React.FC = () => {
     { name: 'Writing Learning', path: '/learning', icon: Compass },
     { name: 'Ngân hàng câu', path: '/questions', icon: BookOpen },
     { name: 'Grammar Quiz', path: '/quiz', icon: ListChecks },
+    { name: 'AI Quiz Solver', path: '/quiz-solver', icon: FileQuestion },
     { name: 'Thống kê & Lỗi', path: '/analytics', icon: BarChart3 },
   ];
 

@@ -1,0 +1,20 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/auth/register"
+method: POST
+body:
+  type: json
+  content: "\r
+
+    {\r
+
+    \  \"name\": \"Postman Tester\",\r
+
+    \  \"email\": \"jwt.test.20261015.001@example.com\",\r
+
+    \  \"password\": \"Password123\",\r
+
+    \  \"confirmPassword\": \"Password123\"\r
+
+    }\r\n"
+order: 7000

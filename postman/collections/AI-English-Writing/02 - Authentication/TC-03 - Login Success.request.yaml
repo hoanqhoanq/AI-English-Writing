@@ -1,0 +1,32 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/auth/login"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"email\": \"{{userEmail}}\",\r
+
+    \  \"password\": \"{{userPassword}}\"\r
+
+    }"
+scripts:
+  - type: afterResponse
+    code: "const body = pm.response.json();\r
+
+      \r
+
+      if (body.success && body.data?.accessToken) {\r
+
+      \    pm.environment.set(\r
+
+      \        \"userAccessToken\",\r
+
+      \        body.data.accessToken\r
+
+      \    );\r
+
+      }"
+    language: text/javascript
+order: 1000

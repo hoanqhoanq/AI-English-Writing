@@ -15,6 +15,7 @@ import analyticsRouter from "./modules/analytics/analytics.route";
 import paragraphRouter from "./modules/paragraph/paragraph.route";
 import learningRouter from "./modules/learning/learning.route";
 import quizRouter from "./modules/quiz/quiz.route";
+import quizSolverRouter from "./modules/quiz-solver/quiz-solver.route";
 import { errorHandler } from "./middlewares/error.middleware";
 
 const app = express();
@@ -74,6 +75,7 @@ app.use("/api/analytics", analyticsRouter); // Thống kê cá nhân, thống k�
 app.use("/api/paragraph", paragraphRouter); // Luyện viết đoạn văn: đề, nộp bài, lịch sử các lần sửa
 app.use("/api/learning", learningRouter); // Học ngữ pháp theo chủ đề, tiến độ, AI sinh câu hỏi luyện viết
 app.use("/api/quiz", quizRouter); // Trắc nghiệm ngữ pháp: sinh quiz bằng AI, nộp bài, lịch sử, thống kê
+app.use("/api/quiz-solver", quizSolverRouter); // AI Quiz Solver: tải đề PDF/DOCX, AI trả đáp án + giải thích (không lưu DB)
 
 // Path to client frontend build (client/dist)
 const possibleDistPaths = [

@@ -575,3 +575,51 @@ export interface QuizStats {
   accuracyByLevel: { level: string; accuracy: number; total: number }[];
 }
 
+
+// ---- AI Quiz Solver (mirrors src/modules/quiz-solver/quiz-solver.schema.ts) ----
+
+export interface QuizSolverOption {
+  label: string;
+  text: string;
+}
+
+export interface QuizSolverQuestion {
+  number: number;
+  sourceNumber: number;
+  contextId: string | null;
+  question: string;
+  options: QuizSolverOption[];
+  answer: string | null;
+  answerText: string | null;
+  alternatives: string[];
+  explanation: string;
+  confidence: 'high' | 'medium' | 'low';
+  needsReview: boolean;
+  status: 'solved' | 'unanswerable' | 'failed';
+}
+
+export interface QuizSolverResult {
+  fileName: string;
+  fileType: 'pdf' | 'docx';
+  parseMode: 'structured' | 'ai_detected';
+  questions: QuizSolverQuestion[];
+  contexts: { id: string; text: string }[];
+  warnings: string[];
+  summary: { total: number; answered: number; needsReview: number; failed: number };
+  batches: { total: number; failed: number };
+  providers: string[];
+  timings: { extractionMs: number; parsingMs: number; aiMs: number; finalizeMs: number; totalMs: number };
+}
+
+export type QuizSolverStage = 'extracting' | 'parsing' | 'solving' | 'finalizing' | 'done';
+
+export interface QuizSolverJob {
+  jobId: string;
+  status: 'processing' | 'completed' | 'failed';
+  stage: QuizSolverStage;
+  progress: { completedBatches: number; totalBatches: number };
+  fileName: string;
+  reused: boolean;
+  result?: QuizSolverResult;
+  error?: { code: string; message: string };
+}

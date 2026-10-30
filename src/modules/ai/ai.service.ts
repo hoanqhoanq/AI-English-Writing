@@ -7,6 +7,7 @@ import {
     IWeaknessAnalysisInput,
     IGenerateQuizInput,
     IGeneratedQuizQuestion,
+    IRawJsonOptions,
 } from "./ai.interface";
 import { GeminiProvider } from "./providers/gemini.provider";
 import { GroqProvider } from "./providers/groq.provider";
@@ -167,6 +168,63 @@ export class AIService {
         const { result, providerName } = await this.runWithFallback((provider) => provider.generateParagraphPrompt(params));
         console.log(`[AI SERVICE] Paragraph prompt generated in ${Date.now() - startTime}ms (Provider: ${providerName})`);
         return result;
+    }
+
+    // Raw-JSON generation for features that must NEVER receive rule-generated
+    // content (AI Quiz Solver): same provider order as runWithFallback(), but
+    // with no Heuristic fallback — if every real provider fails, this throws.
+    // `parse` validates the raw text; an invalid response is retried on the
+    // same provider (bounded by maxValidationAttempts), while connectivity /
+    // quota / timeout errors move straight on to the next provider (each
+    // provider already applies its own model fallback — no extra retry layer).
+    async generateValidatedJson<T>(
+        prompt: string,
+        parse: (raw: string) => T,
+        // providerBudgetMs: max time spent on ONE provider (all its models and
+        // validation attempts) before moving on — so an overloaded provider
+        // can't use up the whole deadline while the next one is healthy.
+        options: IRawJsonOptions & { maxValidationAttempts?: number; providerBudgetMs?: number }
+    ): Promise<{ result: T; providerName: string }> {
+        const providers = this.providers.filter((p) => typeof p.generateJson === "function");
+        if (providers.length === 0) {
+            const err: any = new Error("No AI provider configured for raw JSON generation");
+            err.__noAIProvider = true;
+            throw err;
+        }
+
+        const maxValidationAttempts = options.maxValidationAttempts ?? 2;
+        let lastError: any = null;
+
+        for (const provider of providers) {
+            const budgetDeadline = options.providerBudgetMs !== undefined ? Date.now() + options.providerBudgetMs : undefined;
+            const deadline =
+                budgetDeadline !== undefined && options.deadline !== undefined
+                    ? Math.min(budgetDeadline, options.deadline)
+                    : budgetDeadline ?? options.deadline;
+            for (let attempt = 1; attempt <= maxValidationAttempts; attempt++) {
+                if (options.deadline !== undefined && Date.now() >= options.deadline) {
+                    throw lastError || new Error("AI request timed out (deadline reached)");
+                }
+                if (deadline !== undefined && Date.now() >= deadline) break;
+                let raw: string;
+                try {
+                    raw = await provider.generateJson!(prompt, { ...options, deadline });
+                } catch (error: any) {
+                    lastError = error;
+                    console.warn(`[AI SERVICE] generateValidatedJson: provider ${provider.name} failed: ${String(error?.message || error).slice(0, 200)}`);
+                    break;
+                }
+                try {
+                    return { result: parse(raw), providerName: provider.name };
+                } catch (error: any) {
+                    lastError = error;
+                    lastError.__isValidationError = true;
+                    console.warn(`[AI SERVICE] generateValidatedJson: provider ${provider.name} attempt ${attempt}/${maxValidationAttempts} returned an invalid response: ${String(error?.message || error).slice(0, 200)}`);
+                }
+            }
+        }
+
+        throw lastError || new Error("All AI providers failed");
     }
 
     async generateQuiz(params: IGenerateQuizInput): Promise<IGeneratedQuizQuestion[]> {

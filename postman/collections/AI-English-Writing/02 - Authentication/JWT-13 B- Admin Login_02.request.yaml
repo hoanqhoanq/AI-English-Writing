@@ -1,0 +1,9 @@
+$kind: http-request
+description: ""
+url: " {{baseUrl}}/api/analytics/admin/stats"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{adminAccessToken}}"
+order: 17000

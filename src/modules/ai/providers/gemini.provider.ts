@@ -9,6 +9,7 @@ import {
     IWeaknessAnalysisInput,
     IGenerateQuizInput,
     IGeneratedQuizQuestion,
+    IRawJsonOptions,
 } from "../ai.interface";
 import {
     CefrLevel,
@@ -225,13 +226,15 @@ export class GeminiProvider implements AIProvider {
     private async callGeminiWithTimeout(
         client: GoogleGenAI,
         model: string,
-        prompt: string
+        prompt: string,
+        options: { timeoutMs?: number; thinkingLevel?: string } = {}
     ): Promise<{ text?: string }> {
         // Hard per-model cap of 6s regardless of GEMINI_REQUEST_TIMEOUT_MS, so 3
         // candidate models can never take longer than ~18s total (was up to 30s
         // at the previous 10s/model default) while still honoring a smaller
-        // configured value if one is set.
-        const timeoutMs = Math.min(config.geminiRequestTimeoutMs, 6000);
+        // configured value if one is set. Only generateJson() (AI Quiz Solver)
+        // passes its own, longer timeout.
+        const timeoutMs = options.timeoutMs ?? Math.min(config.geminiRequestTimeoutMs, 6000);
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), timeoutMs);
         try {
@@ -241,6 +244,7 @@ export class GeminiProvider implements AIProvider {
                 config: {
                     responseMimeType: "application/json",
                     abortSignal: controller.signal,
+                    ...(options.thinkingLevel ? { thinkingConfig: { thinkingLevel: options.thinkingLevel as any } } : {}),
                 },
             });
         } catch (err: any) {
@@ -266,7 +270,10 @@ export class GeminiProvider implements AIProvider {
     // quota (429) and not_found (404) also just move to the next model — the
     // only case that aborts the whole list immediately is "fatal" (a
     // non-retryable error like bad request/auth, where no model would help).
-    private async generateJsonWithFallback(prompt: string): Promise<string> {
+    private async generateJsonWithFallback(
+        prompt: string,
+        options: { timeoutMs?: number; deadline?: number; thinkingLevel?: string } = {}
+    ): Promise<string> {
         const client = this.getClient();
         const candidateModels = [
             config.geminiModel,
@@ -280,10 +287,24 @@ export class GeminiProvider implements AIProvider {
         // so a request is bounded by (number of models) x (per-model timeout),
         // never by repeated retries on the same already-failing model.
         for (const model of candidateModels) {
+            // Overall deadline (AI Quiz Solver only): never start another model
+            // call once the whole operation's time budget is spent.
+            let timeoutMs = options.timeoutMs;
+            if (options.deadline !== undefined) {
+                const remaining = options.deadline - Date.now();
+                if (remaining < 3000) {
+                    lastError = lastError || new Error("Gemini request timed out (deadline reached)");
+                    break;
+                }
+                timeoutMs = Math.min(timeoutMs ?? remaining, remaining);
+            }
             console.log(`[Gemini Provider] Calling model "${model}"...`);
             const callStart = Date.now();
             try {
-                const response = await this.callGeminiWithTimeout(client, model, prompt);
+                const response = await this.callGeminiWithTimeout(client, model, prompt, {
+                    timeoutMs,
+                    thinkingLevel: options.thinkingLevel,
+                });
                 const elapsed = Date.now() - callStart;
                 if (response.text) {
                     console.log(`[Gemini Provider] Model "${model}" succeeded in ${elapsed}ms`);
@@ -329,6 +350,18 @@ export class GeminiProvider implements AIProvider {
             cleaned = cleaned.replace(/\s*```$/, "");
         }
         return cleaned.trim();
+    }
+
+    // Raw JSON for callers that validate the result themselves (AI Quiz
+    // Solver). Same candidate-model fallback as every other method, but with
+    // the caller's timeout/deadline instead of the 6s grading cap.
+    async generateJson(prompt: string, options: IRawJsonOptions): Promise<string> {
+        const raw = await this.generateJsonWithFallback(prompt, {
+            timeoutMs: options.timeoutMs,
+            deadline: options.deadline,
+            thinkingLevel: options.thinkingLevel,
+        });
+        return this.cleanJsonString(raw);
     }
 
     async generateWritingQuestions(params: IGenerateQuestionsInput): Promise<IGeneratedQuestion[]> {

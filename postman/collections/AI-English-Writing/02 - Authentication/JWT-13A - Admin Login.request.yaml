@@ -1,0 +1,36 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/auth/admin/login"
+method: POST
+body:
+  type: json
+  content: "\r
+
+    {\r
+
+    \  \"email\": \"{{adminEmail}}\",\r
+
+    \  \"password\": \"{{adminPassword}}\"\r
+
+    }\r\n"
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: "const body = pm.response.json();\r
+
+      \r
+
+      if (body.success && body.data?.accessToken) {\r
+
+      \    pm.environment.set(\r
+
+      \        \"adminAccessToken\",\r
+
+      \        body.data.accessToken\r
+
+      \    );\r
+
+      }"
+    language: text/javascript
+order: 16000

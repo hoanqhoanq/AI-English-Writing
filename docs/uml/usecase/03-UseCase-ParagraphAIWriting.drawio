@@ -1,0 +1,61 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.0 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.3.0">
+  <diagram id="03-UseCase-ParagraphAIWriting.drawio" name="Use Case - Paragraph AI Writing">
+    <mxGraphModel dx="1028" dy="611" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="c1" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#F5F7FF;strokeColor=#334155;fontSize=12;fontStyle=1;" value="Member" vertex="1">
+          <mxGeometry height="80" width="40" x="270" y="327.5" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F5F7FF;strokeColor=#4F46E5;fontSize=12;fontStyle=1;" value="Luyện viết đoạn văn&lt;br&gt;có AI đánh giá&lt;br&gt;(Paragraph AI Writing)" vertex="1">
+          <mxGeometry height="65" width="240" x="350" y="335" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" edge="1" parent="1" source="c1" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" target="c2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F5F7FF;strokeColor=#4F46E5;fontSize=11;" value="Viết &amp;amp; nộp đoạn văn" vertex="1">
+          <mxGeometry height="64" width="210" x="540" y="135" as="geometry" />
+        </mxCell>
+        <mxCell id="c5" edge="1" parent="1" source="c2" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" target="c4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c6" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F5F7FF;strokeColor=#4F46E5;fontSize=11;" value="Xem điểm, lỗi, nhận xét&lt;br&gt;theo 7 tiêu chí (AI Evaluation)" vertex="1">
+          <mxGeometry height="64" width="210" x="700" y="199" as="geometry" />
+        </mxCell>
+        <mxCell id="c7" edge="1" parent="1" source="c2" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" target="c6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c8" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F5F7FF;strokeColor=#4F46E5;fontSize=11;" value="Chọn chủ đề có sẵn&lt;br&gt;hoặc tự nhập + độ khó" vertex="1">
+          <mxGeometry height="64" width="210" x="730" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="c9" edge="1" parent="1" source="c2" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" target="c8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c10" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F5F7FF;strokeColor=#4F46E5;fontSize=11;" value="AI sinh đề bài&lt;br&gt;tiếng Việt (Generate Topic)" vertex="1">
+          <mxGeometry height="64" width="210" x="720" y="382" as="geometry" />
+        </mxCell>
+        <mxCell id="c11" edge="1" parent="1" source="c2" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" target="c10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c12" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F5F7FF;strokeColor=#4F46E5;fontSize=11;" value="Sửa lại &amp;amp; nộp lại&lt;br&gt;(Rewrite)" vertex="1">
+          <mxGeometry height="64" width="210" x="650" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="c13" edge="1" parent="1" source="c2" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" target="c12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c14" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F5F7FF;strokeColor=#4F46E5;fontSize=11;" value="Xem thống kê riêng&lt;br&gt;(số lượt, điểm TB)" vertex="1">
+          <mxGeometry height="64" width="210" x="540" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="c15" edge="1" parent="1" source="c2" style="endArrow=none;html=1;rounded=0;strokeColor=#334155;" target="c14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c16" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontStyle=2;fontSize=12;fontColor=#475569;" value="Hình 3 Biểu đồ use case Paragraph AI Writing" vertex="1">
+          <mxGeometry height="30" width="500" x="220" y="712" as="geometry" />
+        </mxCell>
+        <mxCell id="aoEIxHEFOR-xbFWVarZ7-1" parent="1" style="swimlane;startSize=0;" value="" vertex="1">
+          <mxGeometry height="580" width="620" x="340" y="110" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
